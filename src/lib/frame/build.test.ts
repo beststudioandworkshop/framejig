@@ -1,10 +1,18 @@
 import { describe, expect, it } from "vitest"
 
-import { buildFrame, DEFAULT_INPUTS, switchMode } from "./index"
+import { buildFrame, DEFAULT_INPUTS, switchDriver, syncDerived } from "./index"
 import type { FrameInputs, KeyPoints } from "./types"
 import { dist } from "./vec"
 
 const base = DEFAULT_INPUTS
+
+const KEY_FIELDS = {
+  bb: ["drop", "height"],
+  rear: ["chainstay", "rearCentre"],
+  seat: ["ct", "cc"],
+  horizontal: ["effectiveTopTube", "frontCentre", "reach"],
+  vertical: ["headTubeLength", "stack"],
+} as const
 const rad = (d: number) => (d * Math.PI) / 180
 const deg = (r: number) => (r * 180) / Math.PI
 
@@ -125,60 +133,103 @@ describe("head and seat tube", () => {
   })
 })
 
-describe("fit mode", () => {
-  it("derives the head tube length from stack, fork and BB drop", () => {
-    const { m } = frame({ mode: "fit", stack: 580, reach: 390 })
-    expect(m.stack).toBeCloseTo(580, 9)
-    expect(m.reach).toBeCloseTo(390, 9)
-    expect(m.headTubeLength).toBeGreaterThan(0)
-  })
-  it("ignores effective top tube and head tube length fields", () => {
-    const a = frame({ mode: "fit", stack: 580, reach: 390, effectiveTopTube: 100, headTubeLength: 20 })
-    const b = frame({ mode: "fit", stack: 580, reach: 390, effectiveTopTube: 900, headTubeLength: 300 })
-    expect(a.m).toEqual(b.m)
-  })
-  it("numbers mode ignores stack and reach", () => {
-    expect(frame({ stack: 1, reach: 1 }).m).toEqual(frame({ stack: 999, reach: 999 }).m)
-  })
-  it("fit mode keeps both axles level", () => {
-    const { p } = frame({ mode: "fit", stack: 580, reach: 390 })
-    expect(p.frontAxle.y).toBeCloseTo(p.rearAxle.y, 9)
-  })
-})
+describe("drivers", () => {
+  type D = FrameInputs["drivers"]
+  const baseResult = buildFrame(base)
+  const synced = syncDerived(base, baseResult)
+  const keys = Object.keys(KEY_FIELDS) as (keyof D)[]
 
-describe("mode round trip", () => {
-  it.each(grid)("numbers -> fit -> numbers gives the same frame (%#)", (over) => {
-    const inputs = { ...base, ...over }
-    const n = buildFrame(inputs)
-    const fitInputs = switchMode(inputs, n, "fit")
-    const f = buildFrame(fitInputs)
-    const backInputs = switchMode(fitInputs, f, "numbers")
-    const n2 = buildFrame(backInputs)
-    for (const key of Object.keys(n.points!) as (keyof KeyPoints)[]) {
-      const a = n.points![key]
-      const b = f.points![key]
-      const c = n2.points![key]
-      if (typeof a === "number") {
-        expect(b).toBeCloseTo(a as number, 6)
-        expect(c).toBeCloseTo(a as number, 6)
-      } else {
-        const av = a as { x: number; y: number }
-        for (const other of [b, c] as { x: number; y: number }[]) {
-          expect(other.x).toBeCloseTo(av.x, 6)
-          expect(other.y).toBeCloseTo(av.y, 6)
-        }
+  function samePoints(a: KeyPoints | null, b: KeyPoints | null) {
+    expect(a).not.toBeNull()
+    expect(b).not.toBeNull()
+    for (const k of Object.keys(a!) as (keyof KeyPoints)[]) {
+      const x = a![k]
+      const y = b![k]
+      if (typeof x === "number") expect(y as number).toBeCloseTo(x, 6)
+      else {
+        expect((y as { x: number }).x).toBeCloseTo(x.x, 6)
+        expect((y as { y: number }).y).toBeCloseTo(x.y, 6)
       }
     }
-    expect(backInputs.effectiveTopTube).toBeCloseTo(inputs.effectiveTopTube, 6)
-    expect(backInputs.headTubeLength).toBeCloseTo(inputs.headTubeLength, 6)
+  }
+
+  it("each alternative driver, fed the derived value, gives the same frame", () => {
+    for (const key of keys) {
+      for (const value of KEY_FIELDS[key]) {
+        const r = buildFrame({ ...synced, drivers: { ...synced.drivers, [key]: value } })
+        expect(r.ok, `${key}=${value}`).toBe(true)
+        samePoints(baseResult.points, r.points)
+      }
+    }
   })
-  it("switchMode only sets the mode when the frame can't be solved", () => {
+
+  it("every combination of drivers gives the same frame", () => {
+    let n = 0
+    for (const bb of KEY_FIELDS.bb)
+      for (const rear of KEY_FIELDS.rear)
+        for (const seat of KEY_FIELDS.seat)
+          for (const horizontal of KEY_FIELDS.horizontal)
+            for (const vertical of KEY_FIELDS.vertical) {
+              const r = buildFrame({ ...synced, drivers: { bb, rear, seat, horizontal, vertical } })
+              expect(r.ok).toBe(true)
+              samePoints(baseResult.points, r.points)
+              n++
+            }
+    expect(n).toBe(48)
+  })
+
+  it("ignores fields that aren't driving", () => {
+    const junk = { bbHeight: 1, rearCentre: 1, seatTubeLengthCC: 1, frontCentre: 1, reach: 1, stack: 1 }
+    expect(buildFrame({ ...base, ...junk }).metrics).toEqual(baseResult.metrics)
+    const alt: D = { bb: "height", rear: "rearCentre", seat: "cc", horizontal: "reach", vertical: "stack" }
+    const a = buildFrame({ ...synced, drivers: alt })
+    const b = buildFrame({ ...synced, drivers: alt, bbDrop: 1, chainstayLength: 1, seatTubeLength: 1, effectiveTopTube: 1, headTubeLength: 1 })
+    expect(a.metrics).toEqual(b.metrics)
+  })
+
+  it("only checks the fields that are driving", () => {
+    expect(buildFrame({ ...base, frontCentre: NaN, reach: NaN, stack: NaN, bbHeight: NaN, rearCentre: NaN, seatTubeLengthCC: NaN }).ok).toBe(true)
+    expect(buildFrame({ ...base, drivers: { ...base.drivers, horizontal: "reach" }, reach: NaN }).ok).toBe(false)
+  })
+
+  it("the driven value is what comes out", () => {
+    expect(frame({ drivers: { ...base.drivers, bb: "height" }, bbHeight: 280 }).m.bbHeight).toBeCloseTo(280, 9)
+    expect(frame({ drivers: { ...base.drivers, bb: "height" }, bbHeight: 280 }).m.bbDrop).toBeCloseTo(339 - 280, 9)
+    expect(frame({ drivers: { ...base.drivers, rear: "rearCentre" }, rearCentre: 410 }).m.rearCentre).toBeCloseTo(410, 9)
+    expect(frame({ drivers: { ...base.drivers, seat: "cc" }, seatTubeLengthCC: 500 }).m.seatTubeLengthCC).toBeCloseTo(500, 9)
+    expect(frame({ drivers: { ...base.drivers, seat: "cc" }, seatTubeLengthCC: 500 }).m.seatTubeLength).toBeCloseTo(500 + base.seatTubeExtension, 9)
+    expect(frame({ drivers: { ...base.drivers, horizontal: "frontCentre" }, frontCentre: 600 }).m.frontCentre).toBeCloseTo(600, 9)
+    expect(frame({ drivers: { ...base.drivers, horizontal: "reach" }, reach: 400 }).m.reach).toBeCloseTo(400, 9)
+    expect(frame({ drivers: { ...base.drivers, vertical: "stack" }, stack: 580 }).m.stack).toBeCloseTo(580, 9)
+  })
+
+  it("stack-driven: head tube length falls out and the axles stay level", () => {
+    const { p, m } = frame({ drivers: { ...base.drivers, vertical: "stack" }, stack: 580 })
+    expect(m.headTubeLength).toBeGreaterThan(0)
+    expect(p.frontAxle.y).toBeCloseTo(p.rearAxle.y, 9)
+  })
+
+  it.each(grid)("round trip: tube lengths -> stack and reach -> tube lengths (%#)", (over) => {
+    const inputs = { ...base, ...over }
+    const n = buildFrame(inputs)
+    const toFit = switchDriver(switchDriver(inputs, n, "horizontal", "reach"), n, "vertical", "stack")
+    const f = buildFrame(toFit)
+    samePoints(n.points, f.points)
+    const back = switchDriver(switchDriver(toFit, f, "horizontal", "effectiveTopTube"), f, "vertical", "headTubeLength")
+    samePoints(n.points, buildFrame(back).points)
+    expect(back.effectiveTopTube).toBeCloseTo(inputs.effectiveTopTube, 6)
+    expect(back.headTubeLength).toBeCloseTo(inputs.headTubeLength, 6)
+  })
+
+  it("syncDerived and switchDriver leave the inputs alone when the frame can't be solved", () => {
     const inputs = { ...base, chainstayLength: 10 }
     const r = buildFrame(inputs)
     expect(r.metrics).toBeNull()
-    expect(switchMode(inputs, r, "fit")).toEqual({ ...inputs, mode: "fit" })
+    expect(syncDerived(inputs, r)).toBe(inputs)
+    expect(switchDriver(inputs, r, "bb", "height")).toEqual({ ...inputs, drivers: { ...inputs.drivers, bb: "height" } })
   })
 })
+
 
 describe("tubes", () => {
   it.each(grid)("every tube endpoint touches a key point (%#)", (over) => {
@@ -300,19 +351,18 @@ describe("issues", () => {
   it("rejects a wall that fills the tube", () => {
     expect(errors({ tubes: { ...base.tubes, topTube: { diameter: 10, wall: 5 } } }).map((e) => e.code)).toContain("wall-too-thick")
   })
-  it("only checks the fields the mode uses", () => {
-    expect(buildFrame({ ...base, mode: "fit", effectiveTopTube: NaN, headTubeLength: NaN }).ok).toBe(true)
-    expect(buildFrame({ ...base, mode: "numbers", stack: NaN, reach: NaN }).ok).toBe(true)
+  it("rejects a BB above the axle line", () => {
+    expect(errors({ drivers: { ...base.drivers, bb: "height" }, bbHeight: 400 }).map((e) => e.code)).toContain("bb-above-axle")
   })
-  it("fit mode: a stack too low for the fork gives a head tube error and no tubes", () => {
-    const r = buildFrame({ ...base, mode: "fit", stack: 300, reach: 390 })
+  it("a stack too low for the fork gives a head tube error and no tubes", () => {
+    const r = buildFrame({ ...base, drivers: { ...base.drivers, horizontal: "reach", vertical: "stack" }, stack: 300, reach: 390 })
     expect(r.ok).toBe(false)
     expect(r.issues.map((i) => i.code)).toContain("head-tube-length")
     expect(r.tubes).toEqual([])
     expect(r.points).not.toBeNull() // still drawable
   })
-  it("fit mode: negative reach is an error", () => {
-    const r = buildFrame({ ...base, mode: "fit", reach: -10 })
+  it("reach that puts the head tube behind the BB is an error", () => {
+    const r = buildFrame({ ...base, drivers: { ...base.drivers, horizontal: "reach" }, reach: -10 })
     expect(r.ok).toBe(false)
   })
   it("flags a rear tyre that hits the seat tube", () => {

@@ -30,9 +30,9 @@ export function readouts(inputs: FrameInputs, m: FrameMetrics) {
   const values: Record<RangeKey, number> = {
     headTubeAngle: inputs.headTubeAngle,
     seatTubeAngle: inputs.seatTubeAngle,
-    bbDrop: inputs.bbDrop,
+    bbDrop: m.bbDrop,
     trail: m.trail,
-    chainstayLength: inputs.chainstayLength,
+    chainstayLength: m.chainstayLength,
     wheelbase: m.wheelbase,
   }
   return (Object.keys(TYPICAL_RANGES) as RangeKey[]).map((key) => ({

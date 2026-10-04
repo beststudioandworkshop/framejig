@@ -54,14 +54,23 @@ Rear spacing / BB width splay, mitres and copes, headset stack, mudguards,
 tyre width (only section height), steering-angle toe overlap, wheel sizes that
 differ front and rear, jig/fixture outputs.
 
+## Drivers (what each dimension is measured as)
+
+Each row of the main dimensions has a "measured as" dropdown, as in other frame
+software. Only the chosen measurement is read; the rest are derived and shown in
+the readouts. Switching never changes the frame (`switchDriver` copies the
+derived numbers into the fields first).
+
+- BB: drop, or height
+- Rear end: chainstay, or rear centre
+- Seat tube: c-t (BB to top), or c-c (BB to the top tube centreline)
+- Horizontal: effective top tube, front centre, or reach
+- Vertical: head tube length, or stack (head tube length then falls out of the
+  stack, fork and BB drop, since both axles must sit level)
+
 ## Parked ideas
 
-- **"Measured as" dropdowns per dimension** (seen in BikeCAD's Primary dimensions
-  panel): BB drop or BB height; chainstay length or rear centre; seat tube
-  length or saddle height; front centre, effective top tube or reach; editable
-  head tube top/bottom and seat tube top offsets instead of the fixed
-  one-tube-radius joints. Would convert to the same internal geometry in
-  `src/lib/frame/`, so the drawing and schedule wouldn't change. Not needed yet.
-- Read the Paterek Manual (theframebuilders.com is blocked in the cloud
-  environment; needs the host allowed or pasted pages) and check the model
-  choices above against it.
+- Editable head tube top/bottom and seat tube top offsets in place of the fixed
+  one-tube-radius joints (BikeCAD shows these as three small fields).
+- Saddle height as an alternative seat tube driver (needs a seatpost exposure
+  assumption).

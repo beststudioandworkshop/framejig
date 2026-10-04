@@ -24,11 +24,11 @@ export function FrameConfigurator() {
           tube is right for the job. The starting numbers are examples.
         </AlertDescription>
       </Alert>
-      <div className="grid gap-6 lg:grid-cols-5">
-        <div className="lg:col-span-2">
-          <Controls inputs={inputs} result={result} unit={unit} onUnit={setUnit} update={setInputs} />
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
+        <div className="min-w-0 lg:col-span-2">
+          <Controls inputs={inputs} unit={unit} onUnit={setUnit} update={setInputs} />
         </div>
-        <div className="flex flex-col gap-6 lg:col-span-3">
+        <div className="flex min-w-0 flex-col gap-6 lg:col-span-3">
           <Readouts inputs={inputs} result={result} unit={unit} />
           <TubeSchedule result={result} unit={unit} />
         </div>

@@ -1,19 +1,36 @@
-import type { FrameInputs, FrameResult, SpecMode } from "./types"
+import type { Drivers, FrameInputs, FrameResult } from "./types"
 
 /**
- * Switch the spec mode without changing the frame: copy the derived numbers
- * of the current result into the fields the new mode uses.
+ * Write every derived number back into its input field, so nothing jumps when
+ * a different measurement takes over. A no-op for the fields already driving.
  * Returns the inputs unchanged if the frame couldn't be solved.
  */
-export function switchMode(inputs: FrameInputs, result: FrameResult, mode: SpecMode): FrameInputs {
-  if (!result.metrics) return { ...inputs, mode }
+export function syncDerived(inputs: FrameInputs, result: FrameResult): FrameInputs {
   const m = result.metrics
+  if (!m) return inputs
   return {
     ...inputs,
-    mode,
-    stack: m.stack,
-    reach: m.reach,
+    bbDrop: m.bbDrop,
+    bbHeight: m.bbHeight,
+    chainstayLength: m.chainstayLength,
+    rearCentre: m.rearCentre,
+    seatTubeLength: m.seatTubeLength,
+    seatTubeLengthCC: m.seatTubeLengthCC,
     effectiveTopTube: m.effectiveTopTube,
+    frontCentre: m.frontCentre,
+    reach: m.reach,
     headTubeLength: m.headTubeLength,
+    stack: m.stack,
   }
+}
+
+/** Change which measurement drives a row without changing the frame. */
+export function switchDriver<K extends keyof Drivers>(
+  inputs: FrameInputs,
+  result: FrameResult,
+  key: K,
+  value: Drivers[K],
+): FrameInputs {
+  const synced = syncDerived(inputs, result)
+  return { ...synced, drivers: { ...synced.drivers, [key]: value } }
 }

@@ -39,29 +39,35 @@ interface NumberField {
 }
 
 function numberFields(i: FrameInputs): NumberField[] {
+  const d = i.drivers
   const f: NumberField[] = [
     { path: "wheel.rimDiameter", value: i.wheel.rimDiameter, min: 1, label: "Rim diameter" },
     { path: "wheel.tyreSection", value: i.wheel.tyreSection, min: 1, label: "Tyre section" },
     { path: "crankLength", value: i.crankLength, min: 1, label: "Crank length" },
     { path: "toeProjection", value: i.toeProjection, min: 0, label: "Toe projection" },
-    { path: "seatTubeLength", value: i.seatTubeLength, min: 1, label: "Seat tube length" },
     { path: "seatTubeExtension", value: i.seatTubeExtension, min: 0, label: "Seat tube extension" },
-    { path: "bbDrop", value: i.bbDrop, min: 0, label: "BB drop" },
-    { path: "chainstayLength", value: i.chainstayLength, min: 1, label: "Chainstay length" },
     { path: "forkAxleToCrown", value: i.forkAxleToCrown, min: 1, label: "Fork axle-to-crown" },
     { path: "forkRake", value: i.forkRake, min: 0, label: "Fork rake" },
   ]
-  if (i.mode === "numbers") {
-    f.push(
-      { path: "effectiveTopTube", value: i.effectiveTopTube, min: 1, label: "Effective top tube" },
-      { path: "headTubeLength", value: i.headTubeLength, min: 1, label: "Head tube length" },
-    )
-  } else {
-    f.push(
-      { path: "stack", value: i.stack, min: 1, label: "Stack" },
-      { path: "reach", value: i.reach, min: 1, label: "Reach" },
-    )
-  }
+  f.push(
+    d.bb === "drop"
+      ? { path: "bbDrop", value: i.bbDrop, min: 0, label: "BB drop" }
+      : { path: "bbHeight", value: i.bbHeight, min: 1, label: "BB height" },
+    d.rear === "chainstay"
+      ? { path: "chainstayLength", value: i.chainstayLength, min: 1, label: "Chainstay length" }
+      : { path: "rearCentre", value: i.rearCentre, min: 1, label: "Rear centre" },
+    d.seat === "ct"
+      ? { path: "seatTubeLength", value: i.seatTubeLength, min: 1, label: "Seat tube length (c-t)" }
+      : { path: "seatTubeLengthCC", value: i.seatTubeLengthCC, min: 1, label: "Seat tube length (c-c)" },
+    d.horizontal === "effectiveTopTube"
+      ? { path: "effectiveTopTube", value: i.effectiveTopTube, min: 1, label: "Effective top tube" }
+      : d.horizontal === "frontCentre"
+        ? { path: "frontCentre", value: i.frontCentre, min: 1, label: "Front centre" }
+        : { path: "reach", value: i.reach, min: 1, label: "Reach" },
+    d.vertical === "headTubeLength"
+      ? { path: "headTubeLength", value: i.headTubeLength, min: 1, label: "Head tube length" }
+      : { path: "stack", value: i.stack, min: 1, label: "Stack" },
+  )
   for (const [role, t] of Object.entries(i.tubes)) {
     f.push(
       { path: `tubes.${role}.diameter`, value: t.diameter, min: 1, label: `${role} diameter` },
@@ -69,6 +75,15 @@ function numberFields(i: FrameInputs): NumberField[] {
     )
   }
   return f
+}
+
+/** The BB drop, chainstay and seat tube lengths actually used, whichever way they were specified. */
+function resolveBase(i: FrameInputs) {
+  const R = i.wheel.rimDiameter / 2 + i.wheel.tyreSection
+  const drop = i.drivers.bb === "drop" ? i.bbDrop : R - i.bbHeight
+  const chainstay = i.drivers.rear === "chainstay" ? i.chainstayLength : Math.hypot(i.rearCentre, drop)
+  const seatTop = i.drivers.seat === "ct" ? i.seatTubeLength : i.seatTubeLengthCC + i.seatTubeExtension
+  return { R, drop, chainstay, seatTop }
 }
 
 function validateInputs(i: FrameInputs): Issue[] {
@@ -99,8 +114,17 @@ function validateInputs(i: FrameInputs): Issue[] {
       issues.push(err("wall-too-thick", `The ${role} wall is thicker than the tube allows.`, `tubes.${role}.wall`))
     }
   }
-  if (Number.isFinite(i.chainstayLength) && Number.isFinite(i.bbDrop) && i.chainstayLength <= i.bbDrop) {
-    issues.push(err("chainstay-short", "The chainstay must be longer than the BB drop.", "chainstayLength"))
+  if (issues.length === 0) {
+    const base = resolveBase(i)
+    if (base.drop < 0) {
+      issues.push(err("bb-above-axle", "The bottom bracket would sit above the axles. Lower the BB height.", "bbHeight"))
+    }
+    if (base.chainstay <= base.drop) {
+      issues.push(err("chainstay-short", "The chainstay must be longer than the BB drop.", "chainstayLength"))
+    }
+    if (base.seatTop <= i.seatTubeExtension && i.drivers.seat === "ct") {
+      issues.push(err("seat-extension", "The seat tube extension must be shorter than the seat tube.", "seatTubeExtension"))
+    }
   }
   return issues
 }
@@ -117,46 +141,53 @@ interface Solved {
  * (and the head tube length falls out).
  */
 function solve(i: FrameInputs): Solved {
-  const R = i.wheel.rimDiameter / 2 + i.wheel.tyreSection
+  const { R, drop, chainstay, seatTop: seatLen } = resolveBase(i)
   const a = rad(i.headTubeAngle)
   const s = rad(i.seatTubeAngle)
   const sinA = Math.sin(a)
   const cosA = Math.cos(a)
 
   const bb: Vec2 = { x: 0, y: 0 }
-  const rearAxle: Vec2 = { x: -Math.sqrt(i.chainstayLength ** 2 - i.bbDrop ** 2), y: i.bbDrop }
+  const rearAxle: Vec2 = { x: -Math.sqrt(chainstay ** 2 - drop ** 2), y: drop }
 
   // Seat tube runs from the BB up and back.
   const seatDir: Vec2 = { x: -Math.cos(s), y: Math.sin(s) }
-  const seatTop = scale(seatDir, i.seatTubeLength)
+  const seatTop = scale(seatDir, seatLen)
 
   // Steering axis runs from the head tube top (up and back) to the bottom (down and forward).
   const headUp: Vec2 = { x: -cosA, y: sinA }
-  const bottomY = i.bbDrop + i.forkAxleToCrown * sinA - i.forkRake * cosA
+  // Axles are level at y = drop, so the fork fixes the height of the head tube bottom.
+  const bottomY = drop + i.forkAxleToCrown * sinA - i.forkRake * cosA
+  const headLen =
+    i.drivers.vertical === "headTubeLength" ? i.headTubeLength : (i.stack - bottomY) / sinA
 
-  let headBottom: Vec2
-  let headTop: Vec2
-  if (i.mode === "numbers") {
-    // Axis crosses the seat tube top height at x = seatTop.x + effectiveTopTube.
-    const axisXAtSeatTop = seatTop.x + i.effectiveTopTube
-    headBottom = { x: axisXAtSeatTop - (bottomY - seatTop.y) / Math.tan(a), y: bottomY }
-    headTop = add(headBottom, scale(headUp, i.headTubeLength))
-  } else {
-    headTop = { x: i.reach, y: i.stack }
-    const headLength = (i.stack - bottomY) / sinA
-    headBottom = sub(headTop, scale(headUp, headLength))
+  let bottomX: number
+  switch (i.drivers.horizontal) {
+    case "reach":
+      // Head tube top is at x = reach.
+      bottomX = i.reach + headLen * cosA
+      break
+    case "frontCentre":
+      // Front axle is at x = frontCentre: back out the fork.
+      bottomX = i.frontCentre - i.forkAxleToCrown * cosA - i.forkRake * sinA
+      break
+    default:
+      // Axis crosses the seat tube top height at x = seatTop.x + effectiveTopTube.
+      bottomX = seatTop.x + i.effectiveTopTube - (bottomY - seatTop.y) / Math.tan(a)
   }
+  const headBottom: Vec2 = { x: bottomX, y: bottomY }
+  const headTop = add(headBottom, scale(headUp, headLen))
 
   // Front axle: down the steering axis by axle-to-crown, then forward by the rake.
   const down: Vec2 = { x: cosA, y: -sinA }
   const forward: Vec2 = { x: sinA, y: cosA }
   const frontAxle = add(add(headBottom, scale(down, i.forkAxleToCrown)), scale(forward, i.forkRake))
 
-  const headLen = dist(headTop, headBottom)
-  const upUnit = scale(sub(headTop, headBottom), headLen > 0 ? 1 / headLen : 0)
+  const len = dist(headTop, headBottom)
+  const upUnit = scale(sub(headTop, headBottom), len > 0 ? 1 / len : 0)
   const topTubeHeadJoint = sub(headTop, scale(upUnit, i.tubes.topTube.diameter / 2))
   const downTubeHeadJoint = add(headBottom, scale(upUnit, i.tubes.downTube.diameter / 2))
-  const topTubeSeatJoint = scale(seatDir, i.seatTubeLength - i.seatTubeExtension)
+  const topTubeSeatJoint = scale(seatDir, seatLen - i.seatTubeExtension)
 
   return {
     wheelRadius: R,
@@ -170,7 +201,7 @@ function solve(i: FrameInputs): Solved {
       topTubeSeatJoint,
       topTubeHeadJoint,
       downTubeHeadJoint,
-      groundY: i.bbDrop - R,
+      groundY: drop - R,
     },
   }
 }
@@ -186,7 +217,9 @@ function metricsOf(i: FrameInputs, { points: p, wheelRadius: R }: Solved): Frame
   // Head tube axis x at the seat tube top height, relative to the seat tube top.
   const axisX = p.headBottom.x - (p.seatTop.y - p.headBottom.y) / Math.tan(a)
   const ttMid = mid(p.topTubeSeatJoint, p.topTubeHeadJoint)
-  const bbHeight = R - i.bbDrop
+  const bbDrop = p.rearAxle.y
+  const bbHeight = R - bbDrop
+  const seatLength = dist(p.bb, p.seatTop)
   const toe: Vec2 = { x: i.crankLength + i.toeProjection, y: 0 }
 
   return {
@@ -195,6 +228,10 @@ function metricsOf(i: FrameInputs, { points: p, wheelRadius: R }: Solved): Frame
     frontCentre: p.frontAxle.x,
     rearCentre: -p.rearAxle.x,
     bbHeight,
+    bbDrop,
+    chainstayLength: dist(p.bb, p.rearAxle),
+    seatTubeLength: seatLength,
+    seatTubeLengthCC: seatLength - i.seatTubeExtension,
     trail: trailOf(R, i.headTubeAngle, i.forkRake),
     stack: p.headTop.y,
     reach: p.headTop.x,

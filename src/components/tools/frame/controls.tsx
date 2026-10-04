@@ -6,14 +6,13 @@ import {
   MATERIAL_LABELS,
   parseAngle,
   parseLength,
-  switchMode,
+  switchDriver,
   type FrameInputs,
   type FrameMaterial,
   type FrameProcess,
-  type FrameResult,
   type FrameTubeSpecs,
   type LengthUnit,
-  type SpecMode,
+  type Drivers,
 } from "@/lib/frame"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { FieldGroup, FieldLegend, FieldSet } from "@/components/ui/field"
@@ -25,7 +24,6 @@ export type Update = (fn: (inputs: FrameInputs) => FrameInputs) => void
 
 interface ControlsProps {
   inputs: FrameInputs
-  result: FrameResult
   unit: LengthUnit
   onUnit: (unit: LengthUnit) => void
   update: Update
@@ -40,6 +38,35 @@ const TUBE_LABELS: Record<keyof FrameTubeSpecs, string> = {
   seatstay: "Seat stay",
 }
 
+interface DriverOption<K extends keyof Drivers> {
+  value: Drivers[K]
+  label: string
+  field: keyof FrameInputs
+  hint: string
+}
+
+const BB_OPTIONS: DriverOption<"bb">[] = [
+  { value: "drop", label: "BB drop", field: "bbDrop", hint: "How far the bottom bracket sits below the axles." },
+  { value: "height", label: "BB height", field: "bbHeight", hint: "Bottom bracket centre, up from the ground." },
+]
+const REAR_OPTIONS: DriverOption<"rear">[] = [
+  { value: "chainstay", label: "Chainstay", field: "chainstayLength", hint: "Bottom bracket to rear axle, side view." },
+  { value: "rearCentre", label: "Rear centre", field: "rearCentre", hint: "Level distance, bottom bracket to rear axle." },
+]
+const SEAT_OPTIONS: DriverOption<"seat">[] = [
+  { value: "ct", label: "Seat tube c-t", field: "seatTubeLength", hint: "Bottom bracket centre to the top of the tube." },
+  { value: "cc", label: "Seat tube c-c", field: "seatTubeLengthCC", hint: "Bottom bracket centre to the top tube centreline." },
+]
+const HORIZONTAL_OPTIONS: DriverOption<"horizontal">[] = [
+  { value: "effectiveTopTube", label: "Eff. top tube", field: "effectiveTopTube", hint: "Level distance between the seat and head tube." },
+  { value: "frontCentre", label: "Front centre", field: "frontCentre", hint: "Level distance, bottom bracket to front axle." },
+  { value: "reach", label: "Reach", field: "reach", hint: "Forward from the bottom bracket to the top of the head tube." },
+]
+const VERTICAL_OPTIONS: DriverOption<"vertical">[] = [
+  { value: "headTubeLength", label: "Head tube", field: "headTubeLength", hint: "Worked-out stack is in the readouts." },
+  { value: "stack", label: "Stack", field: "stack", hint: "Up from the bottom bracket to the top of the head tube." },
+]
+
 const MATERIAL_ITEMS = Object.entries(MATERIAL_LABELS).map(([value, label]) => ({ value, label }))
 const PROCESS_ITEMS: { value: FrameProcess; label: string }[] = [
   { value: "tig", label: "TIG welded" },
@@ -47,14 +74,13 @@ const PROCESS_ITEMS: { value: FrameProcess; label: string }[] = [
   { value: "lugged", label: "Lugged" },
 ]
 
-export function Controls({ inputs, result, unit, onUnit, update }: ControlsProps) {
-  const len = (label: string, key: keyof FrameInputs, hint?: string, derived?: { value?: number }) => (
+export function Controls({ inputs, unit, onUnit, update }: ControlsProps) {
+  const len = (label: string, key: keyof FrameInputs, hint?: string) => (
     <ValueInput
       label={label}
       unit={unit}
       hint={hint}
-      value={derived?.value ?? (inputs[key] as number)}
-      disabled={derived !== undefined}
+      value={inputs[key] as number}
       parse={(t) => parseLength(t, unit)}
       format={(mm) => formatLengthValue(mm, unit)}
       onChange={(v) => update((i) => ({ ...i, [key]: v }))}
@@ -72,9 +98,39 @@ export function Controls({ inputs, result, unit, onUnit, update }: ControlsProps
     />
   )
 
-  const m = result.metrics
-  const fit = inputs.mode === "fit"
-  const setMode = (mode: SpecMode) => update((i) => switchMode(i, buildFrame(i), mode))
+  /** A row whose measurement you choose from a dropdown. */
+  function driven<K extends keyof Drivers>(key: K, options: DriverOption<K>[]) {
+    const current = options.find((o) => o.value === inputs.drivers[key]) ?? options[0]
+    return (
+      <ValueInput
+        label={current.label}
+        unit={unit}
+        hint={current.hint}
+        value={inputs[current.field] as number}
+        parse={(t) => parseLength(t, unit)}
+        format={(mm) => formatLengthValue(mm, unit)}
+        onChange={(v) => update((i) => ({ ...i, [current.field]: v }))}
+        labelNode={
+          <Select
+            items={options.map((o) => ({ value: o.value as string, label: o.label }))}
+            value={current.value as string}
+            onValueChange={(v) => update((i) => switchDriver(i, buildFrame(i), key, v as Drivers[K]))}
+          >
+            <SelectTrigger size="sm" className="min-w-0 flex-1" aria-label={`${current.label}: measured as`}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {options.map((o) => (
+                <SelectItem key={o.value as string} value={o.value as string}>
+                  {o.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        }
+      />
+    )
+  }
 
   return (
     <Card>
@@ -97,57 +153,31 @@ export function Controls({ inputs, result, unit, onUnit, update }: ControlsProps
               <ToggleGroupItem value="in">inches</ToggleGroupItem>
             </ToggleGroup>
           </div>
-          <div className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium">Specify the frame by</span>
-            <ToggleGroup
-              variant="outline"
-              spacing={0}
-              value={[inputs.mode]}
-              onValueChange={(v) => v[0] && setMode(v[0] as SpecMode)}
-              aria-label="Specify the frame by"
-            >
-              <ToggleGroupItem value="numbers">Tube lengths</ToggleGroupItem>
-              <ToggleGroupItem value="fit">Stack and reach</ToggleGroupItem>
-            </ToggleGroup>
-          </div>
         </div>
 
         <FieldSet>
           <FieldLegend variant="label">Main triangle</FieldLegend>
-          <FieldGroup className="grid gap-4 sm:grid-cols-2">
+          <FieldGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {angle("Seat tube angle", "seatTubeAngle", "From horizontal.")}
             {angle("Head tube angle", "headTubeAngle", "From horizontal.")}
-            {len("Seat tube length", "seatTubeLength", "Bottom bracket centre to the top of the tube.")}
+            {driven("seat", SEAT_OPTIONS)}
             {len("Seat tube extension", "seatTubeExtension", "How far it sticks up past the top tube.")}
-            {fit ? (
-              <>
-                {len("Stack", "stack", "Up from the bottom bracket to the top of the head tube.")}
-                {len("Reach", "reach", "Forward from the bottom bracket to the top of the head tube.")}
-                {len("Effective top tube", "effectiveTopTube", "Worked out from stack and reach.", { value: m?.effectiveTopTube })}
-                {len("Head tube length", "headTubeLength", "Worked out from stack and the fork.", { value: m?.headTubeLength })}
-              </>
-            ) : (
-              <>
-                {len("Effective top tube", "effectiveTopTube", "Level distance between the seat and head tube.")}
-                {len("Head tube length", "headTubeLength")}
-                {len("Stack", "stack", "Worked out from the numbers above.", { value: m?.stack })}
-                {len("Reach", "reach", "Worked out from the numbers above.", { value: m?.reach })}
-              </>
-            )}
+            {driven("horizontal", HORIZONTAL_OPTIONS)}
+            {driven("vertical", VERTICAL_OPTIONS)}
           </FieldGroup>
         </FieldSet>
 
         <FieldSet>
           <FieldLegend variant="label">Rear end and bottom bracket</FieldLegend>
-          <FieldGroup className="grid gap-4 sm:grid-cols-2">
-            {len("Bottom bracket drop", "bbDrop", "How far the bottom bracket sits below the axles.")}
-            {len("Chainstay length", "chainstayLength", "Bottom bracket to rear axle, side view.")}
+          <FieldGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {driven("bb", BB_OPTIONS)}
+            {driven("rear", REAR_OPTIONS)}
           </FieldGroup>
         </FieldSet>
 
         <FieldSet>
           <FieldLegend variant="label">Fork and wheels</FieldLegend>
-          <FieldGroup className="grid gap-4 sm:grid-cols-2">
+          <FieldGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {len("Fork axle-to-crown", "forkAxleToCrown", "To the bottom of the head tube.")}
             {len("Fork rake (offset)", "forkRake")}
             <ValueInput
@@ -173,7 +203,7 @@ export function Controls({ inputs, result, unit, onUnit, update }: ControlsProps
 
         <FieldSet>
           <FieldLegend variant="label">For the toe overlap check</FieldLegend>
-          <FieldGroup className="grid gap-4 sm:grid-cols-2">
+          <FieldGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {len("Crank length", "crankLength")}
             {len("Pedal axle to toe", "toeProjection", "How far your shoe reaches past the pedal.")}
           </FieldGroup>

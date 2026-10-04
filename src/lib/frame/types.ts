@@ -9,8 +9,22 @@ export interface Vec2 {
 export type FrameMaterial = "steel" | "titanium" | "aluminium"
 export type FrameProcess = "tig" | "braze" | "lugged"
 
-/** How the frame is specified. "numbers": top tube + head tube length. "fit": stack + reach. */
-export type SpecMode = "numbers" | "fit"
+/**
+ * Which measurement drives each part of the frame. Only the driven field is
+ * read; the others are derived and shown in the readouts.
+ */
+export interface Drivers {
+  /** BB position: drop below the axles, or height above the ground. */
+  bb: "drop" | "height"
+  /** Rear end: chainstay (BB to axle, straight line) or rear centre (horizontal). */
+  rear: "chainstay" | "rearCentre"
+  /** Seat tube length: centre-to-top (c-t) or centre-to-centre (c-c, to the top tube junction). */
+  seat: "ct" | "cc"
+  /** Horizontal position of the head tube / front wheel. */
+  horizontal: "effectiveTopTube" | "frontCentre" | "reach"
+  /** Vertical size of the front end: head tube length, or stack (then head tube length is derived). */
+  vertical: "headTubeLength" | "stack"
+}
 
 export interface TubeSpec {
   /** Outside diameter, mm. */
@@ -43,31 +57,39 @@ export interface FrameInputs {
   material: FrameMaterial
   process: FrameProcess
 
-  mode: SpecMode
+  drivers: Drivers
 
   /** Degrees from horizontal. */
   seatTubeAngle: number
   /** Degrees from horizontal. */
   headTubeAngle: number
-  /** BB centre to top of seat tube, along the seat tube, mm. */
+  /** Seat tube c-t: BB centre to top of seat tube, along the seat tube, mm. */
   seatTubeLength: number
+  /** Seat tube c-c: BB centre to the top tube centreline junction, mm. */
+  seatTubeLengthCC: number
   /** How far the seat tube sticks up above the top tube centreline junction, mm. */
   seatTubeExtension: number
 
-  /** Numbers mode only: horizontal distance between seat and head tube axes at the seat tube top. */
+  /** Horizontal distance between seat and head tube axes at the seat tube top. */
   effectiveTopTube: number
-  /** Numbers mode only: head tube length, mm. */
+  /** Head tube length, mm. */
   headTubeLength: number
 
-  /** Fit mode only: vertical BB centre to top of head tube, mm. */
+  /** Vertical BB centre to top of head tube, mm. */
   stack: number
-  /** Fit mode only: horizontal BB centre to top of head tube, mm. */
+  /** Horizontal BB centre to top of head tube, mm. */
   reach: number
+  /** BB centre to front axle, horizontal, mm. */
+  frontCentre: number
 
   /** BB centre below the axle line, mm. */
   bbDrop: number
+  /** BB centre height above the ground, mm. */
+  bbHeight: number
   /** BB centre to rear axle, straight line in the side view, mm. */
   chainstayLength: number
+  /** BB centre to rear axle, horizontal, mm. */
+  rearCentre: number
   /** Fork axle-to-crown, mm (measured to the bottom of the head tube; headset stack not modelled). */
   forkAxleToCrown: number
   /** Fork offset (rake), mm. */
@@ -114,6 +136,14 @@ export interface FrameMetrics {
   /** BB to rear axle, horizontal. */
   rearCentre: number
   bbHeight: number
+  /** BB centre below the axle line. */
+  bbDrop: number
+  /** BB centre to rear axle, straight line. */
+  chainstayLength: number
+  /** Seat tube c-t. */
+  seatTubeLength: number
+  /** Seat tube c-c. */
+  seatTubeLengthCC: number
   /** Ground trail, mm. Positive: the contact patch trails the steering axis. */
   trail: number
   stack: number

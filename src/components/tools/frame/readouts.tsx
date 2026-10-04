@@ -75,9 +75,15 @@ export function Readouts({ inputs, result, unit }: { inputs: FrameInputs; result
           <Stat label="Wheelbase" value={L(m?.wheelbase)} note={note("wheelbase")} />
           <Stat label="Trail" value={L(m?.trail)} note={note("trail")} />
           <Stat label="BB height" value={L(m?.bbHeight)} />
-          <Stat label="Front centre" value={L(m?.frontCentre)} />
+          <Stat label="BB drop" value={L(m?.bbDrop)} note={note("bbDrop")} />
+          <Stat label="Chainstay length" value={L(m?.chainstayLength)} note={note("chainstayLength")} />
           <Stat label="Rear centre" value={L(m?.rearCentre)} />
+          <Stat label="Front centre" value={L(m?.frontCentre)} />
           <Stat label="Standover" value={L(m?.standover)} />
+          <Stat label="Seat tube (c-t)" value={L(m?.seatTubeLength)} />
+          <Stat label="Seat tube (c-c)" value={L(m?.seatTubeLengthCC)} />
+          <Stat label="Effective top tube" value={L(m?.effectiveTopTube)} />
+          <Stat label="Head tube length" value={L(m?.headTubeLength)} />
           <Stat label="Stack" value={L(m?.stack)} />
           <Stat label="Reach" value={L(m?.reach)} />
           <Stat label="Top tube slope" value={m ? formatAngle(m.topTubeSlope) : "—"} />
