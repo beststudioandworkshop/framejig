@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { formatAngle, formatInches, formatMm, inToMm, mmToIn, parseAngle, parseLength } from "./units"
+import { formatAngle, formatLengthValue, formatInches, formatMm, inToMm, mmToIn, parseAngle, parseLength } from "./units"
 
 describe("parseLength", () => {
   it("reads bare numbers in the default unit", () => {
@@ -47,5 +47,20 @@ describe("convert and format", () => {
     expect(formatMm(25.46)).toBe("25.5 mm")
     expect(formatAngle(73.5)).toBe("73.5°")
     expect(formatInches(25.4)).toBe('1"')
+  })
+})
+
+describe("formatLengthValue", () => {
+  it("gives a bare number in the chosen unit", () => {
+    expect(formatLengthValue(540, "mm")).toBe("540")
+    expect(formatLengthValue(31.75, "mm")).toBe("31.8")
+    expect(formatLengthValue(25.4, "in")).toBe("1")
+    expect(formatLengthValue(31.8, "in")).toBe("1.252")
+  })
+  it("parses back to about the same length", () => {
+    for (const unit of ["mm", "in"] as const) {
+      const text = formatLengthValue(540.3, unit)
+      expect(parseLength(text, unit)).toBeCloseTo(540.3, unit === "mm" ? 0 : 1)
+    }
   })
 })

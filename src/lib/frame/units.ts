@@ -39,6 +39,11 @@ export function parseAngle(text: string): number | null {
   return m ? Number(m[1]) : null
 }
 
+/** A length as a bare number in `unit` (no suffix), for editable fields and tables. */
+export function formatLengthValue(mm: number, unit: LengthUnit): string {
+  return unit === "mm" ? trim(mm, 1) : trim(mmToIn(mm), 3)
+}
+
 export function formatMm(mm: number, decimals = 1): string {
   return `${trim(mm, decimals)} mm`
 }
