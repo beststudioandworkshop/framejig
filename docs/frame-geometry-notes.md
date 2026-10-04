@@ -53,3 +53,15 @@ anything about loads, fatigue or tube selection.
 Rear spacing / BB width splay, mitres and copes, headset stack, mudguards,
 tyre width (only section height), steering-angle toe overlap, wheel sizes that
 differ front and rear, jig/fixture outputs.
+
+## Parked ideas
+
+- **"Measured as" dropdowns per dimension** (seen in BikeCAD's Primary dimensions
+  panel): BB drop or BB height; chainstay length or rear centre; seat tube
+  length or saddle height; front centre, effective top tube or reach; editable
+  head tube top/bottom and seat tube top offsets instead of the fixed
+  one-tube-radius joints. Would convert to the same internal geometry in
+  `src/lib/frame/`, so the drawing and schedule wouldn't change. Not needed yet.
+- Read the Paterek Manual (theframebuilders.com is blocked in the cloud
+  environment; needs the host allowed or pasted pages) and check the model
+  choices above against it.
