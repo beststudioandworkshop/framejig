@@ -288,7 +288,7 @@ function geometryIssues(m: FrameMetrics, p: KeyPoints): Issue[] {
   return issues
 }
 
-function makeTubes(i: FrameInputs, p: KeyPoints): FrameTube[] {
+export function makeTubes(i: FrameInputs, p: KeyPoints): FrameTube[] {
   const def: [TubeRole, string, Vec2, Vec2, number][] = [
     ["topTube", "Top tube", p.topTubeSeatJoint, p.topTubeHeadJoint, 1],
     ["downTube", "Down tube", p.bb, p.downTubeHeadJoint, 1],

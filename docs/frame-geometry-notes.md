@@ -74,3 +74,22 @@ derived numbers into the fields first).
   one-tube-radius joints (BikeCAD shows these as three small fields).
 - Saddle height as an alternative seat tube driver (needs a seatpost exposure
   assumption).
+
+## Side view and reference comparison
+
+- `drawing.ts` turns a `FrameResult` into plain drawing data (Y down, mm):
+  wheels, tubes at real diameter, fork, steering axis, crank and foot, and nine
+  dimension lines (wheelbase, trail, BB height, stack, reach, effective top
+  tube, seat tube, head tube, chainstay). It draws a frame that has errors so
+  you can see why. `frame-drawing.tsx` only renders that data.
+- Trail is shown at the ground between the contact patch and where the
+  steering axis meets the ground.
+- Tubes are drawn as flat strips along their centrelines, side view only. Tube
+  ends are not mitred in the drawing.
+- **Reference**: "Pin as reference" copies the current inputs. Type the other
+  bike's numbers, pin it, then change yours. It is drawn dashed behind, lined up
+  at the BB, rear axle or front axle, with a table of differences
+  (`compare.ts`, yours minus the reference).
+- On phones the drawing keeps a minimum width and scrolls sideways so the labels
+  stay readable.
+- Not drawn yet: angle arcs, saddle and bars, a print-to-scale/SVG export.

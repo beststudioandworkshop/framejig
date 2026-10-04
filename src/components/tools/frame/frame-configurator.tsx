@@ -7,12 +7,15 @@ import { buildFrame, DEFAULT_INPUTS, type FrameInputs, type LengthUnit } from "@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Controls } from "./controls"
 import { Readouts } from "./readouts"
+import { SideView } from "./side-view"
 import { TubeSchedule } from "./tube-schedule"
 
 export function FrameConfigurator() {
   const [inputs, setInputs] = useState<FrameInputs>(DEFAULT_INPUTS)
   const [unit, setUnit] = useState<LengthUnit>("mm")
+  const [reference, setReference] = useState<FrameInputs | null>(null)
   const result = useMemo(() => buildFrame(inputs), [inputs])
+  const referenceResult = useMemo(() => (reference ? buildFrame(reference) : null), [reference])
 
   return (
     <div className="flex flex-col gap-6">
@@ -29,6 +32,15 @@ export function FrameConfigurator() {
           <Controls inputs={inputs} unit={unit} onUnit={setUnit} update={setInputs} />
         </div>
         <div className="flex min-w-0 flex-col gap-6 lg:col-span-3">
+          <SideView
+            inputs={inputs}
+            result={result}
+            unit={unit}
+            reference={reference}
+            referenceResult={referenceResult}
+            onPin={() => setReference(inputs)}
+            onClear={() => setReference(null)}
+          />
           <Readouts inputs={inputs} result={result} unit={unit} />
           <TubeSchedule result={result} unit={unit} />
         </div>
