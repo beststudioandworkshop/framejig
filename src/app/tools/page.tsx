@@ -23,6 +23,16 @@ export default function ToolsPage() {
             </CardHeader>
           </Card>
         </Link>
+        <Link href="/tools/jig" className="rounded-xl outline-none focus-visible:ring-3 focus-visible:ring-ring/50">
+          <Card className="h-full transition-colors hover:bg-muted/50">
+            <CardHeader>
+              <CardTitle>Frame jig</CardTitle>
+              <CardDescription>
+                Positions from a fixed rear axle, a parts list for the jig, and the tools for building a frame in it.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
       </div>
     </div>
   )

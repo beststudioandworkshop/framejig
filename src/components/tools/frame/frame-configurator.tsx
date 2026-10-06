@@ -1,41 +1,36 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { InfoIcon } from "lucide-react"
+import { ArrowRightIcon, InfoIcon } from "lucide-react"
+import Link from "next/link"
 
-import {
-  buildFrame,
-  buildJig,
-  DEFAULT_INPUTS,
-  DEFAULT_JIG,
-  jigParts,
-  type FrameInputs,
-  type JigSettings,
-  type LengthUnit,
-} from "@/lib/frame"
+import { buildFrame, DEFAULT_INPUTS, encodeFrame, type FrameInputs, type LengthUnit } from "@/lib/frame"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Controls } from "./controls"
-import { JigCard } from "./jig-card"
-import { JigPartsCard } from "./jig-parts-card"
 import { Readouts } from "./readouts"
 import { SideView } from "./side-view"
-import { ToolsCard } from "./tools-card"
 import { TubeSchedule } from "./tube-schedule"
 
-export function FrameConfigurator() {
-  const [inputs, setInputs] = useState<FrameInputs>(DEFAULT_INPUTS)
+interface FrameConfiguratorProps {
+  /** A frame restored from a link. */
+  initial?: FrameInputs | null
+  initialReference?: FrameInputs | null
+}
+
+export function FrameConfigurator({ initial, initialReference }: FrameConfiguratorProps) {
+  const [inputs, setInputs] = useState<FrameInputs>(initial ?? DEFAULT_INPUTS)
   const [unit, setUnit] = useState<LengthUnit>("mm")
-  const [reference, setReference] = useState<FrameInputs | null>(null)
-  const [jigSettings, setJigSettings] = useState<JigSettings>(DEFAULT_JIG)
+  const [reference, setReference] = useState<FrameInputs | null>(initialReference ?? null)
   const result = useMemo(() => buildFrame(inputs), [inputs])
   const referenceResult = useMemo(() => (reference ? buildFrame(reference) : null), [reference])
 
-  const jig = useMemo(() => buildJig(inputs, result, jigSettings), [inputs, result, jigSettings])
-  const referenceJig = useMemo(
-    () => (reference && referenceResult ? buildJig(reference, referenceResult, jigSettings) : null),
-    [reference, referenceResult, jigSettings],
-  )
-  const parts = useMemo(() => jigParts([jig, referenceJig]), [jig, referenceJig])
+  const jigHref = useMemo(() => {
+    const q = new URLSearchParams({ d: encodeFrame(inputs) })
+    if (reference) q.set("r", encodeFrame(reference))
+    return `/tools/jig?${q.toString()}`
+  }, [inputs, reference])
 
   return (
     <div className="flex flex-col gap-6">
@@ -63,9 +58,21 @@ export function FrameConfigurator() {
           />
           <Readouts inputs={inputs} result={result} unit={unit} />
           <TubeSchedule result={result} unit={unit} />
-          <JigCard inputs={inputs} jig={jig} referenceJig={referenceJig} unit={unit} settings={jigSettings} onSettings={setJigSettings} />
-          <JigPartsCard inputs={inputs} result={result} jig={jig} parts={parts} unit={unit} />
-          <ToolsCard inputs={inputs} />
+          <Card>
+            <CardHeader>
+              <CardTitle>Next: build the jig</CardTitle>
+              <CardDescription>
+                Jig positions from the fixed rear axle, a parts list for the jig, and the tools you&apos;ll need. Your
+                frame{reference ? " and the reference" : ""} goes along in the link.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button render={<Link href={jigHref} />} disabled={!result.ok}>
+                Open the jig tool <ArrowRightIcon />
+              </Button>
+              {!result.ok && <p className="mt-2 text-sm text-muted-foreground">Fix the problems above first.</p>}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

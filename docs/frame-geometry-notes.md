@@ -93,3 +93,8 @@ derived numbers into the fields first).
 - On phones the drawing keeps a minimum width and scrolls sideways so the labels
   stay readable.
 - Not drawn yet: angle arcs, saddle and bars, a print-to-scale/SVG export.
+
+## Jig
+
+The jig has its own tool and notes: see `docs/jig-notes.md`. The frame tool links
+to it and carries the frame (and reference) in the URL.

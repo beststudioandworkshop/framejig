@@ -26,6 +26,7 @@ interface JigCardProps {
   unit: LengthUnit
   settings: JigSettings
   onSettings: (s: JigSettings) => void
+  onWidths: (w: Partial<Pick<FrameInputs, "bbShellWidth" | "rearSpacing">>) => void
 }
 
 function download(name: string, text: string) {
@@ -37,7 +38,7 @@ function download(name: string, text: string) {
   URL.revokeObjectURL(url)
 }
 
-export function JigCard({ inputs, jig, referenceJig, unit, settings, onSettings }: JigCardProps) {
+export function JigCard({ inputs, jig, referenceJig, unit, settings, onSettings, onWidths }: JigCardProps) {
   const f = (mm: number) => formatLengthValue(mm, unit)
   const env = jigEnvelope([jig, referenceJig])
 
@@ -69,7 +70,7 @@ export function JigCard({ inputs, jig, referenceJig, unit, settings, onSettings 
         </CardAction>
       </CardHeader>
       <CardContent className="flex flex-col gap-6">
-        <div className="max-w-xs">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <ValueInput
             label="Spine face below the axle line"
             unit={unit}
@@ -78,6 +79,24 @@ export function JigCard({ inputs, jig, referenceJig, unit, settings, onSettings 
             parse={(t) => parseLength(t, unit)}
             format={(mm) => formatLengthValue(mm, unit)}
             onChange={(v) => onSettings({ ...settings, spineOffset: v })}
+          />
+          <ValueInput
+            label="Rear spacing"
+            unit={unit}
+            hint="Between the inside faces of the dropouts."
+            value={inputs.rearSpacing}
+            parse={(t) => parseLength(t, unit)}
+            format={(mm) => formatLengthValue(mm, unit)}
+            onChange={(v) => onWidths({ rearSpacing: v })}
+          />
+          <ValueInput
+            label="BB shell width"
+            unit={unit}
+            hint="68 or 73 mm are common."
+            value={inputs.bbShellWidth}
+            parse={(t) => parseLength(t, unit)}
+            format={(mm) => formatLengthValue(mm, unit)}
+            onChange={(v) => onWidths({ bbShellWidth: v })}
           />
         </div>
 
