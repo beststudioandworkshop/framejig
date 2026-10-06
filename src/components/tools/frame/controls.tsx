@@ -202,6 +202,14 @@ export function Controls({ inputs, unit, onUnit, update }: ControlsProps) {
         </FieldSet>
 
         <FieldSet>
+          <FieldLegend variant="label">For the jig</FieldLegend>
+          <FieldGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {len("BB shell width", "bbShellWidth", "68 or 73 mm are common.")}
+            {len("Rear spacing", "rearSpacing", "Between the inside faces of the dropouts.")}
+          </FieldGroup>
+        </FieldSet>
+
+        <FieldSet>
           <FieldLegend variant="label">For the toe overlap check</FieldLegend>
           <FieldGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {len("Crank length", "crankLength")}

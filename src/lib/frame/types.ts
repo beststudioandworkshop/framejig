@@ -43,6 +43,11 @@ export interface FrameTubeSpecs {
 }
 
 export interface FrameInputs {
+  /** BB shell width, mm. Only used for the jig's side-to-side positions. */
+  bbShellWidth: number
+  /** Rear dropout spacing (inside face to inside face), mm. Only used for the jig. */
+  rearSpacing: number
+
   /** Both wheels are assumed the same size. */
   wheel: {
     /** Bead seat diameter, mm (622 for 700c). */

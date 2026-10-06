@@ -45,6 +45,8 @@ function numberFields(i: FrameInputs): NumberField[] {
     { path: "wheel.tyreSection", value: i.wheel.tyreSection, min: 1, label: "Tyre section" },
     { path: "crankLength", value: i.crankLength, min: 1, label: "Crank length" },
     { path: "toeProjection", value: i.toeProjection, min: 0, label: "Toe projection" },
+    { path: "bbShellWidth", value: i.bbShellWidth, min: 1, label: "BB shell width" },
+    { path: "rearSpacing", value: i.rearSpacing, min: 1, label: "Rear spacing" },
     { path: "seatTubeExtension", value: i.seatTubeExtension, min: 0, label: "Seat tube extension" },
     { path: "forkAxleToCrown", value: i.forkAxleToCrown, min: 1, label: "Fork axle-to-crown" },
     { path: "forkRake", value: i.forkRake, min: 0, label: "Fork rake" },

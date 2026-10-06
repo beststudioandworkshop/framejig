@@ -17,6 +17,8 @@ export const TOE_CLEARANCE_WARN = 10
 const T = (diameter: number, wall: number): TubeSpec => ({ diameter, wall })
 
 export const DEFAULT_INPUTS: FrameInputs = {
+  bbShellWidth: 68,
+  rearSpacing: 130,
   wheel: { rimDiameter: 622, tyreSection: 28 },
   crankLength: 172.5,
   toeProjection: 120,
