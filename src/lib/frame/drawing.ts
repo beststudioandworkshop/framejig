@@ -220,7 +220,7 @@ export function buildDrawing(inputs: FrameInputs, result: FrameResult, offset: V
     linear("trail", "Trail", contact, axisGround, "x", lowest - 50, -1),
     linear("bbHeight", "BB height", { x: p.bb.x, y: lowest }, p.bb, "y", p.bb.x + 110),
     linear("stack", "Stack", p.bb, p.headTop, "y", p.bb.x),
-    linear("reach", "Reach", p.bb, p.headTop, "x", p.headTop.y + 70),
+    linear("reach", "Reach", p.bb, p.headTop, "x", p.headTop.y + 110),
     linear(
       "effectiveTopTube",
       "Eff. top tube",

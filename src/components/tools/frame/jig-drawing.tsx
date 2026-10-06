@@ -1,5 +1,6 @@
 "use client"
 
+import { useElementWidth, labelSize } from "./use-element-width"
 import {
   ALLOWANCE,
   buildDrawing,
@@ -45,6 +46,7 @@ interface JigDrawingProps {
  * Numbers match the parts list. The hardware is drawn schematically.
  */
 export function JigDrawing({ inputs, result, jig, parts }: JigDrawingProps) {
+  const [ref, width] = useElementWidth<SVGSVGElement>()
   const axle = result.points?.rearAxle
   if (!axle) return null
   const frame = buildDrawing(inputs, result, { x: -axle.x, y: -axle.y })
@@ -97,7 +99,7 @@ export function JigDrawing({ inputs, result, jig, parts }: JigDrawingProps) {
   const minY = Math.min(...all.map((p) => p.y)) - margin
   const maxY = Math.max(...all.map((p) => p.y)) + margin
   const vb = { x: minX, y: minY, width: maxX - minX, height: maxY - minY }
-  const fs = vb.width / 64
+  const fs = labelSize(vb.width, width)
 
   const hb = st("headBottom")
   const ht = st("headTop")
@@ -115,10 +117,11 @@ export function JigDrawing({ inputs, result, jig, parts }: JigDrawingProps) {
 
   return (
     <svg
+      ref={ref}
       viewBox={`${vb.x} ${vb.y} ${vb.width} ${vb.height}`}
       role="img"
       aria-label="Schematic of the tilted-spine jig around the frame, with numbered parts"
-      className="h-auto w-full min-w-160"
+      className="h-auto w-full"
     >
       {/* the frame, quietly */}
       <g className="fill-none stroke-muted-foreground" strokeWidth={1} {...thin}>

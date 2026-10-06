@@ -2,6 +2,7 @@
 
 import { useId } from "react"
 
+import { useElementWidth, labelSize } from "./use-element-width"
 import { formatLengthValue, viewBoxOf, type Drawing, type LengthUnit, type Vec2 } from "@/lib/frame"
 
 const line = (a: Vec2, b: Vec2) => ({ x1: a.x, y1: a.y, x2: b.x, y2: b.y })
@@ -21,17 +22,19 @@ interface FrameDrawingProps {
  */
 export function FrameDrawing({ drawing, reference, showDimensions, unit }: FrameDrawingProps) {
   const arrowId = useId()
+  const [ref, width] = useElementWidth<SVGSVGElement>()
   const vb = viewBoxOf(reference ? [drawing, reference] : [drawing], 90)
-  const fs = vb.width / 64
+  const fs = labelSize(vb.width, width)
   const arrow = fs * 0.55
   const thin = { vectorEffect: "non-scaling-stroke" } as const
 
   return (
     <svg
+      ref={ref}
       viewBox={`${vb.x} ${vb.y} ${vb.width} ${vb.height}`}
       role="img"
       aria-label="Side view of the frame with its dimensions"
-      className="h-auto w-full min-w-160"
+      className="h-auto w-full"
     >
       <defs>
         <marker

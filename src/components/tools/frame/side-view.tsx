@@ -97,7 +97,7 @@ export function SideView({ inputs, result, unit, reference, referenceResult, onP
         </div>
 
         {drawing ? (
-          <div className="overflow-x-auto">
+          <div>
             <FrameDrawing drawing={drawing} reference={refDrawing} showDimensions={showDimensions} unit={unit} />
           </div>
         ) : (
