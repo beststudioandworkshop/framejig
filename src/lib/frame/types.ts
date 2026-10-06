@@ -10,7 +10,7 @@ export type FrameMaterial = "steel" | "titanium" | "aluminum"
 export type FrameProcess = "tig" | "braze" | "lugged"
 
 /** What the frame is for. It changes the guidance and the example numbers, never the geometry maths. */
-export type BikeType = "road" | "mountain"
+export type BikeType = "road" | "gravel" | "mountain" | "touring" | "track"
 
 /**
  * Which measurement drives each part of the frame. Only the driven field is

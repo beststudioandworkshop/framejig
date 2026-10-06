@@ -154,3 +154,43 @@ anything.
 - **Not modeled:** fork travel and sag as an input, chainstay and seat stay tire
   clearance, 27.5-inch and fat bike specifics beyond the rim and tire numbers,
   and other types (gravel as its own type, touring, track).
+
+## Categories, the Start page and sizes
+
+Five bike categories: **road, gravel, mountain, touring, track**. Each is one file
+in `src/lib/frame/categories/` holding a `CategoryProfile` (types in
+`category-types.ts`): the primer text, typical ranges and the reason for each,
+what makes it feel the way it does, what varies inside it, the ride-feel bands,
+the example frame (a medium) and the size-grading rule. **Everything reads that
+one profile**: the Start page, the "typical" tags, the ride-feel card, the
+example frames and the size picker, so they can't drift apart.
+
+- **The numbers are my estimates**, from general knowledge, and every category
+  says so (`reference` and the ride disclaimer). They are meant to be replaced by
+  reference charts. To do that for a category, edit its file: the `ranges`, the
+  `base` frame (raw inputs; `completeFrame` fills in the derived numbers), the
+  `grade` steps, and the `deriveRide` band edges. A test checks that every
+  example frame builds with no errors, sits inside its own ranges and reads as an
+  ordinary bike of its type, so a bad edit shows up fast.
+- **Reference bikes mentioned so far (Surly):** the Long Haul Trucker for
+  touring, the Karate Monkey for mountain, the Steamroller for track, and the
+  Straggler or Cross-Check for gravel. Their geometry charts are not in the repo
+  yet: surlybikes.com is blocked in the cloud environment, so the charts need to be
+  pasted in or uploaded. Nothing here claims to match any Surly numbers.
+- **Sizes** (`grading.ts`): S, M, L, XL as steps from the medium. Reach, stack and
+  seat tube grow by the category's `grade` steps; angles, fork, chainstay and BB
+  drop stay put. The medium is the example frame itself. Rider heights are rough
+  (S 160 to 170 cm, M 170 to 178, L 178 to 186, XL 186 to 195) and sizing differs a
+  lot between makers.
+- **Start from the rider:** `suggestSize(height)` picks the size whose range holds
+  the height, says "between" within 2 cm of an edge, and always says to check reach
+  and standover. Height accepts `5'10"`, `70 in`, `178 cm` or millimeters.
+- **Start page** (`/tools/start`): pick a kind of bike, read why its numbers are
+  what they are, pick a size (or enter a height and inseam), and "Start in the
+  frame tool" opens that sized example through the same link the other tools use.
+- Switching the bike type in the frame tool keeps your numbers and offers to load
+  that type's example. Building notes add steps per type (fork and dropper for
+  mountain, wide-tire clearance for gravel, touring and mountain, mounts and heel
+  clearance for touring, track ends for track).
+- Not modeled: track ends and 120 mm rear spacing beyond the input, fork travel as
+  an input, chainstay and seat stay tire clearance, and full-suspension frames.

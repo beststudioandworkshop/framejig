@@ -3,6 +3,8 @@
 // These are RULES OF THUMB for road and gravel style frames, not measurements
 // and not verified limits. Rider, tires, fork, stem, bars and wheel size all
 // change how a bike feels. Treat it as a way to read the numbers, not a verdict.
+import { CATEGORIES } from "./categories"
+import type { Band, BandLast, RideProfile } from "./category-types"
 import type { BikeType, FrameInputs, FrameMetrics } from "./types"
 
 export type RideTraitId = "steering" | "handling" | "position" | "weight" | "bottomBracket"
@@ -38,176 +40,25 @@ export interface RideOptions {
 /** Where a value sits between lo and hi, clamped to 0..1. */
 export const along = (v: number, lo: number, hi: number) => Math.min(1, Math.max(0, (v - lo) / (hi - lo)))
 
-interface Band {
-  /** The band applies below this value. */
-  below: number
-  label: string
-  text: string
-}
-
-type Last = Omit<Band, "below">
-
-function band(v: number, bands: Band[], last: Last): Last {
+function band(v: number, bands: Band[], last: BandLast): BandLast {
   return bands.find((b) => v < b.below) ?? last
 }
 
-/** One scale: where the bands fall, and the range the marker moves over. */
-interface Scale {
-  bands: Band[]
-  last: Last
-  lo: number
-  hi: number
-}
-
-interface RideProfile {
-  disclaimer: string
-  steering: Scale
-  handling: Scale
-  position: Scale
-  weight: Scale
-  bottomBracket: Scale
-  /** Chainstay lengths (mm) below / above which a comment is added. */
-  shortChainstay: { below: number; text: string }
-  longChainstay: { above: number; text: string }
-  /** Always shown for this type. */
-  notes: string[]
-}
-
-const road: RideProfile = {
-  disclaimer:
-    "Rules of thumb for road and gravel style frames. Your weight, tires, fork, stem and bars all change how a bike feels, so use this to read the numbers, not as a verdict.",
-  steering: {
-    lo: 35,
-    hi: 85,
-    bands: [
-      { below: 45, label: "Very quick", text: "Steers fast and flicks into corners, and can feel nervous or twitchy, especially at speed or with a light touch on the bars." },
-      { below: 55, label: "Quick", text: "Responsive and eager to turn. Rewards a light, relaxed hold on the bars." },
-      { below: 65, label: "Neutral", text: "Tends to track predictably and still turns when you ask. The common middle for road and gravel bikes." },
-      { below: 75, label: "Stable", text: "Calm and settled in a straight line, and steers with more deliberate input. Good for loads and rough ground." },
-    ],
-    last: { label: "Very stable", text: "Heavy to steer. It wants to go straight and can feel sluggish at low speed." },
-  },
-  handling: {
-    lo: 920,
-    hi: 1120,
-    bands: [
-      { below: 975, label: "Nimble", text: "A short wheelbase makes it quick to change direction and easy to flick around, and a bit more reactive over rough or fast ground." },
-      { below: 1030, label: "Balanced", text: "A middle-of-the-road wheelbase. Turns willingly and still feels settled." },
-      { below: 1080, label: "Planted", text: "A longer wheelbase feels steady and calm, with a wider turning arc." },
-    ],
-    last: { label: "Long and calm", text: "A very long wheelbase is calm and steady at speed, and slow to turn in tight spaces." },
-  },
-  position: {
-    lo: 1.25,
-    hi: 1.75,
-    bands: [
-      { below: 1.35, label: "Stretched out", text: "Low and long, with more weight on the hands. Sporty and aero, and can be hard on the back and neck for some riders." },
-      { below: 1.45, label: "Sporty", text: "A forward, athletic position, a little low. Common on race-minded frames." },
-      { below: 1.55, label: "Balanced", text: "A middle position: not stretched, not sat bolt upright. A common all-day fit." },
-      { below: 1.65, label: "Upright", text: "Taller and shorter. Weight sits more on the saddle and the view is easier. Relaxed for long days." },
-    ],
-    last: { label: "Very upright", text: "Very tall for its length. Comfortable and relaxed, with less weight on the hands and more wind in the chest." },
-  },
-  weight: {
-    lo: 70,
-    hi: 77,
-    bands: [
-      { below: 72, label: "Set back", text: "The rider sits further behind the pedals. Relaxed and easy to sit in. Climbing out of the saddle can feel less direct." },
-      { below: 74.5, label: "Middle", text: "A middle seat tube angle. The rider sits over the pedals without feeling pushed forward." },
-    ],
-    last: { label: "Set forward", text: "The rider sits further over the pedals, which feels direct and strong for pedaling and climbing, with more weight toward the front." },
-  },
-  bottomBracket: {
-    lo: 55,
-    hi: 90,
-    bands: [
-      { below: 62, label: "High", text: "A high bottom bracket gives more pedal clearance in corners and over rough ground, and can feel perched." },
-      { below: 72, label: "Typical", text: "A usual bottom bracket height. Feels settled and still clears the pedals in most corners." },
-      { below: 82, label: "Low", text: "A low bottom bracket feels planted and stable in corners, with a lower center of mass." },
-    ],
-    last: { label: "Very low", text: "Very planted, but the pedals are more likely to touch the ground in corners or over bumps." },
-  },
-  shortChainstay: { below: 420, text: "Short chainstays add snap when you pedal hard." },
-  longChainstay: { above: 445, text: "Long chainstays feel calm and settled and leave room for bigger tires." },
-  notes: [],
-}
-
-const mountain: RideProfile = {
-  disclaimer:
-    "Rules of thumb for mountain bike frames, and my own estimates rather than verified limits. Fork travel and sag, tires, stem, bars, your weight and the trails you ride all change how a bike feels. Use this to read the numbers, not as a verdict.",
-  steering: {
-    lo: 80,
-    hi: 150,
-    bands: [
-      { below: 90, label: "Very quick", text: "Steers fast for a mountain bike and can feel darty on steep or fast ground." },
-      { below: 105, label: "Quick", text: "Responsive and agile on tight, twisty trails. Asks for more attention at speed on rough ground." },
-      { below: 120, label: "Neutral", text: "A balanced middle. Turns willingly on tight trail and stays composed on fast descents." },
-      { below: 135, label: "Stable", text: "Steady on steep and fast descents and in rough ground. Takes more effort in tight, slow corners." },
-    ],
-    last: { label: "Very stable", text: "Very slack and steady, built for steep, fast descents. Can feel heavy and slow in tight corners and on the climbs." },
-  },
-  handling: {
-    lo: 1080,
-    hi: 1280,
-    bands: [
-      { below: 1120, label: "Nimble", text: "A short wheelbase for a mountain bike. Quick in tight corners and easy to maneuver, and less settled at speed." },
-      { below: 1170, label: "Balanced", text: "A middle-of-the-road wheelbase. Lively and still steady." },
-      { below: 1220, label: "Planted", text: "Long and steady, composed on rough descents, and needs more room in switchbacks." },
-    ],
-    last: { label: "Long and calm", text: "A very long wheelbase is calm and stable at speed, and slow to turn in tight switchbacks." },
-  },
-  position: {
-    lo: 1.15,
-    hi: 1.65,
-    bands: [
-      { below: 1.28, label: "Stretched out", text: "Long and low for a mountain bike, with a lot of weight forward on the bars. Fast and aggressive, and can be a lot on long climbs." },
-      { below: 1.36, label: "Sporty", text: "A forward, athletic position with a long reach. Confident on descents." },
-      { below: 1.46, label: "Balanced", text: "A middle position that works for climbing and descending." },
-      { below: 1.56, label: "Upright", text: "Taller and shorter, with weight further back. Relaxed, and comfortable on long climbs." },
-    ],
-    last: { label: "Very upright", text: "Very tall for its length. Relaxed, with less weight on the hands, and less secure on steep descents." },
-  },
-  weight: {
-    lo: 69,
-    hi: 76,
-    bands: [
-      { below: 70, label: "Set back", text: "The rider sits behind the pedals. Relaxed, though the front wheel can lift on steep climbs." },
-      { below: 73.5, label: "Middle", text: "A middle seat tube angle. The rider sits over the pedals without feeling pushed forward." },
-    ],
-    last: { label: "Set forward", text: "The rider sits further over the pedals, which helps keep the front wheel down on steep climbs." },
-  },
-  bottomBracket: {
-    lo: 20,
-    hi: 60,
-    bands: [
-      { below: 30, label: "High", text: "A high bottom bracket clears rocks and roots, and can feel perched in corners." },
-      { below: 42, label: "Typical", text: "A usual mountain bike bottom bracket height. Settled, and clears most obstacles." },
-      { below: 52, label: "Low", text: "A low bottom bracket feels planted in corners, with a lower center of mass and a bit more chance of pedal strikes." },
-    ],
-    last: { label: "Very low", text: "Very planted, but the pedals are likely to hit rocks and roots." },
-  },
-  shortChainstay: { below: 425, text: "Short chainstays make the bike easier to lift and flick around." },
-  longChainstay: { above: 445, text: "Long chainstays feel calm and settled and leave room for big tires." },
-  notes: [
-    "Fork: the numbers assume a rigid fork at the length you enter. A suspension fork compresses as you ride, which steepens the head angle and shortens the trail. Enter axle-to-crown at the sag you ride at.",
-  ],
-}
-
-const PROFILES: Record<BikeType, RideProfile> = { road, mountain }
+const profile = (type: BikeType): RideProfile => CATEGORIES[type].ride
 
 /** The caveat to show with the ride feel for this bike type. */
 export function rideDisclaimer(type: BikeType): string {
-  return PROFILES[type].disclaimer
+  return profile(type).disclaimer
 }
 
 /** The road and gravel caveat (the original wording). */
-export const RIDE_DISCLAIMER = road.disclaimer
+export const RIDE_DISCLAIMER = CATEGORIES.road.ride.disclaimer
 
 const mm = (n: number) => `${Number(n.toFixed(1))} mm`
 
 /** Plain-language read of the geometry. Always returns the same traits, in order. */
 export function rideFeel(inputs: FrameInputs, m: FrameMetrics, options: RideOptions = {}): RideFeel {
-  const prof = PROFILES[inputs.bikeType]
+  const prof = profile(inputs.bikeType)
   const ratio = m.stack / m.reach
 
   const steer = band(m.trail, prof.steering.bands, prof.steering.last)

@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import Link from "next/link"
 
 import { FrameConfigurator } from "@/components/tools/frame/frame-configurator"
 import { decodeFrame } from "@/lib/frame"
@@ -14,7 +15,11 @@ export default async function FramePage({ searchParams }: { searchParams: Promis
       <div>
         <h1 className="text-3xl font-semibold tracking-tight">Frame geometry</h1>
         <p className="mt-2 text-muted-foreground">
-          Set the angles and tube lengths, or the stack and reach, and see what the frame works out to.
+          Set the angles and tube lengths, or the stack and reach, and see what the frame works out to. New to this?{" "}
+          <Link href="/tools/start" className="underline underline-offset-4 hover:text-foreground">
+            Start here
+          </Link>
+          .
         </p>
       </div>
       <FrameConfigurator initial={decodeFrame(first(q.d))} initialReference={decodeFrame(first(q.r))} />

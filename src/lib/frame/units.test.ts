@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { formatAngle, formatLengthValue, formatInches, formatMm, inToMm, mmToIn, parseAngle, parseLength } from "./units"
+import { formatAngle, formatFeetInches, formatLengthValue, formatInches, formatMm, inToMm, mmToIn, parseAngle, parseLength } from "./units"
 
 describe("parseLength", () => {
   it("reads bare numbers in the default unit", () => {
@@ -18,11 +18,23 @@ describe("parseLength", () => {
     expect(parseLength("3/4", "in")).toBeCloseTo(19.05, 9)
     expect(parseLength('1 1/2"', "mm")).toBeCloseTo(38.1, 9)
   })
+  it("reads centimeters", () => {
+    expect(parseLength("178cm", "in")).toBe(1780)
+    expect(parseLength("17.5 cm", "mm")).toBe(175)
+  })
+  it("reads feet and inches", () => {
+    expect(parseLength(`5'10"`, "mm")).toBeCloseTo(5 * 304.8 + 10 * 25.4, 6)
+    expect(parseLength("5' 10", "mm")).toBeCloseTo(1778, 6)
+    expect(parseLength("5 ft 10 in", "mm")).toBeCloseTo(1778, 6)
+    expect(parseLength("6ft", "in")).toBeCloseTo(1828.8, 6)
+    expect(parseLength("5'", "mm")).toBeCloseTo(1524, 6)
+    expect(parseLength(`5'10.5"`, "mm")).toBeCloseTo(5 * 304.8 + 10.5 * 25.4, 6)
+  })
   it("ignores case and surrounding space", () => {
     expect(parseLength("  25 MM ", "in")).toBe(25)
   })
   it("rejects junk", () => {
-    for (const s of ["", "abc", "1/", "12cm", "--3", "1 1/2 1/2"]) expect(parseLength(s, "mm")).toBeNull()
+    for (const s of ["", "abc", "1/", "12km", "--3", "1 1/2 1/2", "5'x", "ft", "'10"]) expect(parseLength(s, "mm")).toBeNull()
   })
 })
 
@@ -61,6 +73,21 @@ describe("formatLengthValue", () => {
     for (const unit of ["mm", "in"] as const) {
       const text = formatLengthValue(540.3, unit)
       expect(parseLength(text, unit)).toBeCloseTo(540.3, unit === "mm" ? 0 : 1)
+    }
+  })
+})
+
+describe("formatFeetInches", () => {
+  it("rounds to the nearest inch", () => {
+    expect(formatFeetInches(1778)).toBe(`5'10"`)
+    expect(formatFeetInches(1829)).toBe(`6'0"`)
+    expect(formatFeetInches(1524)).toBe(`5'0"`)
+    expect(formatFeetInches(1780)).toBe(`5'10"`)
+    expect(formatFeetInches(1640)).toBe(`5'5"`)
+  })
+  it("round trips with the parser to the inch", () => {
+    for (const mm of [1600, 1700, 1778, 1850]) {
+      expect(Math.abs(parseLength(formatFeetInches(mm), "mm")! - mm)).toBeLessThanOrEqual(13)
     }
   })
 })

@@ -13,6 +13,16 @@ export default function ToolsPage() {
         <p className="mt-2 text-muted-foreground">Free tools for planning a custom frame.</p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
+        <Link href="/tools/start" className="rounded-xl outline-none focus-visible:ring-3 focus-visible:ring-ring/50">
+          <Card className="h-full transition-colors hover:bg-muted/50">
+            <CardHeader>
+              <CardTitle>Where to start</CardTitle>
+              <CardDescription>
+                What makes road, gravel, mountain, touring and track bikes different, and how to pick a starting frame in your size.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
         <Link href="/tools/frame" className="rounded-xl outline-none focus-visible:ring-3 focus-visible:ring-ring/50">
           <Card className="h-full transition-colors hover:bg-muted/50">
             <CardHeader>

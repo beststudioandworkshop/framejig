@@ -38,10 +38,28 @@ const STEPS: BuildStep[] = [
     bikeTypes: ["mountain"],
   },
   {
-    id: "mtb-clearance",
+    id: "wide-tire-clearance",
     title: "Mock up tire and chain clearance",
     body: "This tool checks the tires against the seat tube and down tube only. It doesn't check the chainstays, seat stays, chain or crank. With big tires, mock these up before you commit.",
-    bikeTypes: ["mountain"],
+    bikeTypes: ["gravel", "touring", "mountain"],
+  },
+  {
+    id: "touring-mounts",
+    title: "Plan the racks, fenders and bottle cages",
+    body: "Each rack, fender and bottle cage needs braze-ons or eyelets in the right place, and the frame needs clearance for them. Decide on them before you cut, not after.",
+    bikeTypes: ["touring"],
+  },
+  {
+    id: "touring-heel",
+    title: "Check heel clearance with your bags",
+    body: "With panniers on the rack, your heels can hit them if the chainstays are short. Check with your actual bags and shoes before you commit.",
+    bikeTypes: ["touring"],
+  },
+  {
+    id: "track-ends",
+    title: "Check the track ends and chain line",
+    body: "Track frames use horizontal track ends and 120 mm rear spacing, and this tool doesn't model them. Check your hub, chain line and track ends against the frame before you cut.",
+    bikeTypes: ["track"],
   },
   {
     id: "cut",

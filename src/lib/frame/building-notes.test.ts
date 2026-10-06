@@ -68,35 +68,49 @@ describe("building notes", () => {
 })
 
 describe("building notes by bike type", () => {
-  const ids = (bikeType: "road" | "mountain", process: FrameProcess = "tig", material: FrameMaterial = "steel") =>
+  const types = ["road", "gravel", "mountain", "touring", "track"] as const
+  const core = ["mtb-fork", "mtb-dropper", "wide-tire-clearance", "touring-mounts", "touring-heel", "track-ends"]
+  const ids = (bikeType: (typeof types)[number], process: FrameProcess = "tig", material: FrameMaterial = "steel") =>
     buildingNotes({ process, material, bikeType }).map((s) => s.id)
 
-  it("mountain frames get the fork, dropper and clearance steps; road frames don't", () => {
-    for (const id of ["mtb-fork", "mtb-dropper", "mtb-clearance"]) {
-      expect(ids("mountain")).toContain(id)
-      expect(ids("road")).not.toContain(id)
+  it("each type gets only its own extra steps", () => {
+    const extras: Record<(typeof types)[number], string[]> = {
+      road: [],
+      gravel: ["wide-tire-clearance"],
+      mountain: ["mtb-fork", "mtb-dropper", "wide-tire-clearance"],
+      touring: ["wide-tire-clearance", "touring-mounts", "touring-heel"],
+      track: ["track-ends"],
     }
-    expect(buildingNotes({ process: "tig", material: "steel" }).map((s) => s.id)).not.toContain("mtb-fork")
+    for (const t of types) {
+      for (const id of core) expect(ids(t).includes(id), `${t} ${id}`).toBe(extras[t].includes(id))
+    }
+    expect(buildingNotes({ process: "tig", material: "steel" }).map((s) => s.id)).toEqual(ids("road"))
   })
 
   it("those steps come before cutting, and everything else is unchanged", () => {
-    const m = ids("mountain")
-    for (const id of ["mtb-fork", "mtb-dropper", "mtb-clearance"]) expect(m.indexOf(id)).toBeLessThan(m.indexOf("cut"))
-    expect(m.filter((i) => !i.startsWith("mtb-"))).toEqual(ids("road"))
+    for (const t of types) {
+      const list = ids(t)
+      for (const id of list.filter((i) => core.includes(i))) expect(list.indexOf(id)).toBeLessThan(list.indexOf("cut"))
+      expect(list.filter((i) => !core.includes(i))).toEqual(ids("road"))
+    }
   })
 
-  it("works for every process and material", () => {
-    for (const p of ["tig", "braze", "lugged"] as const)
-      for (const mat of ["steel", "titanium", "aluminum"] as const) {
-        const list = ids("mountain", p, mat)
-        expect(new Set(list).size).toBe(list.length)
-        expect(list.at(-1)).toBe("review")
-      }
+  it("works for every type, process and material", () => {
+    for (const t of types)
+      for (const p of ["tig", "braze", "lugged"] as const)
+        for (const mat of ["steel", "titanium", "aluminum"] as const) {
+          const list = ids(t, p, mat)
+          expect(new Set(list).size).toBe(list.length)
+          expect(list[0]).toBe("numbers")
+          expect(list.at(-1)).toBe("review")
+        }
   })
 
   it("says what the tool does not check", () => {
-    const step = buildingNotes({ process: "tig", material: "steel", bikeType: "mountain" }).find((s) => s.id === "mtb-clearance")!
+    const step = buildingNotes({ process: "tig", material: "steel", bikeType: "gravel" }).find((s) => s.id === "wide-tire-clearance")!
     expect(step.body).toContain("chainstays")
     expect(step.body.toLowerCase()).toContain("doesn't check")
+    const track = buildingNotes({ process: "tig", material: "steel", bikeType: "track" }).find((s) => s.id === "track-ends")!
+    expect(track.body.toLowerCase()).toContain("doesn't model")
   })
 })

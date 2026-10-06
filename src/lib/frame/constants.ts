@@ -21,7 +21,7 @@ export const DEFAULT_INPUTS: FrameInputs = {
   rearSpacing: 130,
   wheel: { rimDiameter: 622, tireSection: 28 },
   crankLength: 172.5,
-  toeProjection: 120,
+  toeProjection: 90,
   bikeType: "road",
   material: "steel",
   process: "tig",
@@ -59,9 +59,15 @@ export const DEFAULT_INPUTS: FrameInputs = {
 }
 
 export const BIKE_TYPE_LABELS: Record<import("./types").BikeType, string> = {
-  road: "Road and gravel",
+  road: "Road",
+  gravel: "Gravel",
   mountain: "Mountain",
+  touring: "Touring",
+  track: "Track",
 }
+
+/** Every bike type, in the order we show them. */
+export const BIKE_TYPES: import("./types").BikeType[] = ["road", "gravel", "mountain", "touring", "track"]
 
 export const MATERIAL_LABELS: Record<FrameMaterial, string> = {
   steel: "Steel",

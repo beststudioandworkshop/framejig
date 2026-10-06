@@ -70,6 +70,7 @@ const VERTICAL_OPTIONS: DriverOption<"vertical">[] = [
   { value: "stack", label: "Stack", field: "stack", hint: "Up from the bottom bracket to the top of the head tube." },
 ]
 
+const BIKE_ITEMS = (Object.keys(BIKE_TYPE_LABELS) as BikeType[]).map((value) => ({ value, label: BIKE_TYPE_LABELS[value] }))
 const MATERIAL_ITEMS = Object.entries(MATERIAL_LABELS).map(([value, label]) => ({ value, label }))
 const PROCESS_ITEMS: { value: FrameProcess; label: string }[] = [
   { value: "tig", label: "TIG welded" },
@@ -145,19 +146,22 @@ export function Controls({ inputs, unit, onUnit, update, onBikeType }: ControlsP
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
           <div className="flex flex-col gap-1.5">
             <span className="text-sm font-medium">Bike type</span>
-            <ToggleGroup
-              variant="outline"
-              spacing={0}
-              value={[inputs.bikeType]}
-              onValueChange={(v) => v[0] && onBikeType(v[0] as BikeType)}
-              aria-label="Bike type"
+            <Select
+              items={BIKE_ITEMS}
+              value={inputs.bikeType}
+              onValueChange={(v) => onBikeType(v as BikeType)}
             >
-              {(Object.keys(BIKE_TYPE_LABELS) as BikeType[]).map((t) => (
-                <ToggleGroupItem key={t} value={t}>
-                  {BIKE_TYPE_LABELS[t]}
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
+              <SelectTrigger className="w-40" aria-label="Bike type">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {BIKE_ITEMS.map((o) => (
+                  <SelectItem key={o.value} value={o.value}>
+                    {o.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="flex flex-col gap-1.5">
             <span className="text-sm font-medium">Units</span>
