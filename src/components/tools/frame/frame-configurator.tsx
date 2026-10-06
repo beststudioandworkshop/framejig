@@ -55,20 +55,22 @@ export function FrameConfigurator({ initial, initialReference }: FrameConfigurat
             referenceResult={referenceResult}
             onPin={() => setReference(inputs)}
             onClear={() => setReference(null)}
+            transferHref={jigHref}
           />
           <Readouts inputs={inputs} result={result} unit={unit} />
           <TubeSchedule result={result} unit={unit} />
           <Card>
             <CardHeader>
-              <CardTitle>Next: build the jig</CardTitle>
+              <CardTitle>Next: the jig</CardTitle>
               <CardDescription>
-                Jig positions from the fixed rear axle, a parts list for the jig, and the tools you&apos;ll need. Your
-                frame{reference ? " and the reference" : ""} goes along in the link.
+                Sends every dimension of this frame{reference ? " and the reference" : ""} to the jig tool: positions from
+                the fixed rear axle, a parts list, and the tools you&apos;ll need. Come back with &quot;Edit the frame&quot;
+                and nothing is lost.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button render={<Link href={jigHref} />} disabled={!result.ok}>
-                Open the jig tool <ArrowRightIcon />
+                Transfer dims to the jig tool <ArrowRightIcon />
               </Button>
               {!result.ok && <p className="mt-2 text-sm text-muted-foreground">Fix the problems above first.</p>}
             </CardContent>

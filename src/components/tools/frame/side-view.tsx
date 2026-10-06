@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from "react"
+import { ArrowRightIcon } from "lucide-react"
+import Link from "next/link"
 
 import {
   alignOffset,
@@ -29,11 +31,13 @@ interface SideViewProps {
   referenceResult: FrameResult | null
   onPin: () => void
   onClear: () => void
+  /** Where "Transfer dims" goes: the jig tool with this frame in the link. */
+  transferHref: string
 }
 
 const signed = (n: number, text: string) => (Math.abs(n) < 0.05 ? "0" : `${n > 0 ? "+" : "−"}${text}`)
 
-export function SideView({ inputs, result, unit, reference, referenceResult, onPin, onClear }: SideViewProps) {
+export function SideView({ inputs, result, unit, reference, referenceResult, onPin, onClear, transferHref }: SideViewProps) {
   const [showDimensions, setShowDimensions] = useState(true)
   const [anchor, setAnchor] = useState<Anchor>("bb")
 
@@ -62,6 +66,9 @@ export function SideView({ inputs, result, unit, reference, referenceResult, onP
               Clear
             </Button>
           )}
+          <Button size="sm" render={<Link href={transferHref} />} disabled={!result.ok}>
+            Transfer dims to jig <ArrowRightIcon />
+          </Button>
         </CardAction>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
