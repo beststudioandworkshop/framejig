@@ -124,3 +124,33 @@ to it and carries the frame (and reference) in the URL.
   for road and gravel style frames, not verified limits**, and the card says so.
   Bigger frames always have longer wheelbases, and stem, spacers, bars,
   seatpost setback, tires and fork all change how a bike feels.
+
+## Bike type (road and mountain)
+
+A **bike type** (`inputs.bikeType`: `road` or `mountain`) is a lens on the same
+geometry maths. It changes guidance, never the calculation, and never blocks
+anything.
+
+- **Switching type keeps your numbers.** A toast offers to load an example frame
+  for the new type (`PRESETS` in `src/lib/frame/presets.ts`) and has an Undo.
+- **Example frames** are plausible numbers, not recommendations and not checked
+  against any maker's chart. The mountain example is a 29-inch hardtail
+  specified by reach and stack (head angle 65°, 540 mm axle-to-crown, 44 mm
+  rake, 40 mm BB drop, 435 mm chainstays). It builds with no errors: wheelbase
+  about 1212 mm, trail about 124 mm, BB height 331 mm.
+- **"Typical" tags** (`TYPICAL_RANGES_BY_TYPE`) and the **ride-feel bands**
+  (`PROFILES` in `ride-feel.ts`) are separate tables per type. **The mountain
+  numbers are my own estimates, not verified limits**, and the UI says so. If you
+  have ranges you trust, replace them there; they are plain constants.
+- **Suspension fork:** the tool treats the fork as rigid. For a suspension fork,
+  enter axle-to-crown at the sag you ride at. A compressed fork steepens the head
+  angle and shortens the trail. The ride-feel card says this for mountain frames.
+- **Building notes** add three mountain steps before cutting: check the real
+  fork, check the seat tube for a dropper post, and mock up tire and chain
+  clearance (this tool only checks the tires against the seat tube and down
+  tube, not the stays, chain or crank).
+- The type travels in share links and saved files. A bad or missing value reads
+  as road.
+- **Not modeled:** fork travel and sag as an input, chainstay and seat stay tire
+  clearance, 27.5-inch and fat bike specifics beyond the rim and tire numbers,
+  and other types (gravel as its own type, touring, track).

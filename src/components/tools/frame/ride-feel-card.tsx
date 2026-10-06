@@ -6,7 +6,7 @@ import {
   formatLengthValue,
   parseLength,
   rideFeel,
-  RIDE_DISCLAIMER,
+  rideDisclaimer,
   type FrameInputs,
   type FrameResult,
   type LengthUnit,
@@ -25,7 +25,7 @@ export function RideFeelCard({ inputs, result, unit }: { inputs: FrameInputs; re
     <Card className="card-tone tone-lavender entry-zone">
       <CardHeader>
         <CardTitle>How it might ride</CardTitle>
-        <CardDescription>{RIDE_DISCLAIMER}</CardDescription>
+        <CardDescription>{rideDisclaimer(inputs.bikeType)}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-6">
         <p className="text-lg font-medium">{feel.summary}</p>

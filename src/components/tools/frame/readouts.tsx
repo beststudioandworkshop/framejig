@@ -3,6 +3,7 @@
 import { AlertTriangleIcon, XCircleIcon } from "lucide-react"
 
 import {
+  BIKE_TYPE_LABELS,
   formatAngle,
   formatLengthValue,
   readouts,
@@ -66,7 +67,8 @@ export function Readouts({ inputs, result, unit }: { inputs: FrameInputs; result
       <CardHeader>
         <CardTitle>What you get</CardTitle>
         <CardDescription>
-          Updates as you type. The &quot;typical&quot; tags are rules of thumb for road and gravel frames, not limits.
+          Updates as you type. The &quot;typical&quot; tags are rules of thumb for {BIKE_TYPE_LABELS[inputs.bikeType].toLowerCase()}{" "}
+          frames, not limits.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">

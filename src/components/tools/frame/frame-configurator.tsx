@@ -4,7 +4,7 @@ import { useMemo, useState } from "react"
 import { ArrowRightIcon, InfoIcon } from "lucide-react"
 import Link from "next/link"
 
-import { buildFrame, DEFAULT_INPUTS, toolLink, type FrameInputs, type LengthUnit } from "@/lib/frame"
+import { BIKE_TYPE_LABELS, buildFrame, DEFAULT_INPUTS, PRESETS, toolLink, type BikeType, type FrameInputs, type LengthUnit } from "@/lib/frame"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -29,6 +29,19 @@ export function FrameConfigurator({ initial, initialReference }: FrameConfigurat
   const [reference, setReference] = useState<FrameInputs | null>(initialReference ?? null)
   const result = useMemo(() => buildFrame(inputs), [inputs])
   const referenceResult = useMemo(() => (reference ? buildFrame(reference) : null), [reference])
+
+  const changeBikeType = (type: BikeType) => {
+    if (type === inputs.bikeType) return
+    const before = inputs
+    setInputs({ ...inputs, bikeType: type })
+    toast(`Switched to ${BIKE_TYPE_LABELS[type].toLowerCase()}. Your numbers are unchanged.`, {
+      action: {
+        label: `Load an example ${BIKE_TYPE_LABELS[type].toLowerCase()} frame`,
+        onClick: () => setInputs(PRESETS[type]),
+      },
+      cancel: { label: "Undo", onClick: () => setInputs(before) },
+    })
+  }
 
   const load = (frame: FrameInputs, ref: FrameInputs | null, name: string) => {
     const before = { inputs, reference }
@@ -64,7 +77,7 @@ export function FrameConfigurator({ initial, initialReference }: FrameConfigurat
       </Alert>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
         <div className="min-w-0 lg:col-span-2">
-          <Controls inputs={inputs} unit={unit} onUnit={setUnit} update={setInputs} />
+          <Controls inputs={inputs} unit={unit} onUnit={setUnit} update={setInputs} onBikeType={changeBikeType} />
         </div>
         <div className="flex min-w-0 flex-col gap-6 lg:col-span-3">
           <SideView

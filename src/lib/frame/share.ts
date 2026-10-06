@@ -3,12 +3,13 @@
 // defaults is stored. Decoding never throws: junk gives null, and anything
 // missing or wrong falls back to the default for that field.
 import { DEFAULT_INPUTS } from "./constants"
-import type { Drivers, FrameInputs, FrameMaterial, FrameProcess, FrameTubeSpecs, TubeSpec } from "./types"
+import type { BikeType, Drivers, FrameInputs, FrameMaterial, FrameProcess, FrameTubeSpecs, TubeSpec } from "./types"
 
 const VERSION = 1
 
 const MATERIALS: FrameMaterial[] = ["steel", "titanium", "aluminum"]
 const PROCESSES: FrameProcess[] = ["tig", "braze", "lugged"]
+const BIKE_TYPES: BikeType[] = ["road", "mountain"]
 const DRIVER_VALUES: { [K in keyof Drivers]: Drivers[K][] } = {
   bb: ["drop", "height"],
   rear: ["chainstay", "rearCenter"],
@@ -99,6 +100,7 @@ export function sanitizeFrame(raw: unknown): FrameInputs {
       rimDiameter: isNumber(rawWheel.rimDiameter) ? rawWheel.rimDiameter : d.wheel.rimDiameter,
       tireSection: isNumber(rawWheel.tireSection) ? rawWheel.tireSection : d.wheel.tireSection,
     },
+    bikeType: BIKE_TYPES.includes(c.bikeType as BikeType) ? (c.bikeType as BikeType) : d.bikeType,
     material: MATERIALS.includes(c.material as FrameMaterial) ? (c.material as FrameMaterial) : d.material,
     process: PROCESSES.includes(c.process as FrameProcess) ? (c.process as FrameProcess) : d.process,
     drivers: drivers as unknown as Drivers,

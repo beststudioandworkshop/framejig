@@ -9,6 +9,9 @@ export interface Vec2 {
 export type FrameMaterial = "steel" | "titanium" | "aluminum"
 export type FrameProcess = "tig" | "braze" | "lugged"
 
+/** What the frame is for. It changes the guidance and the example numbers, never the geometry maths. */
+export type BikeType = "road" | "mountain"
+
 /**
  * Which measurement drives each part of the frame. Only the driven field is
  * read; the others are derived and shown in the readouts.
@@ -59,6 +62,7 @@ export interface FrameInputs {
   /** Pedal axle to the toe of the shoe, mm. Used for the toe overlap check. */
   toeProjection: number
 
+  bikeType: BikeType
   material: FrameMaterial
   process: FrameProcess
 

@@ -66,3 +66,37 @@ describe("building notes", () => {
     expect(jig.body).toContain("tape")
   })
 })
+
+describe("building notes by bike type", () => {
+  const ids = (bikeType: "road" | "mountain", process: FrameProcess = "tig", material: FrameMaterial = "steel") =>
+    buildingNotes({ process, material, bikeType }).map((s) => s.id)
+
+  it("mountain frames get the fork, dropper and clearance steps; road frames don't", () => {
+    for (const id of ["mtb-fork", "mtb-dropper", "mtb-clearance"]) {
+      expect(ids("mountain")).toContain(id)
+      expect(ids("road")).not.toContain(id)
+    }
+    expect(buildingNotes({ process: "tig", material: "steel" }).map((s) => s.id)).not.toContain("mtb-fork")
+  })
+
+  it("those steps come before cutting, and everything else is unchanged", () => {
+    const m = ids("mountain")
+    for (const id of ["mtb-fork", "mtb-dropper", "mtb-clearance"]) expect(m.indexOf(id)).toBeLessThan(m.indexOf("cut"))
+    expect(m.filter((i) => !i.startsWith("mtb-"))).toEqual(ids("road"))
+  })
+
+  it("works for every process and material", () => {
+    for (const p of ["tig", "braze", "lugged"] as const)
+      for (const mat of ["steel", "titanium", "aluminum"] as const) {
+        const list = ids("mountain", p, mat)
+        expect(new Set(list).size).toBe(list.length)
+        expect(list.at(-1)).toBe("review")
+      }
+  })
+
+  it("says what the tool does not check", () => {
+    const step = buildingNotes({ process: "tig", material: "steel", bikeType: "mountain" }).find((s) => s.id === "mtb-clearance")!
+    expect(step.body).toContain("chainstays")
+    expect(step.body.toLowerCase()).toContain("doesn't check")
+  })
+})

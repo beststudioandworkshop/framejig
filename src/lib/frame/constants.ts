@@ -22,6 +22,7 @@ export const DEFAULT_INPUTS: FrameInputs = {
   wheel: { rimDiameter: 622, tireSection: 28 },
   crankLength: 172.5,
   toeProjection: 120,
+  bikeType: "road",
   material: "steel",
   process: "tig",
   drivers: {
@@ -55,6 +56,11 @@ export const DEFAULT_INPUTS: FrameInputs = {
     chainstay: T(22.2, 1),
     seatstay: T(16, 0.8),
   },
+}
+
+export const BIKE_TYPE_LABELS: Record<import("./types").BikeType, string> = {
+  road: "Road and gravel",
+  mountain: "Mountain",
 }
 
 export const MATERIAL_LABELS: Record<FrameMaterial, string> = {

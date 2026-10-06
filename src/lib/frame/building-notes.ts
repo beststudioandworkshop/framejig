@@ -2,7 +2,7 @@
 // and what it's made of. Rules of thumb for a planner. They are not a course,
 // not engineering advice, and not a substitute for someone experienced looking
 // over your first frame.
-import type { FrameInputs, FrameMaterial, FrameProcess } from "./types"
+import type { BikeType, FrameInputs, FrameMaterial, FrameProcess } from "./types"
 
 export interface BuildStep {
   id: string
@@ -11,6 +11,7 @@ export interface BuildStep {
   /** Shown only for these joining processes / materials. Absent means everyone. */
   processes?: FrameProcess[]
   materials?: FrameMaterial[]
+  bikeTypes?: BikeType[]
 }
 
 const STEPS: BuildStep[] = [
@@ -23,6 +24,24 @@ const STEPS: BuildStep[] = [
     id: "tubing",
     title: "Choose and inspect the tubing",
     body: "Ask your tubing supplier which alloy and wall thickness suit the rider and the use. Roll each tube on a flat surface to check it's straight, and check the diameters with calipers before you cut.",
+  },
+  {
+    id: "mtb-fork",
+    title: "Check the fork you'll actually use",
+    body: "The numbers assume the fork's axle-to-crown length at the sag you ride at. Measure the real fork, with its travel, and compare. A longer or shorter fork than the one you designed around changes the head angle and the BB height.",
+    bikeTypes: ["mountain"],
+  },
+  {
+    id: "mtb-dropper",
+    title: "Check the seat tube for a dropper post",
+    body: "If you'll run a dropper post, check its diameter, the seat tube's inside diameter after reaming, and how much of the post has to sit inside the tube. Do this before you cut, not after.",
+    bikeTypes: ["mountain"],
+  },
+  {
+    id: "mtb-clearance",
+    title: "Mock up tire and chain clearance",
+    body: "This tool checks the tires against the seat tube and down tube only. It doesn't check the chainstays, seat stays, chain or crank. With big tires, mock these up before you commit.",
+    bikeTypes: ["mountain"],
   },
   {
     id: "cut",
@@ -108,10 +127,11 @@ const STEPS: BuildStep[] = [
 ]
 
 /** The steps for this frame, in order. */
-export function buildingNotes(inputs: Pick<FrameInputs, "process" | "material">): BuildStep[] {
+export function buildingNotes(inputs: Pick<FrameInputs, "process" | "material"> & { bikeType?: BikeType }): BuildStep[] {
   return STEPS.filter(
     (s) =>
       (!s.processes || s.processes.includes(inputs.process)) &&
-      (!s.materials || s.materials.includes(inputs.material)),
+      (!s.materials || s.materials.includes(inputs.material)) &&
+      (!s.bikeTypes || s.bikeTypes.includes(inputs.bikeType ?? "road")),
   )
 }

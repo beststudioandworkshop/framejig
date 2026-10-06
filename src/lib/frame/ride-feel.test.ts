@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { along, buildFrame, DEFAULT_INPUTS, rideFeel, RIDE_DISCLAIMER, type FrameInputs, type RideTraitId } from "./index"
+import { along, buildFrame, DEFAULT_INPUTS, MOUNTAIN_INPUTS, rideDisclaimer, rideFeel, RIDE_DISCLAIMER, type FrameInputs, type RideTraitId } from "./index"
 
 const base = DEFAULT_INPUTS
 function feel(over: Partial<FrameInputs> = {}, inseam?: number | null) {
@@ -154,5 +154,71 @@ describe("notes", () => {
 describe("disclaimer", () => {
   it("says these are rules of thumb", () => {
     expect(RIDE_DISCLAIMER.toLowerCase()).toContain("rules of thumb")
+  })
+})
+
+describe("mountain bikes", () => {
+  const mtb = (over: Partial<FrameInputs> = {}) => {
+    const inputs = { ...MOUNTAIN_INPUTS, ...over }
+    const r = buildFrame(inputs)
+    return { inputs, m: r.metrics!, f: rideFeel(inputs, r.metrics!) }
+  }
+
+  it("the example mountain frame reads as a mountain bike, not as an extreme road bike", () => {
+    const { f } = mtb()
+    expect(label(f, "steering")).toBe("Stable")
+    expect(label(f, "handling")).toBe("Planted")
+    expect(label(f, "bottomBracket")).toBe("Typical")
+    expect(label(f, "weight")).toBe("Middle")
+    expect(f.summary).toContain("calm")
+  })
+
+  it("the same numbers read very differently as a road bike", () => {
+    const asRoad = rideFeel({ ...MOUNTAIN_INPUTS, bikeType: "road" }, buildFrame(MOUNTAIN_INPUTS).metrics!)
+    expect(label(asRoad, "steering")).toBe("Very stable")
+    expect(label(asRoad, "bottomBracket")).toBe("High")
+    expect(label(mtb().f, "steering")).not.toBe("Very stable")
+  })
+
+  it("the same five traits, with positions in range and no NaN, across a spread of frames", () => {
+    for (const headTubeAngle of [63, 65, 68, 70])
+      for (const forkRake of [37, 44, 51])
+        for (const bbDrop of [25, 40, 55]) {
+          const { f } = mtb({ headTubeAngle, forkRake, bbDrop })
+          expect(f.traits.map((t) => t.id)).toEqual(["steering", "handling", "position", "weight", "bottomBracket"])
+          for (const t of f.traits) {
+            expect(t.position).toBeGreaterThanOrEqual(0)
+            expect(t.position).toBeLessThanOrEqual(1)
+          }
+          expect(JSON.stringify(f)).not.toMatch(/NaN|undefined|null/)
+        }
+  })
+
+  it("more trail is steadier steering, a longer wheelbase more planted, a taller stack more upright", () => {
+    expect(pos(mtb({ headTubeAngle: 63 }).f, "steering")).toBeGreaterThan(pos(mtb({ headTubeAngle: 68 }).f, "steering"))
+    expect(pos(mtb({ reach: 500 }).f, "handling")).toBeGreaterThan(pos(mtb({ reach: 430 }).f, "handling"))
+    expect(pos(mtb({ stack: 660 }).f, "position")).toBeGreaterThan(pos(mtb({ stack: 590 }).f, "position"))
+    expect(pos(mtb({ bbDrop: 50 }).f, "bottomBracket")).toBeGreaterThan(pos(mtb({ bbDrop: 28 }).f, "bottomBracket"))
+  })
+
+  it("only mountain frames get the suspension fork note, and it explains the sag", () => {
+    const note = mtb().f.notes.find((n) => n.startsWith("Fork"))
+    expect(note).toBeDefined()
+    expect(note).toContain("sag")
+    expect(feel().f.notes.some((n) => n.startsWith("Fork"))).toBe(false)
+  })
+
+  it("chainstay comments use the mountain thresholds", () => {
+    const text = (cs: number) => mtb({ chainstayLength: cs }).f.traits.find((t) => t.id === "handling")!.text
+    expect(text(420)).toContain("Short chainstays")
+    expect(text(450)).toContain("Long chainstays")
+    expect(text(435)).not.toContain("chainstays")
+  })
+
+  it("each type has its own disclaimer, mountain says it is an estimate", () => {
+    expect(rideDisclaimer("road")).toBe(RIDE_DISCLAIMER)
+    expect(rideDisclaimer("mountain")).toContain("mountain")
+    expect(rideDisclaimer("mountain").toLowerCase()).toContain("estimates")
+    expect(rideDisclaimer("mountain").toLowerCase()).toContain("rules of thumb")
   })
 })

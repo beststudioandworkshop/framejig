@@ -12,7 +12,9 @@ import {
   type FrameProcess,
   type FrameTubeSpecs,
   type LengthUnit,
+  type BikeType,
   type Drivers,
+  BIKE_TYPE_LABELS,
 } from "@/lib/frame"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { FieldGroup, FieldLegend, FieldSet } from "@/components/ui/field"
@@ -27,6 +29,7 @@ interface ControlsProps {
   unit: LengthUnit
   onUnit: (unit: LengthUnit) => void
   update: Update
+  onBikeType: (type: BikeType) => void
 }
 
 const TUBE_LABELS: Record<keyof FrameTubeSpecs, string> = {
@@ -74,7 +77,7 @@ const PROCESS_ITEMS: { value: FrameProcess; label: string }[] = [
   { value: "lugged", label: "Lugged" },
 ]
 
-export function Controls({ inputs, unit, onUnit, update }: ControlsProps) {
+export function Controls({ inputs, unit, onUnit, update, onBikeType }: ControlsProps) {
   const len = (label: string, key: keyof FrameInputs, hint?: string) => (
     <ValueInput
       label={label}
@@ -141,6 +144,22 @@ export function Controls({ inputs, unit, onUnit, update }: ControlsProps) {
       <CardContent className="flex flex-col gap-6">
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
           <div className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium">Bike type</span>
+            <ToggleGroup
+              variant="outline"
+              spacing={0}
+              value={[inputs.bikeType]}
+              onValueChange={(v) => v[0] && onBikeType(v[0] as BikeType)}
+              aria-label="Bike type"
+            >
+              {(Object.keys(BIKE_TYPE_LABELS) as BikeType[]).map((t) => (
+                <ToggleGroupItem key={t} value={t}>
+                  {BIKE_TYPE_LABELS[t]}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+          </div>
+          <div className="flex flex-col gap-1.5">
             <span className="text-sm font-medium">Units</span>
             <ToggleGroup
               variant="outline"
@@ -178,12 +197,12 @@ export function Controls({ inputs, unit, onUnit, update }: ControlsProps) {
         <FieldSet>
           <FieldLegend variant="label">Fork and wheels</FieldLegend>
           <FieldGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {len("Fork axle-to-crown", "forkAxleToCrown", "To the bottom of the head tube.")}
+            {len("Fork axle-to-crown", "forkAxleToCrown", inputs.bikeType === "mountain" ? "To the bottom of the head tube. For a suspension fork, use the length at the sag you ride at." : "To the bottom of the head tube.")}
             {len("Fork rake (offset)", "forkRake")}
             <ValueInput
               label="Rim diameter"
               unit={unit}
-              hint="622 mm for 700c."
+              hint="622 mm for 700c and 29-inch, 584 mm for 27.5-inch."
               value={inputs.wheel.rimDiameter}
               parse={(t) => parseLength(t, unit)}
               format={(mm) => formatLengthValue(mm, unit)}
