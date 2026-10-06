@@ -20,13 +20,15 @@ interface ValueInputProps {
   hideLabel?: boolean
   /** Replaces the text label (e.g. a "measured as" dropdown). `label` is still the accessible name. */
   labelNode?: ReactNode
+  /** Keyboard to show on phones. Default is the number pad; use "text" when people type units. */
+  inputMode?: "decimal" | "text"
 }
 
 /**
  * Text field for a number. Valid values are pushed up as you type; the text is
  * only reformatted on blur so the cursor isn't fought.
  */
-export function ValueInput({ label, unit, value, parse, format, onChange, hint, disabled, hideLabel, labelNode }: ValueInputProps) {
+export function ValueInput({ label, unit, value, parse, format, onChange, hint, disabled, hideLabel, labelNode, inputMode = "decimal" }: ValueInputProps) {
   const id = useId()
   const [draft, setDraft] = useState<string | null>(null)
   // Show what's being typed, unless the number was changed from outside (a loaded
@@ -51,7 +53,7 @@ export function ValueInput({ label, unit, value, parse, format, onChange, hint, 
       )}
       <Input
         id={id}
-        inputMode="decimal"
+        inputMode={inputMode}
         autoComplete="off"
         value={shown}
         disabled={disabled}

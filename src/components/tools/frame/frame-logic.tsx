@@ -44,6 +44,26 @@ import { ValueInput } from "./value-input"
 const RANGE_ROWS: RangeKey[] = ["headTubeAngle", "seatTubeAngle", "trail", "wheelbase", "chainstayLength", "bbDrop"]
 type Family = BikeType | "freak"
 
+type RiderUnit = "cm" | "ftin" | "in"
+const RIDER_UNIT_LABEL: Record<RiderUnit, string> = { cm: "cm", ftin: "ft + in", in: "in" }
+
+/** A bare number is read in the chosen unit; anything typed with its own unit wins. */
+function parseRiderLength(text: string, unit: RiderUnit): number | null {
+  if (/^\s*\d+(\.\d+)?\s*$/.test(text)) {
+    const n = Number(text)
+    if (unit === "cm") return n * 10
+    if (unit === "in") return n * 25.4
+    return n < 12 ? n * 304.8 : n * 25.4
+  }
+  return parseLength(text, "mm")
+}
+
+function formatRiderLength(mm: number, unit: RiderUnit): string {
+  if (unit === "cm") return String(Math.round(mm) / 10)
+  if (unit === "in") return formatLengthValue(mm, "in")
+  return formatFeetInches(mm)
+}
+
 export function FrameLogic() {
   const [family, setFamily] = useState<Family>("road")
   const [style, setStyle] = useState<string | null>(null)
@@ -51,6 +71,9 @@ export function FrameLogic() {
   const [showFamilies, setShowFamilies] = useState(true)
   const [size, setSize] = useState<SizeId>("M")
   const [unit, setUnit] = useState<LengthUnit>("mm")
+  const [riderUnit, setRiderUnit] = useState<RiderUnit>("cm")
+  const riderParse = (t: string) => parseRiderLength(t, riderUnit)
+  const riderFormat = (mm: number) => formatRiderLength(mm, riderUnit)
   const [height, setHeight] = useState<number | null>(null)
   const [inseam, setInseam] = useState<number | null>(null)
 
@@ -305,24 +328,39 @@ export function FrameLogic() {
               </div>
 
               <div className="flex flex-col gap-3 rounded-lg border p-3">
-                <h3 className="text-sm font-medium">Or start from the rider</h3>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="text-sm font-medium">Or start from the rider</h3>
+                  <ToggleGroup
+                    variant="outline"
+                    spacing={0}
+                    value={[riderUnit]}
+                    onValueChange={(v) => v[0] && setRiderUnit(v[0] as RiderUnit)}
+                    aria-label="Rider units"
+                  >
+                    <ToggleGroupItem value="cm">cm</ToggleGroupItem>
+                    <ToggleGroupItem value="ftin">ft + in</ToggleGroupItem>
+                    <ToggleGroupItem value="in">inches</ToggleGroupItem>
+                  </ToggleGroup>
+                </div>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <ValueInput
                     label="Your height"
-                    unit={unit}
-                    hint={`Type it any way: 5'10", 70 in, 178 cm.`}
+                    unit={RIDER_UNIT_LABEL[riderUnit]}
+                    inputMode="text"
+                    hint={`Pick a unit, or type it with its unit: 5'10", 70 in, 178 cm.`}
                     value={height ?? Number.NaN}
-                    parse={(t) => parseLength(t, unit)}
-                    format={(mm) => formatLengthValue(mm, unit)}
+                    parse={riderParse}
+                    format={riderFormat}
                     onChange={onHeight}
                   />
                   <ValueInput
                     label="Your inseam (optional)"
-                    unit={unit}
+                    unit={RIDER_UNIT_LABEL[riderUnit]}
+                    inputMode="text"
                     hint="Crotch to floor, shoes off. Adds a standover note."
                     value={inseam ?? Number.NaN}
-                    parse={(t) => parseLength(t, unit)}
-                    format={(mm) => formatLengthValue(mm, unit)}
+                    parse={riderParse}
+                    format={riderFormat}
                     onChange={setInseam}
                   />
                 </div>
