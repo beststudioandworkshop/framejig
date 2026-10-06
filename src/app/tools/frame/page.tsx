@@ -15,9 +15,9 @@ export default async function FramePage({ searchParams }: { searchParams: Promis
       <div>
         <h1 className="text-3xl font-semibold tracking-tight">Frame geometry</h1>
         <p className="mt-2 text-muted-foreground">
-          Set the angles and tube lengths, or the stack and reach, and see what the frame works out to. New to this?{" "}
-          <Link href="/tools/start" className="underline underline-offset-4 hover:text-foreground">
-            Start here
+          Set the angles and tube lengths, or the stack and reach, and see what the frame works out to. New to this? Try the{" "}
+          <Link href="/tools/logic" className="underline underline-offset-4 hover:text-foreground">
+            Frame logic
           </Link>
           .
         </p>

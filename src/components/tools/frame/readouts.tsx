@@ -3,7 +3,7 @@
 import { AlertTriangleIcon, XCircleIcon } from "lucide-react"
 
 import {
-  BIKE_TYPE_LABELS,
+  profileFor,
   formatAngle,
   formatLengthValue,
   readouts,
@@ -67,7 +67,7 @@ export function Readouts({ inputs, result, unit }: { inputs: FrameInputs; result
       <CardHeader>
         <CardTitle>What you get</CardTitle>
         <CardDescription>
-          Updates as you type. The &quot;typical&quot; tags are rules of thumb for {BIKE_TYPE_LABELS[inputs.bikeType].toLowerCase()}{" "}
+          Updates as you type. The &quot;typical&quot; tags are rules of thumb for {profileFor(inputs.bikeType, inputs.bikeStyle).label.toLowerCase()}{" "}
           frames, not limits.
         </CardDescription>
       </CardHeader>

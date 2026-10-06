@@ -4,6 +4,7 @@
 // and not verified limits. Rider, tires, fork, stem, bars and wheel size all
 // change how a bike feels. Treat it as a way to read the numbers, not a verdict.
 import { CATEGORIES } from "./categories"
+import { profileFor } from "./profile"
 import type { Band, BandLast, RideProfile } from "./category-types"
 import type { BikeType, FrameInputs, FrameMetrics } from "./types"
 
@@ -44,11 +45,11 @@ function band(v: number, bands: Band[], last: BandLast): BandLast {
   return bands.find((b) => v < b.below) ?? last
 }
 
-const profile = (type: BikeType): RideProfile => CATEGORIES[type].ride
+const profile = (type: BikeType, style?: string | null): RideProfile => profileFor(type, style).ride
 
 /** The caveat to show with the ride feel for this bike type. */
-export function rideDisclaimer(type: BikeType): string {
-  return profile(type).disclaimer
+export function rideDisclaimer(type: BikeType, style?: string | null): string {
+  return profile(type, style).disclaimer
 }
 
 /** The road and gravel caveat (the original wording). */
@@ -58,7 +59,7 @@ const mm = (n: number) => `${Number(n.toFixed(1))} mm`
 
 /** Plain-language read of the geometry. Always returns the same traits, in order. */
 export function rideFeel(inputs: FrameInputs, m: FrameMetrics, options: RideOptions = {}): RideFeel {
-  const prof = profile(inputs.bikeType)
+  const prof = profile(inputs.bikeType, inputs.bikeStyle)
   const ratio = m.stack / m.reach
 
   const steer = band(m.trail, prof.steering.bands, prof.steering.last)

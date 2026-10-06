@@ -194,3 +194,15 @@ example frames and the size picker, so they can't drift apart.
   clearance for touring, track ends for track).
 - Not modeled: track ends and 120 mm rear spacing beyond the input, fork travel as
   an input, chainstay and seat stay tire clearance, and full-suspension frames.
+
+## Taxonomy, styles and the Frame logic page
+
+- The "Start" page is now **Frame logic** (`/tools/logic`). `/tools/start` redirects there.
+- Six families: road, gravel, mountain, touring, track and **bruiser** (retro, cruising, fun bikes).
+- 24 styles inside the families (`styles.ts`). A style holds only what differs from its family.
+  `profileFor(type, style)` merges them: ranges, ride bands and the example frame.
+- Six **freak** bikes are info cards only, with a note on why the tool can't model each one.
+- `chart.ts` builds the map (steering and length, angles, back end and bottom bracket) from the same ranges.
+- The frame tool has a Style dropdown. Changing type clears the style.
+- All numbers are estimates until the charts in `charts-needed.md` arrive.
+- Known: small road and track style boxes overlap on the map; use the tabs to reach them.

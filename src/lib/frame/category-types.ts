@@ -82,6 +82,52 @@ export interface CategoryProfile {
   /** The example frame: a medium, with every derived number filled in. */
   base: FrameInputs
   grade: GradeRule
+  /** Set on a style's merged profile: which style this is, and what sets it apart from its family. */
+  styleId?: string
+  different?: string[]
+}
+
+/**
+ * A sub-style of a bike type, such as "enduro" within mountain. It only holds what
+ * differs from its family; everything else comes from the family. The example
+ * frame is fitted to the middle of the style's ranges.
+ */
+export interface StyleProfile {
+  id: string
+  family: BikeType
+  label: string
+  tagline: string
+  forWhat: string
+  /** What sets it apart from the rest of its family. */
+  different: string[]
+  /** Typical ranges that differ from the family's (the label and unit come from the family). */
+  ranges?: Partial<Record<RangeKey, { low: number; high: number }>>
+  positionRange?: { low: number; high: number }
+  /** Wheel and tire for the example, when they differ from the family. */
+  wheel?: { rimDiameter: number; tireSection: number }
+  crankLength?: number
+  /** Fork axle-to-crown for the example, when it differs from the family's. */
+  forkAxleToCrown?: number
+  grade?: Partial<GradeRule>
+  rangeWhy?: Partial<Record<RangeKey | "position", string>>
+  /** Where the numbers come from. */
+  reference: string
+}
+
+/** Families that exist in the taxonomy but that this tool can't model. */
+export type FamilyId = BikeType | "freak"
+
+/** A bike the tool can't draw yet, kept in the taxonomy for the fun and the honesty. */
+export interface InfoStyle {
+  id: string
+  label: string
+  tagline: string
+  forWhat: string
+  different: string[]
+  /** Why the tool can't model it, in plain words. */
+  whyNot: string
+  /** Whether it could be modeled later with the current kind of frame. */
+  possibleLater: boolean
 }
 
 export type SizeId = "S" | "M" | "L" | "XL"

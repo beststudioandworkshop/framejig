@@ -18,8 +18,8 @@ const RANGE_KEYS: RangeKey[] = ["headTubeAngle", "seatTubeAngle", "bbDrop", "tra
 const SCALES = ["steering", "handling", "position", "weight", "bottomBracket"] as const
 
 describe("categories", () => {
-  it("has the five bike types, in order, each keyed by its own id and labeled", () => {
-    expect(BIKE_TYPES).toEqual(["road", "gravel", "mountain", "touring", "track"])
+  it("has the six bike types, in order, each keyed by its own id and labeled", () => {
+    expect(BIKE_TYPES).toEqual(["road", "gravel", "mountain", "touring", "track", "bruiser"])
     expect(Object.keys(CATEGORIES)).toEqual(BIKE_TYPES)
     for (const t of BIKE_TYPES) {
       expect(CATEGORIES[t].id).toBe(t)
@@ -134,12 +134,13 @@ describe("categories", () => {
   })
 
   describe("how the categories differ", () => {
-    type T = (typeof BIKE_TYPES)[number]
-    const metrics = Object.fromEntries(BIKE_TYPES.map((t) => [t, buildFrame(CATEGORIES[t].base).metrics!])) as Record<
+    type T = "road" | "gravel" | "mountain" | "touring" | "track"
+    const CORE: T[] = ["road", "gravel", "mountain", "touring", "track"]
+    const metrics = Object.fromEntries(CORE.map((t) => [t, buildFrame(CATEGORIES[t].base).metrics!])) as Record<
       T,
       NonNullable<ReturnType<typeof buildFrame>["metrics"]>
     >
-    const others = (t: T) => BIKE_TYPES.filter((x) => x !== t)
+    const others = (t: T) => CORE.filter((x) => x !== t)
 
     it("a mountain bike has the most trail and the slackest head angle", () => {
       for (const t of others("mountain")) {
@@ -164,6 +165,13 @@ describe("categories", () => {
       for (const t of others("touring")) expect(metrics.touring.chainstayLength).toBeGreaterThan(metrics[t].chainstayLength)
       const ratio = (t: T) => metrics[t].stack / metrics[t].reach
       for (const t of ["road", "track", "mountain"] as const) expect(ratio("touring")).toBeGreaterThan(ratio(t))
+    })
+    it("a bruiser is slack and long and low-geared for fun: slacker than road, longer than gravel, calmer than a track bike", () => {
+      const m = buildFrame(CATEGORIES.bruiser.base).metrics!
+      expect(CATEGORIES.bruiser.base.headTubeAngle).toBeLessThan(CATEGORIES.road.base.headTubeAngle)
+      expect(m.wheelbase).toBeGreaterThan(metrics.gravel.wheelbase)
+      expect(m.chainstayLength).toBeGreaterThan(metrics.road.chainstayLength)
+      expect(m.bbDrop).toBeLessThan(metrics.road.bbDrop)
     })
     it("gravel sits between road and touring on wheelbase and chainstay", () => {
       expect(metrics.gravel.wheelbase).toBeGreaterThan(metrics.road.wheelbase)

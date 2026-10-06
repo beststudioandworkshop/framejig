@@ -2,6 +2,7 @@
 // NOT verified design limits, and the estimates are mine. They live in
 // categories/, one profile per bike type. Say so wherever they're shown.
 import { CATEGORIES } from "./categories"
+import { profileFor } from "./profile"
 import type { RangeKey, RangeTable } from "./category-types"
 import type { BikeType, FrameMetrics, FrameInputs } from "./types"
 
@@ -14,19 +15,20 @@ export const TYPICAL_RANGES_BY_TYPE: Record<BikeType, RangeTable> = {
   mountain: CATEGORIES.mountain.ranges,
   touring: CATEGORIES.touring.ranges,
   track: CATEGORIES.track.ranges,
+  bruiser: CATEGORIES.bruiser.ranges,
 }
 
 /** Road ranges (the original table). */
 export const TYPICAL_RANGES = TYPICAL_RANGES_BY_TYPE.road
 
-export function checkRange(key: RangeKey, value: number, type: BikeType = "road"): RangeVerdict {
-  const r = TYPICAL_RANGES_BY_TYPE[type][key]
+export function checkRange(key: RangeKey, value: number, type: BikeType = "road", style?: string | null): RangeVerdict {
+  const r = profileFor(type, style).ranges[key]
   return value < r.low ? "low" : value > r.high ? "high" : "typical"
 }
 
 export function readouts(inputs: FrameInputs, m: FrameMetrics) {
   const type = inputs.bikeType
-  const table = TYPICAL_RANGES_BY_TYPE[type]
+  const table = profileFor(type, inputs.bikeStyle).ranges
   const values: Record<RangeKey, number> = {
     headTubeAngle: inputs.headTubeAngle,
     seatTubeAngle: inputs.seatTubeAngle,
@@ -39,6 +41,6 @@ export function readouts(inputs: FrameInputs, m: FrameMetrics) {
     key,
     ...table[key],
     value: values[key],
-    verdict: checkRange(key, values[key], type),
+    verdict: checkRange(key, values[key], type, inputs.bikeStyle),
   }))
 }

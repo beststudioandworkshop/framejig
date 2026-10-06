@@ -3,6 +3,7 @@
 // defaults is stored. Decoding never throws: junk gives null, and anything
 // missing or wrong falls back to the default for that field.
 import { BIKE_TYPES, DEFAULT_INPUTS } from "./constants"
+import { isStyleOf } from "./styles"
 import type { BikeType, Drivers, FrameInputs, FrameMaterial, FrameProcess, FrameTubeSpecs, TubeSpec } from "./types"
 
 const VERSION = 1
@@ -32,6 +33,12 @@ function fromBase64Url(text: string): string | null {
   } catch {
     return null
   }
+}
+
+/** The bike type, and its style only if that style belongs to the type. */
+function bikeIdentity(type: unknown, style: unknown): { bikeType: BikeType; bikeStyle: string | null } {
+  const bikeType = BIKE_TYPES.includes(type as BikeType) ? (type as BikeType) : DEFAULT_INPUTS.bikeType
+  return { bikeType, bikeStyle: typeof style === "string" && isStyleOf(bikeType, style) ? style : null }
 }
 
 const isObject = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v)
@@ -99,7 +106,7 @@ export function sanitizeFrame(raw: unknown): FrameInputs {
       rimDiameter: isNumber(rawWheel.rimDiameter) ? rawWheel.rimDiameter : d.wheel.rimDiameter,
       tireSection: isNumber(rawWheel.tireSection) ? rawWheel.tireSection : d.wheel.tireSection,
     },
-    bikeType: BIKE_TYPES.includes(c.bikeType as BikeType) ? (c.bikeType as BikeType) : d.bikeType,
+    ...bikeIdentity(c.bikeType, c.bikeStyle),
     material: MATERIALS.includes(c.material as FrameMaterial) ? (c.material as FrameMaterial) : d.material,
     process: PROCESSES.includes(c.process as FrameProcess) ? (c.process as FrameProcess) : d.process,
     drivers: drivers as unknown as Drivers,

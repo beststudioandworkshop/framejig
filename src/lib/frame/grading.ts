@@ -3,7 +3,7 @@
 // makers, so rider heights are rough.
 import { buildFrame } from "./build"
 import { syncDerived } from "./convert"
-import { CATEGORIES } from "./categories"
+import { profileFor } from "./profile"
 import type { SizeId, SizeInfo } from "./category-types"
 import type { BikeType, FrameInputs } from "./types"
 
@@ -17,8 +17,8 @@ export const SIZES: SizeInfo[] = [
 export const sizeInfo = (id: SizeId): SizeInfo => SIZES.find((s) => s.id === id)!
 
 /** The example frame for a category in a size. The medium is the example itself. */
-export function sizedFrame(type: BikeType, size: SizeId): FrameInputs {
-  const { base, grade } = CATEGORIES[type]
+export function sizedFrame(type: BikeType, size: SizeId, style?: string | null): FrameInputs {
+  const { base, grade } = profileFor(type, style)
   const step = sizeInfo(size).step
   if (step === 0) return base
   const m = buildFrame(base).metrics!

@@ -23,6 +23,7 @@ export const DEFAULT_INPUTS: FrameInputs = {
   crankLength: 172.5,
   toeProjection: 90,
   bikeType: "road",
+  bikeStyle: null,
   material: "steel",
   process: "tig",
   drivers: {
@@ -64,10 +65,11 @@ export const BIKE_TYPE_LABELS: Record<import("./types").BikeType, string> = {
   mountain: "Mountain",
   touring: "Touring",
   track: "Track",
+  bruiser: "Bruiser",
 }
 
 /** Every bike type, in the order we show them. */
-export const BIKE_TYPES: import("./types").BikeType[] = ["road", "gravel", "mountain", "touring", "track"]
+export const BIKE_TYPES: import("./types").BikeType[] = ["road", "gravel", "mountain", "touring", "track", "bruiser"]
 
 export const MATERIAL_LABELS: Record<FrameMaterial, string> = {
   steel: "Steel",

@@ -15,6 +15,7 @@ import {
   type BikeType,
   type Drivers,
   BIKE_TYPE_LABELS,
+  stylesOf,
 } from "@/lib/frame"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { FieldGroup, FieldLegend, FieldSet } from "@/components/ui/field"
@@ -30,6 +31,7 @@ interface ControlsProps {
   onUnit: (unit: LengthUnit) => void
   update: Update
   onBikeType: (type: BikeType) => void
+  onBikeStyle: (style: string | null) => void
 }
 
 const TUBE_LABELS: Record<keyof FrameTubeSpecs, string> = {
@@ -78,7 +80,7 @@ const PROCESS_ITEMS: { value: FrameProcess; label: string }[] = [
   { value: "lugged", label: "Lugged" },
 ]
 
-export function Controls({ inputs, unit, onUnit, update, onBikeType }: ControlsProps) {
+export function Controls({ inputs, unit, onUnit, update, onBikeType, onBikeStyle }: ControlsProps) {
   const len = (label: string, key: keyof FrameInputs, hint?: string) => (
     <ValueInput
       label={label}
@@ -136,6 +138,8 @@ export function Controls({ inputs, unit, onUnit, update, onBikeType }: ControlsP
     )
   }
 
+  const styleItems = [{ value: "general", label: "General" }, ...stylesOf(inputs.bikeType).map((st) => ({ value: st.id, label: st.label }))]
+
   return (
     <Card className="card-tone tone-tangerine entry-zone">
       <CardHeader>
@@ -156,6 +160,25 @@ export function Controls({ inputs, unit, onUnit, update, onBikeType }: ControlsP
               </SelectTrigger>
               <SelectContent>
                 {BIKE_ITEMS.map((o) => (
+                  <SelectItem key={o.value} value={o.value}>
+                    {o.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium">Style</span>
+            <Select
+              items={styleItems}
+              value={inputs.bikeStyle ?? "general"}
+              onValueChange={(v) => onBikeStyle(v === "general" ? null : (v as string))}
+            >
+              <SelectTrigger className="w-44" aria-label="Bike style">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {styleItems.map((o) => (
                   <SelectItem key={o.value} value={o.value}>
                     {o.label}
                   </SelectItem>

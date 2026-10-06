@@ -42,8 +42,8 @@ const RIDE: RideProfile = {
     lo: 69,
     hi: 76,
     bands: [
-      { below: 70, label: "Set back", text: "The rider sits behind the pedals. Relaxed, though the front wheel can lift on steep climbs." },
-      { below: 73.5, label: "Middle", text: "A middle seat tube angle. The rider sits over the pedals without feeling pushed forward." },
+      { below: 71.5, label: "Set back", text: "The rider sits behind the pedals. Relaxed, though the front wheel can lift on steep climbs." },
+      { below: 75, label: "Middle", text: "A middle seat tube angle. The rider sits over the pedals without feeling pushed forward." },
     ],
     last: { label: "Set forward", text: "The rider sits further over the pedals, which helps keep the front wheel down on steep climbs." },
   },

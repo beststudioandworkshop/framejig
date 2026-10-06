@@ -41,7 +41,7 @@ const STEPS: BuildStep[] = [
     id: "wide-tire-clearance",
     title: "Mock up tire and chain clearance",
     body: "This tool checks the tires against the seat tube and down tube only. It doesn't check the chainstays, seat stays, chain or crank. With big tires, mock these up before you commit.",
-    bikeTypes: ["gravel", "touring", "mountain"],
+    bikeTypes: ["gravel", "touring", "mountain", "bruiser"],
   },
   {
     id: "touring-mounts",

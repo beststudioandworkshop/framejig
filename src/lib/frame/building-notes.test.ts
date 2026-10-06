@@ -68,7 +68,7 @@ describe("building notes", () => {
 })
 
 describe("building notes by bike type", () => {
-  const types = ["road", "gravel", "mountain", "touring", "track"] as const
+  const types = ["road", "gravel", "mountain", "touring", "track", "bruiser"] as const
   const core = ["mtb-fork", "mtb-dropper", "wide-tire-clearance", "touring-mounts", "touring-heel", "track-ends"]
   const ids = (bikeType: (typeof types)[number], process: FrameProcess = "tig", material: FrameMaterial = "steel") =>
     buildingNotes({ process, material, bikeType }).map((s) => s.id)
@@ -80,6 +80,7 @@ describe("building notes by bike type", () => {
       mountain: ["mtb-fork", "mtb-dropper", "wide-tire-clearance"],
       touring: ["wide-tire-clearance", "touring-mounts", "touring-heel"],
       track: ["track-ends"],
+      bruiser: ["wide-tire-clearance"],
     }
     for (const t of types) {
       for (const id of core) expect(ids(t).includes(id), `${t} ${id}`).toBe(extras[t].includes(id))

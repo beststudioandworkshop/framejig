@@ -19,7 +19,7 @@ export default function Home() {
           Plan a custom bike frame: the geometry, a tube schedule, and the jig to build it in.
         </p>
         <div className="flex flex-wrap justify-center gap-2">
-          <Button render={<Link href="/tools/start" />}>Where to start</Button>
+          <Button render={<Link href="/tools/logic" />}>Frame logic</Button>
           <Button variant="outline" render={<Link href="/tools/frame" />}>
             Frame geometry
           </Button>

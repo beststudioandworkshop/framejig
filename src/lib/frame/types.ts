@@ -10,7 +10,7 @@ export type FrameMaterial = "steel" | "titanium" | "aluminum"
 export type FrameProcess = "tig" | "braze" | "lugged"
 
 /** What the frame is for. It changes the guidance and the example numbers, never the geometry maths. */
-export type BikeType = "road" | "gravel" | "mountain" | "touring" | "track"
+export type BikeType = "road" | "gravel" | "mountain" | "touring" | "track" | "bruiser"
 
 /**
  * Which measurement drives each part of the frame. Only the driven field is
@@ -63,6 +63,8 @@ export interface FrameInputs {
   toeProjection: number
 
   bikeType: BikeType
+  /** A sub-style of the bike type (for example "enduro"), or null for the general type. */
+  bikeStyle: string | null
   material: FrameMaterial
   process: FrameProcess
 

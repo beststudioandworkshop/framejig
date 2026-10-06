@@ -4,7 +4,7 @@ import { useMemo, useState } from "react"
 import { ArrowRightIcon, InfoIcon } from "lucide-react"
 import Link from "next/link"
 
-import { BIKE_TYPE_LABELS, buildFrame, DEFAULT_INPUTS, PRESETS, toolLink, type BikeType, type FrameInputs, type LengthUnit } from "@/lib/frame"
+import { BIKE_TYPE_LABELS, buildFrame, DEFAULT_INPUTS, exampleFrame, styleOf, toolLink, type BikeType, type FrameInputs, type LengthUnit } from "@/lib/frame"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -33,11 +33,25 @@ export function FrameConfigurator({ initial, initialReference }: FrameConfigurat
   const changeBikeType = (type: BikeType) => {
     if (type === inputs.bikeType) return
     const before = inputs
-    setInputs({ ...inputs, bikeType: type })
+    setInputs({ ...inputs, bikeType: type, bikeStyle: null })
     toast(`Switched to ${BIKE_TYPE_LABELS[type].toLowerCase()}. Your numbers are unchanged.`, {
       action: {
         label: `Load an example ${BIKE_TYPE_LABELS[type].toLowerCase()} frame`,
-        onClick: () => setInputs(PRESETS[type]),
+        onClick: () => setInputs(exampleFrame(type)),
+      },
+      cancel: { label: "Undo", onClick: () => setInputs(before) },
+    })
+  }
+
+  const changeStyle = (style: string | null) => {
+    if (style === inputs.bikeStyle) return
+    const before = inputs
+    const name = style ? (styleOf(inputs.bikeType, style)?.label ?? style) : "general"
+    setInputs({ ...inputs, bikeStyle: style })
+    toast(`Style set to ${name.toLowerCase()}. Your numbers are unchanged.`, {
+      action: {
+        label: "Load an example for this style",
+        onClick: () => setInputs(exampleFrame(inputs.bikeType, style)),
       },
       cancel: { label: "Undo", onClick: () => setInputs(before) },
     })
@@ -77,7 +91,7 @@ export function FrameConfigurator({ initial, initialReference }: FrameConfigurat
       </Alert>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
         <div className="min-w-0 lg:col-span-2">
-          <Controls inputs={inputs} unit={unit} onUnit={setUnit} update={setInputs} onBikeType={changeBikeType} />
+          <Controls inputs={inputs} unit={unit} onUnit={setUnit} update={setInputs} onBikeType={changeBikeType} onBikeStyle={changeStyle} />
         </div>
         <div className="flex min-w-0 flex-col gap-6 lg:col-span-3">
           <SideView
