@@ -22,10 +22,12 @@ interface TaxonomyChartProps {
   /** The family and style being looked at. */
   selected: { family: BikeType; style: string | null }
   showFamilies: boolean
+  /** When true, the other families grey out and sit behind the selected one. */
+  focused: boolean
   onSelect: (family: BikeType, style: string | null) => void
 }
 
-export function TaxonomyChart({ view, selected, showFamilies, onSelect }: TaxonomyChartProps) {
+export function TaxonomyChart({ view, selected, showFamilies, focused, onSelect }: TaxonomyChartProps) {
   const [ref, width] = useElementWidth<SVGSVGElement>()
   const chart = taxonomyChart(view)
   const info = CHART_VIEWS[view]
@@ -40,8 +42,12 @@ export function TaxonomyChart({ view, selected, showFamilies, onSelect }: Taxono
   const yLabel = info.y === "trail" ? "Trail" : info.y === "seatTubeAngle" ? "Seat tube angle" : "BB drop"
 
   const isSelected = (b: { family: BikeType; style: string | null }) => b.family === selected.family && b.style === selected.style
-  const families = chart.boxes.filter((b) => b.style === null)
-  const styles = chart.boxes.filter((b) => b.style !== null)
+  const behind = (b: { family: BikeType }) => focused && b.family !== selected.family
+  // Other families first (so they sit at the back), then the selected family, then the selected style.
+  const rank = (b: { family: BikeType; style: string | null }) => (behind(b) ? 0 : isSelected(b) ? 2 : 1)
+  const byRank = <T extends { family: BikeType; style: string | null }>(list: T[]) => [...list].sort((a, c) => rank(a) - rank(c))
+  const families = byRank(chart.boxes.filter((b) => b.style === null))
+  const styles = byRank(chart.boxes.filter((b) => b.style !== null))
 
   const rect = (b: (typeof chart.boxes)[number]) => {
     const x = px(b.x[0])
@@ -110,7 +116,7 @@ export function TaxonomyChart({ view, selected, showFamilies, onSelect }: Taxono
                 width={r.w}
                 height={r.h}
                 rx={4}
-                className={`cursor-pointer outline-none focus-visible:stroke-primary fill-transparent ${TONE[b.family].stroke}`}
+                className={`cursor-pointer outline-none transition-opacity focus-visible:stroke-primary fill-transparent ${TONE[b.family].stroke} ${behind(b) ? "opacity-25 grayscale" : ""}`}
                 strokeWidth={isSelected(b) ? 3 : 1.5}
                 strokeDasharray="6 4"
                 vectorEffect="non-scaling-stroke"
@@ -118,14 +124,11 @@ export function TaxonomyChart({ view, selected, showFamilies, onSelect }: Taxono
               />
             )
           })}
-        {styles
-          .filter((b) => !isSelected(b))
-          .concat(styles.filter(isSelected))
-          .map((b) => {
+        {styles.map((b) => {
             const r = rect(b)
             const sel = isSelected(b)
             return (
-              <g key={`s-${b.family}-${b.style}`}>
+              <g key={`s-${b.family}-${b.style}`} className={behind(b) ? "opacity-25 grayscale transition-opacity" : "transition-opacity"}>
                 <rect
                   x={r.x}
                   y={r.y}

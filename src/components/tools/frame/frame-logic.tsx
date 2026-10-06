@@ -141,6 +141,7 @@ export function FrameLogic() {
             view={view}
             showFamilies={showFamilies}
             selected={{ family: type, style }}
+            focused={family !== "freak"}
             onSelect={(fam, st) => {
               setFamily(fam)
               setStyle(st)
