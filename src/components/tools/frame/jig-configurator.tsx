@@ -9,7 +9,7 @@ import {
   buildJig,
   DEFAULT_INPUTS,
   DEFAULT_JIG,
-  encodeFrame,
+  toolLink,
   formatAngle,
   formatLengthValue,
   jigParts,
@@ -21,6 +21,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import { BuildingNotesCard } from "./building-notes-card"
+import { CopyLinkButton } from "./copy-link-button"
 import { Issues } from "./readouts"
 import { JigCard } from "./jig-card"
 import { JigPartsCard } from "./jig-parts-card"
@@ -48,17 +50,17 @@ export function JigConfigurator({ frame, reference }: JigConfiguratorProps) {
   )
   const parts = useMemo(() => jigParts([jig, refJig]), [jig, refJig])
 
-  const editHref = useMemo(() => {
-    const q = new URLSearchParams({ d: encodeFrame(inputs) })
-    if (refInputs) q.set("r", encodeFrame(refInputs))
-    return `/tools/frame?${q.toString()}`
-  }, [inputs, refInputs])
+  const editHref = useMemo(() => toolLink("frame", inputs, refInputs), [inputs, refInputs])
+  const jigHref = useMemo(() => toolLink("jig", inputs, refInputs), [inputs, refInputs])
 
   const m = result.metrics
   const L = (mm: number | undefined) => (mm === undefined ? "–" : `${formatLengthValue(mm, unit)} ${unit}`)
 
   return (
     <div className="flex flex-col gap-6">
+      <div className="flex justify-end">
+        <CopyLinkButton href={jigHref} label="Copy link to this jig" />
+      </div>
       <Alert>
         <InfoIcon />
         <AlertTitle>Settings for a jig, not a guarantee</AlertTitle>
@@ -78,7 +80,7 @@ export function JigConfigurator({ frame, reference }: JigConfiguratorProps) {
         </Alert>
       )}
 
-      <Card>
+      <Card className="card-tone tone-sky">
         <CardHeader>
           <CardTitle>The frame</CardTitle>
           <CardDescription>
@@ -134,6 +136,7 @@ export function JigConfigurator({ frame, reference }: JigConfiguratorProps) {
       />
       <JigPartsCard inputs={inputs} result={result} jig={jig} parts={parts} unit={unit} />
       <ToolsCard inputs={inputs} />
+      <BuildingNotesCard inputs={inputs} />
     </div>
   )
 }

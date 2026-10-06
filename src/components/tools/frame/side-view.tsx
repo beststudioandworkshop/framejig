@@ -49,7 +49,7 @@ export function SideView({ inputs, result, unit, reference, referenceResult, onP
   const rows = reference && referenceResult ? compareFrames(inputs, result, reference, referenceResult) : null
 
   return (
-    <Card>
+    <Card className="card-tone tone-sky">
       <CardHeader>
         <CardTitle>Side view</CardTitle>
         <CardDescription>

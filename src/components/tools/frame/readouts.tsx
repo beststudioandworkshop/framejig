@@ -62,7 +62,7 @@ export function Readouts({ inputs, result, unit }: { inputs: FrameInputs; result
   }
 
   return (
-    <Card>
+    <Card className="card-tone tone-tea">
       <CardHeader>
         <CardTitle>What you get</CardTitle>
         <CardDescription>

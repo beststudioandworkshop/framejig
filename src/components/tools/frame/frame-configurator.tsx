@@ -4,11 +4,12 @@ import { useMemo, useState } from "react"
 import { ArrowRightIcon, InfoIcon } from "lucide-react"
 import Link from "next/link"
 
-import { buildFrame, DEFAULT_INPUTS, encodeFrame, type FrameInputs, type LengthUnit } from "@/lib/frame"
+import { buildFrame, DEFAULT_INPUTS, toolLink, type FrameInputs, type LengthUnit } from "@/lib/frame"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Controls } from "./controls"
+import { CopyLinkButton } from "./copy-link-button"
 import { Readouts } from "./readouts"
 import { SideView } from "./side-view"
 import { TubeSchedule } from "./tube-schedule"
@@ -26,14 +27,14 @@ export function FrameConfigurator({ initial, initialReference }: FrameConfigurat
   const result = useMemo(() => buildFrame(inputs), [inputs])
   const referenceResult = useMemo(() => (reference ? buildFrame(reference) : null), [reference])
 
-  const jigHref = useMemo(() => {
-    const q = new URLSearchParams({ d: encodeFrame(inputs) })
-    if (reference) q.set("r", encodeFrame(reference))
-    return `/tools/jig?${q.toString()}`
-  }, [inputs, reference])
+  const jigHref = useMemo(() => toolLink("jig", inputs, reference), [inputs, reference])
+  const frameHref = useMemo(() => toolLink("frame", inputs, reference), [inputs, reference])
 
   return (
     <div className="flex flex-col gap-6">
+      <div className="flex justify-end">
+        <CopyLinkButton href={frameHref} label="Copy link to this frame" />
+      </div>
       <Alert>
         <InfoIcon />
         <AlertTitle>A geometry planner, not an engineering check</AlertTitle>
@@ -59,7 +60,7 @@ export function FrameConfigurator({ initial, initialReference }: FrameConfigurat
           />
           <Readouts inputs={inputs} result={result} unit={unit} />
           <TubeSchedule result={result} unit={unit} />
-          <Card>
+          <Card className="card-tone tone-lavender">
             <CardHeader>
               <CardTitle>Next: the jig</CardTitle>
               <CardDescription>

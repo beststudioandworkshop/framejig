@@ -46,7 +46,7 @@ export function JigPartsCard({ inputs, result, jig, parts, unit }: Props) {
   }
 
   return (
-    <Card>
+    <Card className="card-tone tone-lavender">
       <CardHeader>
         <CardTitle>Jig parts</CardTitle>
         <CardDescription>

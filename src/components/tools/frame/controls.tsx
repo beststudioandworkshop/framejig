@@ -133,7 +133,7 @@ export function Controls({ inputs, unit, onUnit, update }: ControlsProps) {
   }
 
   return (
-    <Card>
+    <Card className="card-tone tone-tangerine entry-zone">
       <CardHeader>
         <CardTitle>Your frame</CardTitle>
         <CardDescription>Everything is in the side view, measured from the center of the bottom bracket.</CardDescription>

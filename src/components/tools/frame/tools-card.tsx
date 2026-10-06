@@ -9,13 +9,13 @@ const PROCESS_LABEL = { tig: "TIG welded", braze: "fillet brazed", lugged: "lugg
 export function ToolsCard({ inputs }: { inputs: FrameInputs }) {
   const items = frameTools(inputs)
   return (
-    <Card>
+    <Card className="card-tone tone-tea">
       <CardHeader>
         <CardTitle>Tools for building it</CardTitle>
         <CardDescription>
-          For a {MATERIAL_LABELS[inputs.material].toLowerCase()} frame, {PROCESS_LABEL[inputs.process]}. Change the
-          material or process in the tubing section and this list follows. It&apos;s a starting point, not a safety
-          course. Anyone using a torch or welder should be trained for it.
+          For a {MATERIAL_LABELS[inputs.material].toLowerCase()} frame, {PROCESS_LABEL[inputs.process]}. Material and
+          joining process are set in the frame tool, and this list follows them. It&apos;s a starting point, not a
+          safety course. Anyone using a torch or welder should be trained for it.
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-6 sm:grid-cols-2">

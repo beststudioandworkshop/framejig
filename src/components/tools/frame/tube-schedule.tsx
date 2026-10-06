@@ -40,7 +40,7 @@ export function TubeSchedule({ result, unit }: { result: FrameResult; unit: Leng
   }
 
   return (
-    <Card>
+    <Card className="card-tone tone-mustard">
       <CardHeader>
         <CardTitle>Tube schedule</CardTitle>
         <CardDescription>

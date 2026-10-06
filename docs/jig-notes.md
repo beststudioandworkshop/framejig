@@ -76,3 +76,21 @@ heat-treatment prompt). Rules of thumb, not a safety course.
 - Dropout angle and thru-axle details; a front-on and top view of the jig.
 - Real part numbers once the McMaster catalog can be read.
 - Where along the spine the post sits (the drawing puts it at the middle).
+
+## Links, building notes and styling
+
+- **Links:** `toolLink(tool, inputs, reference)` (`src/lib/frame/links.ts`) builds
+  `/tools/frame?d=…&r=…` or `/tools/jig?d=…&r=…`. Both tools have a "Copy link"
+  button that copies the full URL; opening it restores the exact design.
+- **Building notes:** `buildingNotes(inputs)` (`src/lib/frame/building-notes.ts`)
+  gives the order of work, filtered by joining process and material (lug fit for
+  lugged; weld for TIG; braze for brazed and lugged; titanium shielding;
+  aluminum heat treatment). Rules of thumb only; the last step is always to have
+  an experienced builder check the first frame. Miter templates are not in the
+  tool yet, and the notes say so.
+- **Styling:** uses the tokens already in `globals.css`: a 3px `card-tone`
+  band per card (tangerine for the settings cards, sky for the drawing and frame
+  summary, tea for readouts and tools, mustard for the schedule and notes,
+  lavender for the jig parts and the "next" card) and `entry-zone` so only the
+  inputs, selects and chosen toggles are orange. No new tokens.
+- Not done: shuffled helper hints under the size fields.

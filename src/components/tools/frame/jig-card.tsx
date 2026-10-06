@@ -53,7 +53,7 @@ export function JigCard({ inputs, jig, referenceJig, unit, settings, onSettings,
   }
 
   return (
-    <Card>
+    <Card className="card-tone tone-tangerine entry-zone">
       <CardHeader>
         <CardTitle>Jig settings</CardTitle>
         <CardDescription>

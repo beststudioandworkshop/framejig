@@ -15,8 +15,15 @@ export default function Home() {
         <h1 className="text-4xl font-semibold tracking-tight sm:text-6xl">
           Framejig
         </h1>
-        <p className="text-muted-foreground">A bike frame geometry planner for builders. Coming soon.</p>
-        <Button render={<Link href="/tools" />}>Tools</Button>
+        <p className="max-w-md text-muted-foreground">
+          Plan a custom bike frame: the geometry, a tube schedule, and the jig to build it in.
+        </p>
+        <div className="flex flex-wrap justify-center gap-2">
+          <Button render={<Link href="/tools/frame" />}>Frame geometry</Button>
+          <Button variant="outline" render={<Link href="/tools/jig" />}>
+            Frame jig
+          </Button>
+        </div>
       </main>
       <Separator />
       <footer className="flex items-center justify-between px-4 py-4 text-sm text-muted-foreground sm:px-8">
