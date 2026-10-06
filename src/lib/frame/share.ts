@@ -62,7 +62,15 @@ export function decodeFrame(text: string | null | undefined): FrameInputs | null
     return null
   }
   if (!isObject(data) || data.v !== VERSION || !isObject(data.c)) return null
-  const c = data.c
+  return sanitizeFrame(data.c)
+}
+
+/**
+ * Turn any object into a complete, valid set of inputs: every field that is
+ * missing or the wrong type becomes its default, and unknown fields are dropped.
+ */
+export function sanitizeFrame(raw: unknown): FrameInputs {
+  const c: Record<string, unknown> = isObject(raw) ? raw : {}
   const d = DEFAULT_INPUTS
 
   const tubes = {} as FrameTubeSpecs

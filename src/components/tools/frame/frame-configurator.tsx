@@ -8,9 +8,12 @@ import { buildFrame, DEFAULT_INPUTS, toolLink, type FrameInputs, type LengthUnit
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { toast } from "sonner"
 import { Controls } from "./controls"
 import { CopyLinkButton } from "./copy-link-button"
 import { Readouts } from "./readouts"
+import { RideFeelCard } from "./ride-feel-card"
+import { SaveLoadCard } from "./save-load-card"
 import { SideView } from "./side-view"
 import { TubeSchedule } from "./tube-schedule"
 
@@ -27,6 +30,21 @@ export function FrameConfigurator({ initial, initialReference }: FrameConfigurat
   const result = useMemo(() => buildFrame(inputs), [inputs])
   const referenceResult = useMemo(() => (reference ? buildFrame(reference) : null), [reference])
 
+  const load = (frame: FrameInputs, ref: FrameInputs | null, name: string) => {
+    const before = { inputs, reference }
+    setInputs(frame)
+    setReference(ref)
+    toast(`Loaded "${name}"`, {
+      action: {
+        label: "Undo",
+        onClick: () => {
+          setInputs(before.inputs)
+          setReference(before.reference)
+        },
+      },
+    })
+  }
+
   const jigHref = useMemo(() => toolLink("jig", inputs, reference), [inputs, reference])
   const frameHref = useMemo(() => toolLink("frame", inputs, reference), [inputs, reference])
 
@@ -35,6 +53,7 @@ export function FrameConfigurator({ initial, initialReference }: FrameConfigurat
       <div className="flex justify-end">
         <CopyLinkButton href={frameHref} label="Copy link to this frame" />
       </div>
+      <SaveLoadCard inputs={inputs} reference={reference} onLoad={load} />
       <Alert>
         <InfoIcon />
         <AlertTitle>A geometry planner, not an engineering check</AlertTitle>
@@ -59,6 +78,7 @@ export function FrameConfigurator({ initial, initialReference }: FrameConfigurat
             transferHref={jigHref}
           />
           <Readouts inputs={inputs} result={result} unit={unit} />
+          <RideFeelCard inputs={inputs} result={result} unit={unit} />
           <TubeSchedule result={result} unit={unit} />
           <Card className="card-tone tone-lavender">
             <CardHeader>

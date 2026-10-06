@@ -29,8 +29,12 @@ interface ValueInputProps {
 export function ValueInput({ label, unit, value, parse, format, onChange, hint, disabled, hideLabel, labelNode }: ValueInputProps) {
   const id = useId()
   const [draft, setDraft] = useState<string | null>(null)
-  const shown = draft ?? (Number.isFinite(value) ? format(value) : "")
-  const invalid = draft !== null && parse(draft) === null
+  // Show what's being typed, unless the number was changed from outside (a loaded
+  // file, an undo) and no longer matches it. Text that isn't a number yet stays.
+  const parsedDraft = draft === null ? null : parse(draft)
+  const draftStale = parsedDraft !== null && !(Math.abs(parsedDraft - value) < 1e-9)
+  const shown = draft !== null && !draftStale ? draft : Number.isFinite(value) ? format(value) : ""
+  const invalid = draft !== null && parsedDraft === null
 
   return (
     <Field>

@@ -98,3 +98,29 @@ derived numbers into the fields first).
 
 The jig has its own tool and notes: see `docs/jig-notes.md`. The frame tool links
 to it and carries the frame (and reference) in the URL.
+
+## Fit, save and load, ride feel
+
+- **Drawings fit their cards.** No minimum width or sideways scrolling. The label
+  size is chosen from the rendered width (`labelSize` in
+  `components/tools/frame/use-element-width.ts`) so text stays about 8 px or more
+  on small screens; the reach dimension sits further out so labels don't collide.
+- **Save and load** (`src/lib/frame/save-file.ts`):
+  - **Download file**: readable JSON, `{ format: "framejig-frame", version: 1,
+    name, savedAt, frame, reference }`, named `<name>.framejig.json`. The pinned
+    reference is saved with the frame.
+  - **Load from file**: anything missing or wrong becomes a default
+    (`sanitizeFrame`), anything that isn't a Framejig file is rejected with a
+    message, and a file over 1 MB is refused.
+  - **Saved in this browser**: a list in localStorage (max 50, same name replaces,
+    newest first). It's a convenience: it can vanish if site data is cleared or in
+    a private window, so the file is the safe copy.
+  - Loading and deleting both offer **Undo** in the toast.
+- **How it might ride** (`src/lib/frame/ride-feel.ts`) turns the numbers into
+  plain language on five scales: steering (trail), handling (wheelbase and
+  chainstay), riding position (stack to reach), weight over the pedals (seat
+  tube angle) and bottom bracket (BB drop), plus toe overlap and an optional
+  standover note from the rider's inseam. The thresholds are **rules of thumb
+  for road and gravel style frames, not verified limits**, and the card says so.
+  Bigger frames always have longer wheelbases, and stem, spacers, bars,
+  seatpost setback, tires and fork all change how a bike feels.
