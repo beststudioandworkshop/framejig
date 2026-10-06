@@ -1,12 +1,12 @@
-// Pure types for the frame geometry module. Millimetres and degrees internally.
-// Side-view frame: X forward, Y up, origin at the bottom bracket (BB) centre.
+// Pure types for the frame geometry module. Millimeters and degrees internally.
+// Side-view frame: X forward, Y up, origin at the bottom bracket (BB) center.
 
 export interface Vec2 {
   x: number
   y: number
 }
 
-export type FrameMaterial = "steel" | "titanium" | "aluminium"
+export type FrameMaterial = "steel" | "titanium" | "aluminum"
 export type FrameProcess = "tig" | "braze" | "lugged"
 
 /**
@@ -16,12 +16,12 @@ export type FrameProcess = "tig" | "braze" | "lugged"
 export interface Drivers {
   /** BB position: drop below the axles, or height above the ground. */
   bb: "drop" | "height"
-  /** Rear end: chainstay (BB to axle, straight line) or rear centre (horizontal). */
-  rear: "chainstay" | "rearCentre"
-  /** Seat tube length: centre-to-top (c-t) or centre-to-centre (c-c, to the top tube junction). */
+  /** Rear end: chainstay (BB to axle, straight line) or rear center (horizontal). */
+  rear: "chainstay" | "rearCenter"
+  /** Seat tube length: center-to-top (c-t) or center-to-center (c-c, to the top tube junction). */
   seat: "ct" | "cc"
   /** Horizontal position of the head tube / front wheel. */
-  horizontal: "effectiveTopTube" | "frontCentre" | "reach"
+  horizontal: "effectiveTopTube" | "frontCenter" | "reach"
   /** Vertical size of the front end: head tube length, or stack (then head tube length is derived). */
   vertical: "headTubeLength" | "stack"
 }
@@ -52,8 +52,8 @@ export interface FrameInputs {
   wheel: {
     /** Bead seat diameter, mm (622 for 700c). */
     rimDiameter: number
-    /** Tyre section (height), mm. Wheel radius = rim/2 + tyre section. */
-    tyreSection: number
+    /** Tire section (height), mm. Wheel radius = rim/2 + tire section. */
+    tireSection: number
   }
   crankLength: number
   /** Pedal axle to the toe of the shoe, mm. Used for the toe overlap check. */
@@ -68,11 +68,11 @@ export interface FrameInputs {
   seatTubeAngle: number
   /** Degrees from horizontal. */
   headTubeAngle: number
-  /** Seat tube c-t: BB centre to top of seat tube, along the seat tube, mm. */
+  /** Seat tube c-t: BB center to top of seat tube, along the seat tube, mm. */
   seatTubeLength: number
-  /** Seat tube c-c: BB centre to the top tube centreline junction, mm. */
+  /** Seat tube c-c: BB center to the top tube centerline junction, mm. */
   seatTubeLengthCC: number
-  /** How far the seat tube sticks up above the top tube centreline junction, mm. */
+  /** How far the seat tube sticks up above the top tube centerline junction, mm. */
   seatTubeExtension: number
 
   /** Horizontal distance between seat and head tube axes at the seat tube top. */
@@ -80,22 +80,22 @@ export interface FrameInputs {
   /** Head tube length, mm. */
   headTubeLength: number
 
-  /** Vertical BB centre to top of head tube, mm. */
+  /** Vertical BB center to top of head tube, mm. */
   stack: number
-  /** Horizontal BB centre to top of head tube, mm. */
+  /** Horizontal BB center to top of head tube, mm. */
   reach: number
-  /** BB centre to front axle, horizontal, mm. */
-  frontCentre: number
+  /** BB center to front axle, horizontal, mm. */
+  frontCenter: number
 
-  /** BB centre below the axle line, mm. */
+  /** BB center below the axle line, mm. */
   bbDrop: number
-  /** BB centre height above the ground, mm. */
+  /** BB center height above the ground, mm. */
   bbHeight: number
-  /** BB centre to rear axle, straight line in the side view, mm. */
+  /** BB center to rear axle, straight line in the side view, mm. */
   chainstayLength: number
-  /** BB centre to rear axle, horizontal, mm. */
-  rearCentre: number
-  /** Fork axle-to-crown, mm (measured to the bottom of the head tube; headset stack not modelled). */
+  /** BB center to rear axle, horizontal, mm. */
+  rearCenter: number
+  /** Fork axle-to-crown, mm (measured to the bottom of the head tube; headset stack not modeled). */
   forkAxleToCrown: number
   /** Fork offset (rake), mm. */
   forkRake: number
@@ -117,17 +117,17 @@ export interface KeyPoints {
   bb: Vec2
   rearAxle: Vec2
   frontAxle: Vec2
-  /** Top centre of the head tube. */
+  /** Top center of the head tube. */
   headTop: Vec2
-  /** Bottom centre of the head tube (the crown race point). */
+  /** Bottom center of the head tube (the crown race point). */
   headBottom: Vec2
   /** Top of the seat tube. */
   seatTop: Vec2
-  /** Top tube centreline meets the seat tube axis. Seat stays also meet here. */
+  /** Top tube centerline meets the seat tube axis. Seat stays also meet here. */
   topTubeSeatJoint: Vec2
-  /** Top tube centreline meets the head tube axis. */
+  /** Top tube centerline meets the head tube axis. */
   topTubeHeadJoint: Vec2
-  /** Down tube centreline meets the head tube axis. */
+  /** Down tube centerline meets the head tube axis. */
   downTubeHeadJoint: Vec2
   /** Y of the ground in the same frame (negative: below the BB). */
   groundY: number
@@ -137,13 +137,13 @@ export interface FrameMetrics {
   wheelRadius: number
   wheelbase: number
   /** BB to front axle, horizontal. */
-  frontCentre: number
+  frontCenter: number
   /** BB to rear axle, horizontal. */
-  rearCentre: number
+  rearCenter: number
   bbHeight: number
-  /** BB centre below the axle line. */
+  /** BB center below the axle line. */
   bbDrop: number
-  /** BB centre to rear axle, straight line. */
+  /** BB center to rear axle, straight line. */
   chainstayLength: number
   /** Seat tube c-t. */
   seatTubeLength: number
@@ -161,12 +161,12 @@ export interface FrameMetrics {
   topTubeSlope: number
   /** Ground to top of the top tube at its midpoint, mm. */
   standover: number
-  /** Distance from the toe to the front tyre with a level forward crank, mm. Negative = overlap. */
+  /** Distance from the toe to the front tire with a level forward crank, mm. Negative = overlap. */
   toeClearance: number
-  /** Gap between rear tyre and seat tube, mm. */
-  rearTyreClearance: number
-  /** Gap between front tyre and down tube, mm. */
-  frontTyreClearance: number
+  /** Gap between rear tire and seat tube, mm. */
+  rearTireClearance: number
+  /** Gap between front tire and down tube, mm. */
+  frontTireClearance: number
 }
 
 export type TubeRole = "topTube" | "downTube" | "seatTube" | "headTube" | "chainstay" | "seatstay"
@@ -175,10 +175,10 @@ export interface FrameTube {
   id: string
   name: string
   role: TubeRole
-  /** Joint-to-joint centreline endpoints in the side view. */
+  /** Joint-to-joint centerline endpoints in the side view. */
   a: Vec2
   b: Vec2
-  /** Centreline length between joints (side view), mm. Mitre allowances are not applied. */
+  /** Centerline length between joints (side view), mm. Miter allowances are not applied. */
   length: number
   /** Direction a -> b, degrees from +X. */
   angle: number

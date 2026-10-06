@@ -1,7 +1,7 @@
 # Frame geometry module: model and assumptions
 
-`src/lib/frame/` is pure TypeScript (no React, no Three). Millimetres and
-degrees. Side view: X forward, Y up, origin at the bottom bracket (BB) centre.
+`src/lib/frame/` is pure TypeScript (no React, no Three). Millimeters and
+degrees. Side view: X forward, Y up, origin at the bottom bracket (BB) center.
 `buildFrame(inputs)` returns `{ ok, issues, points, metrics, tubes }`; every
 output reads that result and computes no geometry of its own.
 
@@ -15,16 +15,16 @@ anything about loads, fatigue or tube selection.
   Wikipedia "Bicycle and motorcycle geometry" article) and is cross-checked in
   tests by walking the steering axis down to the ground. Positive trail means
   the contact patch trails behind where the axis meets the ground.
-- **Stack / reach**: vertical / horizontal distance from the BB centre to the
-  centre of the top of the head tube (standard definition).
-- **Wheel radius** = rim bead seat diameter / 2 + tyre section.
+- **Stack / reach**: vertical / horizontal distance from the BB center to the
+  center of the top of the head tube (standard definition).
+- **Wheel radius** = rim bead seat diameter / 2 + tire section.
 - **BB height** = wheel radius - BB drop.
 
 ## Model choices (mine, not verified against a standard; confirm or change)
 
 - Both wheels are the same size; both axles sit `bbDrop` above the BB.
 - The fork is `forkAxleToCrown` measured to the **bottom of the head tube**.
-  Headset stack and crown-race height are not modelled.
+  Headset stack and crown-race height are not modeled.
 - **Numbers mode** takes effective top tube + head tube length; stack and reach
   are derived. **Fit mode** takes stack + reach; effective top tube and head
   tube length are derived. In fit mode the head tube length is forced by stack,
@@ -35,23 +35,23 @@ anything about loads, fatigue or tube selection.
   the seat tube `seatTubeExtension` below its top. Seat stays meet the seat
   tube at the same point. The down tube joins one tube radius above the bottom
   of the head tube.
-- Tube lengths are **joint to joint along the centreline in the side view**.
-  Mitre/cope allowances and left/right splay (rear spacing, BB width) are not
+- Tube lengths are **joint to joint along the centerline in the side view**.
+  Miter/cope allowances and left/right splay (rear spacing, BB width) are not
   applied yet.
 - Standover = ground to the top of the top tube at its midpoint.
 - Toe overlap: toe at (crank + toeProjection) ahead of the BB at BB height,
-  crank level and pointing forward, wheel straight ahead, tyre as a circle.
+  crank level and pointing forward, wheel straight ahead, tire as a circle.
   Real bikes also depend on steering angle, shoe and pedal.
-- Clearance checks use the front and rear tyre circle against the seat tube and
+- Clearance checks use the front and rear tire circle against the seat tube and
   down tube segments. Error below 0 mm, warning below 6 mm.
 - Typical ranges in `guidance.ts` are common rules of thumb for road/gravel
-  frames. They are not verified and must be labelled that way in the UI.
+  frames. They are not verified and must be labeled that way in the UI.
 - Default inputs are examples, not a recommendation.
 
-## Not modelled yet
+## Not modeled yet
 
-Rear spacing / BB width splay, mitres and copes, headset stack, mudguards,
-tyre width (only section height), steering-angle toe overlap, wheel sizes that
+Rear spacing / BB width splay, miters and copes, headset stack, mudguards,
+tire width (only section height), steering-angle toe overlap, wheel sizes that
 differ front and rear, jig/fixture outputs.
 
 ## Drivers (what each dimension is measured as)
@@ -62,9 +62,9 @@ the readouts. Switching never changes the frame (`switchDriver` copies the
 derived numbers into the fields first).
 
 - BB: drop, or height
-- Rear end: chainstay, or rear centre
-- Seat tube: c-t (BB to top), or c-c (BB to the top tube centreline)
-- Horizontal: effective top tube, front centre, or reach
+- Rear end: chainstay, or rear center
+- Seat tube: c-t (BB to top), or c-c (BB to the top tube centerline)
+- Horizontal: effective top tube, front center, or reach
 - Vertical: head tube length, or stack (head tube length then falls out of the
   stack, fork and BB drop, since both axles must sit level)
 
@@ -84,8 +84,8 @@ derived numbers into the fields first).
   you can see why. `frame-drawing.tsx` only renders that data.
 - Trail is shown at the ground between the contact patch and where the
   steering axis meets the ground.
-- Tubes are drawn as flat strips along their centrelines, side view only. Tube
-  ends are not mitred in the drawing.
+- Tubes are drawn as flat strips along their centerlines, side view only. Tube
+  ends are not miterd in the drawing.
 - **Reference**: "Pin as reference" copies the current inputs. Type the other
   bike's numbers, pin it, then change yours. It is drawn dashed behind, lined up
   at the BB, rear axle or front axle, with a table of differences

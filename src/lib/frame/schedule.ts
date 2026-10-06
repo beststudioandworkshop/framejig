@@ -9,7 +9,7 @@ export interface ScheduleRow {
   diameter: number
   /** mm */
   wall: number
-  /** Joint-to-joint centreline length in mm. Mitre allowances not applied. */
+  /** Joint-to-joint centerline length in mm. Miter allowances not applied. */
   length: number
   /** Acute angle from horizontal in the side view, 0 to 90 degrees. */
   angle: number

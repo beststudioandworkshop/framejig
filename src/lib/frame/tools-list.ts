@@ -36,11 +36,11 @@ export function frameTools(inputs: Pick<FrameInputs, "process" | "material">): T
   const items: ToolItem[] = [
     t("calipers", "Measuring", "Digital calipers", "Tube diameters and wall thicknesses, mandrel fits."),
     t("tape", "Measuring", "Steel rule and tape", "Every check distance on the jig."),
-    t("angle", "Measuring", "Digital angle gauge", "Tube angles and mitres. Check it against a known flat before you trust it."),
+    t("angle", "Measuring", "Digital angle gauge", "Setting the spine tilt and the carrier angles, and checking tube angles and miters. Check it against a known flat before you trust it."),
     t("square", "Measuring", "Machinist's square", "Squaring the jig columns to the spine."),
     t("align", "Measuring", "Frame alignment gauge", "Checks the rear triangle and head tube are in line after the frame is joined.", false),
     t("saw", "Cutting and prep", "Fine-tooth saw or tube cutter", "Cutting tubes to length with a square end."),
-    t("notcher", "Cutting and prep", "Tube notcher or files", "Mitres and copes so tubes sit tight against each other."),
+    t("notcher", "Cutting and prep", "Tube notcher or files", "Miters and copes so tubes sit tight against each other."),
     t("deburr", "Cutting and prep", "Deburring tool and abrasive pads", "Clean ends and surfaces so the joint takes."),
     t("vise", "Cutting and prep", "Tube vise with soft jaws", "Holds tubes without marking or crushing them."),
     t("degrease", "Cutting and prep", "Degreaser and clean rags", "Oil and fingerprints ruin joints."),
@@ -83,10 +83,10 @@ export function frameTools(inputs: Pick<FrameInputs, "process" | "material">): T
       t("purge", "Joining", "Argon purge for the inside of the tubes, plus a trailing shield", "Titanium contaminates at welding heat if any hot metal sees air."),
       t("tigclean", "Cutting and prep", "Dedicated clean stainless brush and clean gloves", "Titanium needs spotless surfaces.")
     )
-  } else if (material === "aluminium") {
+  } else if (material === "aluminum") {
     items.push(
-      t("brush", "Cutting and prep", "Dedicated stainless brush for aluminium", "Removes oxide; never use it on steel."),
-      t("heattreat", "Finishing", "A plan for post-weld heat treatment, if your alloy calls for it", "Many frame aluminium alloys are heat treated after welding. Ask your tubing supplier.", false)
+      t("brush", "Cutting and prep", "Dedicated stainless brush for aluminum", "Removes oxide; never use it on steel."),
+      t("heattreat", "Finishing", "A plan for post-weld heat treatment, if your alloy calls for it", "Many frame aluminum alloys are heat treated after welding. Ask your tubing supplier.", false)
     )
   }
 

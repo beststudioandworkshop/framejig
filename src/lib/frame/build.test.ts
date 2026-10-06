@@ -8,9 +8,9 @@ const base = DEFAULT_INPUTS
 
 const KEY_FIELDS = {
   bb: ["drop", "height"],
-  rear: ["chainstay", "rearCentre"],
+  rear: ["chainstay", "rearCenter"],
   seat: ["ct", "cc"],
-  horizontal: ["effectiveTopTube", "frontCentre", "reach"],
+  horizontal: ["effectiveTopTube", "frontCenter", "reach"],
   vertical: ["headTubeLength", "stack"],
 } as const
 const rad = (d: number) => (d * Math.PI) / 180
@@ -42,7 +42,7 @@ describe("default frame", () => {
 })
 
 describe("wheels and BB", () => {
-  it("wheel radius is half the rim plus the tyre section", () => {
+  it("wheel radius is half the rim plus the tire section", () => {
     expect(frame().m.wheelRadius).toBe(311 + 28)
   })
   it("700c x 28 with 70 drop gives a 269 mm BB height", () => {
@@ -59,16 +59,16 @@ describe("wheels and BB", () => {
     const { p } = frame({ chainstayLength: 430 })
     expect(dist(p.bb, p.rearAxle)).toBeCloseTo(430, 9)
   })
-  it("rear centre is the horizontal chainstay, and wheelbase = rear + front centre", () => {
+  it("rear center is the horizontal chainstay, and wheelbase = rear + front center", () => {
     const { m } = frame({ chainstayLength: 420, bbDrop: 70 })
-    expect(m.rearCentre).toBeCloseTo(Math.sqrt(420 ** 2 - 70 ** 2), 9)
-    expect(m.wheelbase).toBeCloseTo(m.rearCentre + m.frontCentre, 9)
+    expect(m.rearCenter).toBeCloseTo(Math.sqrt(420 ** 2 - 70 ** 2), 9)
+    expect(m.wheelbase).toBeCloseTo(m.rearCenter + m.frontCenter, 9)
   })
 })
 
 describe("trail", () => {
   it("matches the textbook value for 73 deg, 334 mm radius, 45 mm rake (about 55.1 mm)", () => {
-    const { m } = frame({ headTubeAngle: 73, forkRake: 45, wheel: { rimDiameter: 612, tyreSection: 28 } })
+    const { m } = frame({ headTubeAngle: 73, forkRake: 45, wheel: { rimDiameter: 612, tireSection: 28 } })
     expect(m.wheelRadius).toBe(334)
     expect(m.trail).toBeCloseTo(55.06, 1)
   })
@@ -179,26 +179,26 @@ describe("drivers", () => {
   })
 
   it("ignores fields that aren't driving", () => {
-    const junk = { bbHeight: 1, rearCentre: 1, seatTubeLengthCC: 1, frontCentre: 1, reach: 1, stack: 1 }
+    const junk = { bbHeight: 1, rearCenter: 1, seatTubeLengthCC: 1, frontCenter: 1, reach: 1, stack: 1 }
     expect(buildFrame({ ...base, ...junk }).metrics).toEqual(baseResult.metrics)
-    const alt: D = { bb: "height", rear: "rearCentre", seat: "cc", horizontal: "reach", vertical: "stack" }
+    const alt: D = { bb: "height", rear: "rearCenter", seat: "cc", horizontal: "reach", vertical: "stack" }
     const a = buildFrame({ ...synced, drivers: alt })
     const b = buildFrame({ ...synced, drivers: alt, bbDrop: 1, chainstayLength: 1, seatTubeLength: 1, effectiveTopTube: 1, headTubeLength: 1 })
     expect(a.metrics).toEqual(b.metrics)
   })
 
   it("only checks the fields that are driving", () => {
-    expect(buildFrame({ ...base, frontCentre: NaN, reach: NaN, stack: NaN, bbHeight: NaN, rearCentre: NaN, seatTubeLengthCC: NaN }).ok).toBe(true)
+    expect(buildFrame({ ...base, frontCenter: NaN, reach: NaN, stack: NaN, bbHeight: NaN, rearCenter: NaN, seatTubeLengthCC: NaN }).ok).toBe(true)
     expect(buildFrame({ ...base, drivers: { ...base.drivers, horizontal: "reach" }, reach: NaN }).ok).toBe(false)
   })
 
   it("the driven value is what comes out", () => {
     expect(frame({ drivers: { ...base.drivers, bb: "height" }, bbHeight: 280 }).m.bbHeight).toBeCloseTo(280, 9)
     expect(frame({ drivers: { ...base.drivers, bb: "height" }, bbHeight: 280 }).m.bbDrop).toBeCloseTo(339 - 280, 9)
-    expect(frame({ drivers: { ...base.drivers, rear: "rearCentre" }, rearCentre: 410 }).m.rearCentre).toBeCloseTo(410, 9)
+    expect(frame({ drivers: { ...base.drivers, rear: "rearCenter" }, rearCenter: 410 }).m.rearCenter).toBeCloseTo(410, 9)
     expect(frame({ drivers: { ...base.drivers, seat: "cc" }, seatTubeLengthCC: 500 }).m.seatTubeLengthCC).toBeCloseTo(500, 9)
     expect(frame({ drivers: { ...base.drivers, seat: "cc" }, seatTubeLengthCC: 500 }).m.seatTubeLength).toBeCloseTo(500 + base.seatTubeExtension, 9)
-    expect(frame({ drivers: { ...base.drivers, horizontal: "frontCentre" }, frontCentre: 600 }).m.frontCentre).toBeCloseTo(600, 9)
+    expect(frame({ drivers: { ...base.drivers, horizontal: "frontCenter" }, frontCenter: 600 }).m.frontCenter).toBeCloseTo(600, 9)
     expect(frame({ drivers: { ...base.drivers, horizontal: "reach" }, reach: 400 }).m.reach).toBeCloseTo(400, 9)
     expect(frame({ drivers: { ...base.drivers, vertical: "stack" }, stack: 580 }).m.stack).toBeCloseTo(580, 9)
   })
@@ -282,16 +282,16 @@ describe("derived readouts", () => {
     const midY = (p.topTubeSeatJoint.y + p.topTubeHeadJoint.y) / 2
     expect(m.standover).toBeCloseTo(m.bbHeight + midY + inputs.tubes.topTube.diameter / 2, 9)
   })
-  it("toe clearance is the toe-to-front-wheel-centre distance less the radius", () => {
+  it("toe clearance is the toe-to-front-wheel-center distance less the radius", () => {
     const { p, m, inputs } = frame()
     const toe = { x: inputs.crankLength + inputs.toeProjection, y: 0 }
     expect(m.toeClearance).toBeCloseTo(dist(toe, p.frontAxle) - m.wheelRadius, 9)
   })
-  it("a longer front centre means less toe overlap", () => {
+  it("a longer front center means less toe overlap", () => {
     expect(frame({ effectiveTopTube: 600 }).m.toeClearance).toBeGreaterThan(frame({ effectiveTopTube: 520 }).m.toeClearance)
   })
-  it("rear tyre clearance grows with chainstay length", () => {
-    expect(frame({ chainstayLength: 450 }).m.rearTyreClearance).toBeGreaterThan(frame({ chainstayLength: 410 }).m.rearTyreClearance)
+  it("rear tire clearance grows with chainstay length", () => {
+    expect(frame({ chainstayLength: 450 }).m.rearTireClearance).toBeGreaterThan(frame({ chainstayLength: 410 }).m.rearTireClearance)
   })
 })
 
@@ -301,7 +301,7 @@ describe("scaling", () => {
     const s = (n: number) => n * k
     const big: FrameInputs = {
       ...base,
-      wheel: { rimDiameter: s(base.wheel.rimDiameter), tyreSection: s(base.wheel.tyreSection) },
+      wheel: { rimDiameter: s(base.wheel.rimDiameter), tireSection: s(base.wheel.tireSection) },
       crankLength: s(base.crankLength),
       toeProjection: s(base.toeProjection),
       seatTubeLength: s(base.seatTubeLength),
@@ -318,7 +318,7 @@ describe("scaling", () => {
     }
     const a = buildFrame(base).metrics!
     const b = buildFrame(big).metrics!
-    for (const key of ["wheelbase", "frontCentre", "rearCentre", "bbHeight", "trail", "stack", "reach", "effectiveTopTube", "headTubeLength", "standover", "toeClearance", "rearTyreClearance", "frontTyreClearance"] as const) {
+    for (const key of ["wheelbase", "frontCenter", "rearCenter", "bbHeight", "trail", "stack", "reach", "effectiveTopTube", "headTubeLength", "standover", "toeClearance", "rearTireClearance", "frontTireClearance"] as const) {
       expect(b[key]).toBeCloseTo(a[key] * k, 6)
     }
     expect(b.topTubeSlope).toBeCloseTo(a.topTubeSlope, 9)
@@ -365,14 +365,14 @@ describe("issues", () => {
     const r = buildFrame({ ...base, drivers: { ...base.drivers, horizontal: "reach" }, reach: -10 })
     expect(r.ok).toBe(false)
   })
-  it("flags a rear tyre that hits the seat tube", () => {
+  it("flags a rear tire that hits the seat tube", () => {
     const r = buildFrame({ ...base, chainstayLength: 300, seatTubeAngle: 80 })
     expect(r.ok).toBe(false)
-    expect(r.issues.map((i) => i.code)).toContain("rear-tyre-clash")
+    expect(r.issues.map((i) => i.code)).toContain("rear-tire-clash")
   })
-  it("flags a front tyre that hits the down tube", () => {
+  it("flags a front tire that hits the down tube", () => {
     const r = buildFrame({ ...base, effectiveTopTube: 380 })
-    expect(r.issues.map((i) => i.code)).toContain("front-tyre-clash")
+    expect(r.issues.map((i) => i.code)).toContain("front-tire-clash")
     expect(r.ok).toBe(false)
   })
   it("toe overlap is a warning: the frame is still ok", () => {

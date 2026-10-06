@@ -1,6 +1,6 @@
 // Side-view drawing, as plain data. Built from the same key points as
 // everything else; the SVG component only draws what's here.
-// Drawing coordinates: millimetres, Y DOWN (SVG), same X as the frame.
+// Drawing coordinates: millimeters, Y DOWN (SVG), same X as the frame.
 import { makeTubes } from "./build"
 import type { FrameInputs, FrameResult, KeyPoints, TubeRole, Vec2 } from "./types"
 import { add, deg, rad, scale, sub } from "./vec"
@@ -39,7 +39,7 @@ export interface DimensionLine {
   /** Thin extension lines from the measured points out to the dimension line (none where the point is on it). */
   ext: [Vec2, Vec2][]
   line: [Vec2, Vec2]
-  /** Centre of the dimension line. */
+  /** Center of the dimension line. */
   labelMid: Vec2
   /** Unit vector pointing from the line toward where the label sits. */
   labelNormal: Vec2
@@ -55,13 +55,13 @@ export interface Box {
 }
 
 export interface Drawing {
-  wheels: { tyre: Circle; rim: Circle }[]
+  wheels: { tire: Circle; rim: Circle }[]
   tubes: TubeOutline[]
   /** Crown to front axle. */
   fork: [Vec2, Vec2]
   /** Steering axis from above the head tube down to the ground. */
   steeringAxis: [Vec2, Vec2]
-  /** Where the front tyre touches the ground. */
+  /** Where the front tire touches the ground. */
   contact: Vec2
   ground: [Vec2, Vec2]
   /** Level crank, then foot to the toe. */
@@ -210,7 +210,7 @@ export function buildDrawing(inputs: FrameInputs, result: FrameResult, offset: V
   const toe = add(crankEnd, { x: inputs.toeProjection, y: 0 })
 
   const wheel = (c: Vec2) => ({
-    tyre: { cx: c.x, cy: -c.y, r: R },
+    tire: { cx: c.x, cy: -c.y, r: R },
     rim: { cx: c.x, cy: -c.y, r: inputs.wheel.rimDiameter / 2 },
   })
 
@@ -258,7 +258,7 @@ export function buildDrawing(inputs: FrameInputs, result: FrameResult, offset: V
 function boundsOf(d: Drawing): Box {
   const pts: Vec2[] = []
   for (const w of d.wheels) {
-    pts.push({ x: w.tyre.cx - w.tyre.r, y: w.tyre.cy - w.tyre.r }, { x: w.tyre.cx + w.tyre.r, y: w.tyre.cy + w.tyre.r })
+    pts.push({ x: w.tire.cx - w.tire.r, y: w.tire.cy - w.tire.r }, { x: w.tire.cx + w.tire.r, y: w.tire.cy + w.tire.r })
   }
   for (const t of d.tubes) pts.push(...t.corners)
   pts.push(...d.fork, ...d.steeringAxis, ...d.ground, ...d.crank, ...d.foot)

@@ -30,7 +30,7 @@ export function compareFrames(
     ["bbHeight", "BB height", "mm", m.bbHeight, r.bbHeight],
     ["bbDrop", "BB drop", "mm", m.bbDrop, r.bbDrop],
     ["chainstayLength", "Chainstay", "mm", m.chainstayLength, r.chainstayLength],
-    ["frontCentre", "Front centre", "mm", m.frontCentre, r.frontCentre],
+    ["frontCenter", "Front center", "mm", m.frontCenter, r.frontCenter],
     ["stack", "Stack", "mm", m.stack, r.stack],
     ["reach", "Reach", "mm", m.reach, r.reach],
     ["effectiveTopTube", "Effective top tube", "mm", m.effectiveTopTube, r.effectiveTopTube],

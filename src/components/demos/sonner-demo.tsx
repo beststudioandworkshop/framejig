@@ -37,7 +37,7 @@ export default function SonnerDemo() {
               description: "They'll receive an email shortly.",
               action: {
                 label: "Undo",
-                onClick: () => toast("Invite cancelled"),
+                onClick: () => toast("Invite canceled"),
               },
             })
           }

@@ -67,7 +67,7 @@ buildBox(inputs: BoxInputs): BoxResult
 // BoxResult = { ok, issues[], exterior, interior, parts: Part[], bounds }
 
 interface Part {
-  id: string; name: string; type: PartType        // type drives colour, legend, DXF layer
+  id: string; name: string; type: PartType        // type drives color, legend, DXF layer
   length: number; width: number; thickness: number // the cut size (mm)
   center: Vec3; rotation: Vec3; extents: Vec3      // world placement
   shape: "box" | "cylinder" | "polygon"
@@ -78,7 +78,7 @@ interface Part {
 ```
 
 Conventions worth copying:
-- **Millimetres internally**; convert only for display. A units module parses input
+- **Millimeters internally**; convert only for display. A units module parses input
   like `1 1/2"`, `3/4`, `25mm` and formats to 1/16" fractions.
 - World frame matches Three.js (Y up). Parts are axis-aligned boxes with an Euler
   rotation; renderers can use `extents` and skip rotating.
@@ -127,7 +127,7 @@ CLAUDE.md                   house rules for the AI (read it in the repo)
    - Build from the installed kit (`src/components/ui/`), never hand-roll controls.
    - Base UI, not Radix: compose with the `render` prop, never `asChild`.
    - Style with **tokens** (`bg-primary`, `text-muted-foreground`), never hex or raw
-     palette steps. (Exception: WebGL materials can't read CSS tokens, so 3D colours
+     palette steps. (Exception: WebGL materials can't read CSS tokens, so 3D colors
      live in one file, `part-colors.ts`.)
    - Check light and dark, phone and desktop.
    - **Next 16 is not the Next you know**: read `node_modules/next/dist/docs/`.
@@ -160,18 +160,18 @@ Design decisions the owner made (keep these in mind; he likes plain language):
   gets a divider under the seam (so only odd counts) so both leaves have support.
 - **"None (open)"** for an open top or open front: one thickness less lost inside.
 - **Hinge side only moves the hinge**; it must never change how a lid is split.
-- **Finishes copy is in the owner's voice** (stain is colour, top coat is the protector,
+- **Finishes copy is in the owner's voice** (stain is color, top coat is the protector,
   "finish" covers both; paste wax, patiently).
 - **Pricing is hidden** (`SHOW_ORDERING = false`) until the owner is ready. Placeholder
-  prices are clearly labelled as examples. The request flow emails the shop via
+  prices are clearly labeled as examples. The request flow emails the shop via
   `mailto:` with the design as a link; the address is an env var
   (`NEXT_PUBLIC_QUOTE_EMAIL`), never hard-coded.
 
 UI conventions:
 - **Orange "entry" accent**: only the settings panel's inputs, selects and chosen buttons
   are orange (plain, no hatch). It tells people where to put their information.
-- **A different palette colour along the top of each card** (a 3px band) as a light
-  touch of colour guidance. Palette (from the owner's swatches): tangerine, sky, tea,
+- **A different palette color along the top of each card** (a 3px band) as a light
+  touch of color guidance. Palette (from the owner's swatches): tangerine, sky, tea,
   lavender, mustard, pink quartz, red passion, muted black, seashell.
 - Small helper hints under size fields, shuffled per page load (door widths, a shoe box,
   milk crates, a comfy seat height). Written in friendly plain language.
@@ -219,7 +219,7 @@ UI conventions:
   a plain thin mesh, and make surface "looks" live **uniforms** on one shared shader
   (`customProgramCacheKey` constant). Measure it: count `compileShader` calls through a
   Playwright init script (target: zero after load).
-- three.js colour strings: use `hsl(210, 60%, 56%)` with commas or hex. The space-
+- three.js color strings: use `hsl(210, 60%, 56%)` with commas or hex. The space-
   separated CSS form silently renders white.
 - Stripe/grain shaders need `fwidth`-based anti-aliasing or they moire at shallow angles.
 - Camera: re-fit when the object's bounds change but keep the user's angle; glide rather
@@ -273,12 +273,12 @@ a reliable source before relying on them.
 
 | Box tool | Bike frame tool |
 |---|---|
-| Parts list of boards | Parts list of **tubes** (and lugs/dropouts/bosses if modelled) |
+| Parts list of boards | Parts list of **tubes** (and lugs/dropouts/bosses if modeled) |
 | `BoxInputs` | `FrameInputs`: the geometry numbers below |
 | `buildBox` | `buildFrame(inputs)` -> key points, tubes, derived metrics, issues |
 | Cut list | **Tube schedule**: length, diameter, wall, butting, end miters |
-| Sheet nesting + cut plan | Tube cut order, mitre angles, and a **fixture/jig sheet** |
-| DXF of flat parts | **1:1 printable drawing** and mitre/cope **paper templates** (PDF or DXF) |
+| Sheet nesting + cut plan | Tube cut order, miter angles, and a **fixture/jig sheet** |
+| DXF of flat parts | **1:1 printable drawing** and miter/cope **paper templates** (PDF or DXF) |
 | 3D preview of boards | 3D of tubes (cylinders between joints), exploded/assembly view |
 | Hardware + tools lists | Components spec (headset, BB shell, dropouts, etc.) + shop tools list |
 | How-to guidance | Building notes (tacking, brazing/welding order, alignment, cooling, checks) |
@@ -287,7 +287,7 @@ a reliable source before relying on them.
 
 ### 7.2 Inputs to consider (confirm which the owner wants)
 
-- Wheel/tyre size (rim diameter + tyre section -> wheel diameter), crank length.
+- Wheel/tire size (rim diameter + tire section -> wheel diameter), crank length.
 - Seat tube length and angle, top tube (effective) length, head tube length and angle.
 - Bottom bracket drop (or height), chainstay length, fork axle-to-crown and offset (rake).
 - Stack and reach as an alternative way to specify fit.
@@ -296,7 +296,7 @@ a reliable source before relying on them.
 
 ### 7.3 Derived values to show live (verify formulas!)
 
-Wheelbase, front centre, trail, stack and reach, standover, toe overlap check, bottom
+Wheelbase, front center, trail, stack and reach, standover, toe overlap check, bottom
 bracket height, seat/head tube extension, top tube slope. A commonly cited trail
 relationship is `trail = (R * cos(a) - offset) / sin(a)` where `R` is wheel radius,
 `a` is the head tube angle from horizontal, and `offset` is fork rake; confirm it and its
@@ -305,11 +305,11 @@ sign conventions before coding. Show a **comparison readout** (for example again
 
 ### 7.4 Architecture to reuse
 
-1. `src/lib/frame/` pure module, no React/Three, **millimetres and degrees internally**.
+1. `src/lib/frame/` pure module, no React/Three, **millimeters and degrees internally**.
 2. Compute named **key points** first (BB, rear axle, front axle, head tube top/bottom,
    seat tube top, etc.), then derive tubes as segments between points. Tubes become
    `Part`s with `length`, `center`, `rotation`, endpoints, diameter and wall.
-3. `issues[]` for impossible geometry (negative lengths, tyre clashes with the seat tube
+3. `issues[]` for impossible geometry (negative lengths, tire clashes with the seat tube
    or chainstay, fork/head tube overlap, toe overlap warnings).
 4. Tests first, exactly like the box: known reference frames with published numbers,
    symmetry, round trips (stack/reach <-> top tube/seat/head), unit conversion, and
@@ -354,7 +354,7 @@ sign conventions before coding. Show a **comparison readout** (for example again
 
 ## 8. Copy-paste prompt for the new chat
 
-> I want to build a custom bike frame geometry tool, modelled on the Plyhead plywood box
+> I want to build a custom bike frame geometry tool, modeled on the Plyhead plywood box
 > tool. Read `docs/handoff-bike-frame-tool.md` fully first. Follow its architecture (one
 > pure, tested geometry module that every output reads from), its process (plan, then
 > steps with a stop after each, verify in a real browser, check test/typecheck/lint/build

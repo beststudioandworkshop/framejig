@@ -19,8 +19,8 @@ describe("share links", () => {
       forkRake: 52,
       material: "titanium",
       process: "braze",
-      drivers: { bb: "height", rear: "rearCentre", seat: "cc", horizontal: "reach", vertical: "stack" },
-      wheel: { rimDiameter: 584, tyreSection: 52 },
+      drivers: { bb: "height", rear: "rearCenter", seat: "cc", horizontal: "reach", vertical: "stack" },
+      wheel: { rimDiameter: 584, tireSection: 52 },
       tubes: { ...base.tubes, topTube: { diameter: 34.9, wall: 1.2 } },
       rearSpacing: 142,
       bbShellWidth: 73,
@@ -60,7 +60,7 @@ describe("share links", () => {
           forkRake: null,
           material: "wood",
           process: 5,
-          wheel: { rimDiameter: "big", tyreSection: 30 },
+          wheel: { rimDiameter: "big", tireSection: 30 },
           drivers: { bb: "nonsense", horizontal: "reach" },
           tubes: { topTube: { diameter: 40, wall: "thick" }, downTube: 7 },
           unknownField: 1,
@@ -72,7 +72,7 @@ describe("share links", () => {
     expect(f.forkRake).toBe(base.forkRake)
     expect(f.material).toBe(base.material)
     expect(f.process).toBe(base.process)
-    expect(f.wheel).toEqual({ rimDiameter: base.wheel.rimDiameter, tyreSection: 30 })
+    expect(f.wheel).toEqual({ rimDiameter: base.wheel.rimDiameter, tireSection: 30 })
     expect(f.drivers).toEqual({ ...base.drivers, horizontal: "reach" })
     expect(f.tubes.topTube).toEqual({ diameter: 40, wall: base.tubes.topTube.wall })
     expect(f.tubes.downTube).toEqual(base.tubes.downTube)

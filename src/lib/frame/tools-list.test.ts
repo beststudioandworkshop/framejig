@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest"
 import { frameTools, TOOL_CATEGORIES, type FrameMaterial, type FrameProcess } from "./index"
 
 const processes: FrameProcess[] = ["tig", "braze", "lugged"]
-const materials: FrameMaterial[] = ["steel", "titanium", "aluminium"]
+const materials: FrameMaterial[] = ["steel", "titanium", "aluminum"]
 
 describe("frame tools", () => {
   for (const process of processes) {
@@ -29,10 +29,10 @@ describe("frame tools", () => {
     expect(names("lugged")).toEqual(expect.arrayContaining(["lugs", "torch", "heatshield"]))
   })
 
-  it("titanium needs an argon purge; aluminium a dedicated brush; steel neither", () => {
+  it("titanium needs an argon purge; aluminum a dedicated brush; steel neither", () => {
     const ids = (m: FrameMaterial) => frameTools({ process: "tig", material: m }).map((i) => i.id)
     expect(ids("titanium")).toContain("purge")
-    expect(ids("aluminium")).toContain("brush")
+    expect(ids("aluminum")).toContain("brush")
     expect(ids("steel")).not.toContain("purge")
     expect(ids("steel")).not.toContain("brush")
   })

@@ -74,7 +74,7 @@ export function JigPartsCard({ inputs, result, jig, parts, unit }: Props) {
 
         {jig && (
           <div className="overflow-x-auto">
-            <JigDrawing inputs={inputs} result={result} jig={jig} parts={parts} unit={unit} />
+            <JigDrawing inputs={inputs} result={result} jig={jig} parts={parts} />
           </div>
         )}
 

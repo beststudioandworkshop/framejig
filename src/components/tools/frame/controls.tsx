@@ -47,19 +47,19 @@ interface DriverOption<K extends keyof Drivers> {
 
 const BB_OPTIONS: DriverOption<"bb">[] = [
   { value: "drop", label: "BB drop", field: "bbDrop", hint: "How far the bottom bracket sits below the axles." },
-  { value: "height", label: "BB height", field: "bbHeight", hint: "Bottom bracket centre, up from the ground." },
+  { value: "height", label: "BB height", field: "bbHeight", hint: "Bottom bracket center, up from the ground." },
 ]
 const REAR_OPTIONS: DriverOption<"rear">[] = [
   { value: "chainstay", label: "Chainstay", field: "chainstayLength", hint: "Bottom bracket to rear axle, side view." },
-  { value: "rearCentre", label: "Rear centre", field: "rearCentre", hint: "Level distance, bottom bracket to rear axle." },
+  { value: "rearCenter", label: "Rear center", field: "rearCenter", hint: "Level distance, bottom bracket to rear axle." },
 ]
 const SEAT_OPTIONS: DriverOption<"seat">[] = [
-  { value: "ct", label: "Seat tube c-t", field: "seatTubeLength", hint: "Bottom bracket centre to the top of the tube." },
-  { value: "cc", label: "Seat tube c-c", field: "seatTubeLengthCC", hint: "Bottom bracket centre to the top tube centreline." },
+  { value: "ct", label: "Seat tube c-t", field: "seatTubeLength", hint: "Bottom bracket center to the top of the tube." },
+  { value: "cc", label: "Seat tube c-c", field: "seatTubeLengthCC", hint: "Bottom bracket center to the top tube centerline." },
 ]
 const HORIZONTAL_OPTIONS: DriverOption<"horizontal">[] = [
   { value: "effectiveTopTube", label: "Eff. top tube", field: "effectiveTopTube", hint: "Level distance between the seat and head tube." },
-  { value: "frontCentre", label: "Front centre", field: "frontCentre", hint: "Level distance, bottom bracket to front axle." },
+  { value: "frontCenter", label: "Front center", field: "frontCenter", hint: "Level distance, bottom bracket to front axle." },
   { value: "reach", label: "Reach", field: "reach", hint: "Forward from the bottom bracket to the top of the head tube." },
 ]
 const VERTICAL_OPTIONS: DriverOption<"vertical">[] = [
@@ -136,7 +136,7 @@ export function Controls({ inputs, unit, onUnit, update }: ControlsProps) {
     <Card>
       <CardHeader>
         <CardTitle>Your frame</CardTitle>
-        <CardDescription>Everything is in the side view, measured from the centre of the bottom bracket.</CardDescription>
+        <CardDescription>Everything is in the side view, measured from the center of the bottom bracket.</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-6">
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
@@ -190,13 +190,13 @@ export function Controls({ inputs, unit, onUnit, update }: ControlsProps) {
               onChange={(v) => update((i) => ({ ...i, wheel: { ...i.wheel, rimDiameter: v } }))}
             />
             <ValueInput
-              label="Tyre section"
+              label="Tire section"
               unit={unit}
-              hint="The tyre's height off the rim."
-              value={inputs.wheel.tyreSection}
+              hint="The tire's height off the rim."
+              value={inputs.wheel.tireSection}
               parse={(t) => parseLength(t, unit)}
               format={(mm) => formatLengthValue(mm, unit)}
-              onChange={(v) => update((i) => ({ ...i, wheel: { ...i.wheel, tyreSection: v } }))}
+              onChange={(v) => update((i) => ({ ...i, wheel: { ...i.wheel, tireSection: v } }))}
             />
           </FieldGroup>
         </FieldSet>

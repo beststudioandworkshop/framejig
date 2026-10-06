@@ -3,7 +3,7 @@
 import {
   ANGLE_LIMITS,
   LENGTH_MAX,
-  MIN_TYRE_CLEARANCE_WARN,
+  MIN_TIRE_CLEARANCE_WARN,
   TOE_CLEARANCE_WARN,
 } from "./constants"
 import type {
@@ -42,7 +42,7 @@ function numberFields(i: FrameInputs): NumberField[] {
   const d = i.drivers
   const f: NumberField[] = [
     { path: "wheel.rimDiameter", value: i.wheel.rimDiameter, min: 1, label: "Rim diameter" },
-    { path: "wheel.tyreSection", value: i.wheel.tyreSection, min: 1, label: "Tyre section" },
+    { path: "wheel.tireSection", value: i.wheel.tireSection, min: 1, label: "Tire section" },
     { path: "crankLength", value: i.crankLength, min: 1, label: "Crank length" },
     { path: "toeProjection", value: i.toeProjection, min: 0, label: "Toe projection" },
     { path: "bbShellWidth", value: i.bbShellWidth, min: 1, label: "BB shell width" },
@@ -57,14 +57,14 @@ function numberFields(i: FrameInputs): NumberField[] {
       : { path: "bbHeight", value: i.bbHeight, min: 1, label: "BB height" },
     d.rear === "chainstay"
       ? { path: "chainstayLength", value: i.chainstayLength, min: 1, label: "Chainstay length" }
-      : { path: "rearCentre", value: i.rearCentre, min: 1, label: "Rear centre" },
+      : { path: "rearCenter", value: i.rearCenter, min: 1, label: "Rear center" },
     d.seat === "ct"
       ? { path: "seatTubeLength", value: i.seatTubeLength, min: 1, label: "Seat tube length (c-t)" }
       : { path: "seatTubeLengthCC", value: i.seatTubeLengthCC, min: 1, label: "Seat tube length (c-c)" },
     d.horizontal === "effectiveTopTube"
       ? { path: "effectiveTopTube", value: i.effectiveTopTube, min: 1, label: "Effective top tube" }
-      : d.horizontal === "frontCentre"
-        ? { path: "frontCentre", value: i.frontCentre, min: 1, label: "Front centre" }
+      : d.horizontal === "frontCenter"
+        ? { path: "frontCenter", value: i.frontCenter, min: 1, label: "Front center" }
         : { path: "reach", value: i.reach, min: 1, label: "Reach" },
     d.vertical === "headTubeLength"
       ? { path: "headTubeLength", value: i.headTubeLength, min: 1, label: "Head tube length" }
@@ -81,9 +81,9 @@ function numberFields(i: FrameInputs): NumberField[] {
 
 /** The BB drop, chainstay and seat tube lengths actually used, whichever way they were specified. */
 function resolveBase(i: FrameInputs) {
-  const R = i.wheel.rimDiameter / 2 + i.wheel.tyreSection
+  const R = i.wheel.rimDiameter / 2 + i.wheel.tireSection
   const drop = i.drivers.bb === "drop" ? i.bbDrop : R - i.bbHeight
-  const chainstay = i.drivers.rear === "chainstay" ? i.chainstayLength : Math.hypot(i.rearCentre, drop)
+  const chainstay = i.drivers.rear === "chainstay" ? i.chainstayLength : Math.hypot(i.rearCenter, drop)
   const seatTop = i.drivers.seat === "ct" ? i.seatTubeLength : i.seatTubeLengthCC + i.seatTubeExtension
   return { R, drop, chainstay, seatTop }
 }
@@ -169,9 +169,9 @@ function solve(i: FrameInputs): Solved {
       // Head tube top is at x = reach.
       bottomX = i.reach + headLen * cosA
       break
-    case "frontCentre":
-      // Front axle is at x = frontCentre: back out the fork.
-      bottomX = i.frontCentre - i.forkAxleToCrown * cosA - i.forkRake * sinA
+    case "frontCenter":
+      // Front axle is at x = frontCenter: back out the fork.
+      bottomX = i.frontCenter - i.forkAxleToCrown * cosA - i.forkRake * sinA
       break
     default:
       // Axis crosses the seat tube top height at x = seatTop.x + effectiveTopTube.
@@ -227,8 +227,8 @@ function metricsOf(i: FrameInputs, { points: p, wheelRadius: R }: Solved): Frame
   return {
     wheelRadius: R,
     wheelbase: p.frontAxle.x - p.rearAxle.x,
-    frontCentre: p.frontAxle.x,
-    rearCentre: -p.rearAxle.x,
+    frontCenter: p.frontAxle.x,
+    rearCenter: -p.rearAxle.x,
     bbHeight,
     bbDrop,
     chainstayLength: dist(p.bb, p.rearAxle),
@@ -244,8 +244,8 @@ function metricsOf(i: FrameInputs, { points: p, wheelRadius: R }: Solved): Frame
     ),
     standover: bbHeight + ttMid.y + i.tubes.topTube.diameter / 2,
     toeClearance: dist(toe, p.frontAxle) - R,
-    rearTyreClearance: distToSegment(p.rearAxle, p.bb, p.seatTop) - R - i.tubes.seatTube.diameter / 2,
-    frontTyreClearance:
+    rearTireClearance: distToSegment(p.rearAxle, p.bb, p.seatTop) - R - i.tubes.seatTube.diameter / 2,
+    frontTireClearance:
       distToSegment(p.frontAxle, p.bb, p.downTubeHeadJoint) - R - i.tubes.downTube.diameter / 2,
   }
 }
@@ -270,22 +270,22 @@ function geometryIssues(m: FrameMetrics, p: KeyPoints): Issue[] {
   if (p.topTubeHeadJoint.x <= p.topTubeSeatJoint.x) {
     issues.push(err("top-tube-length", "The top tube would have no length. Check the angles and top tube.", "effectiveTopTube"))
   }
-  if (m.rearTyreClearance < 0) {
-    issues.push(err("rear-tyre-clash", "The rear tyre hits the seat tube. Lengthen the chainstays or narrow the tyre.", "chainstayLength"))
-  } else if (m.rearTyreClearance < MIN_TYRE_CLEARANCE_WARN) {
-    issues.push(warn("rear-tyre-tight", "The rear tyre clears the seat tube by very little.", "chainstayLength"))
+  if (m.rearTireClearance < 0) {
+    issues.push(err("rear-tire-clash", "The rear tire hits the seat tube. Lengthen the chainstays or narrow the tire.", "chainstayLength"))
+  } else if (m.rearTireClearance < MIN_TIRE_CLEARANCE_WARN) {
+    issues.push(warn("rear-tire-tight", "The rear tire clears the seat tube by very little.", "chainstayLength"))
   }
-  if (m.frontTyreClearance < 0) {
-    issues.push(err("front-tyre-clash", "The front tyre hits the down tube.", "forkAxleToCrown"))
-  } else if (m.frontTyreClearance < MIN_TYRE_CLEARANCE_WARN) {
-    issues.push(warn("front-tyre-tight", "The front tyre clears the down tube by very little.", "forkAxleToCrown"))
+  if (m.frontTireClearance < 0) {
+    issues.push(err("front-tire-clash", "The front tire hits the down tube.", "forkAxleToCrown"))
+  } else if (m.frontTireClearance < MIN_TIRE_CLEARANCE_WARN) {
+    issues.push(warn("front-tire-tight", "The front tire clears the down tube by very little.", "forkAxleToCrown"))
   }
   if (m.toeClearance < 0) {
     issues.push(
-      warn("toe-overlap", `Toe overlap: your toe reaches ${Math.round(-m.toeClearance)} mm into the front tyre (straight ahead, crank level).`, "crankLength"),
+      warn("toe-overlap", `Toe overlap: your toe reaches ${Math.round(-m.toeClearance)} mm into the front tire (straight ahead, crank level).`, "crankLength"),
     )
   } else if (m.toeClearance < TOE_CLEARANCE_WARN) {
-    issues.push(warn("toe-near-overlap", "Your toe nearly touches the front tyre (straight ahead, crank level).", "crankLength"))
+    issues.push(warn("toe-near-overlap", "Your toe nearly touches the front tire (straight ahead, crank level).", "crankLength"))
   }
   return issues
 }

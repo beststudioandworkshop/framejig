@@ -16,7 +16,7 @@ interface FrameDrawingProps {
 }
 
 /**
- * The side view. Draws exactly what the drawing data says; all colour comes
+ * The side view. Draws exactly what the drawing data says; all color comes
  * from tokens (`currentColor` and the token stroke/fill classes).
  */
 export function FrameDrawing({ drawing, reference, showDimensions, unit }: FrameDrawingProps) {
@@ -53,7 +53,7 @@ export function FrameDrawing({ drawing, reference, showDimensions, unit }: Frame
       {reference && (
         <g className="fill-none stroke-muted-foreground" strokeDasharray="6 4" strokeWidth={1.25} {...thin}>
           {reference.wheels.map((w, i) => (
-            <circle key={i} cx={w.tyre.cx} cy={w.tyre.cy} r={w.tyre.r} />
+            <circle key={i} cx={w.tire.cx} cy={w.tire.cy} r={w.tire.r} />
           ))}
           {reference.tubes.map((t) => (
             <polygon key={t.role + t.a.x} points={pts(t.corners)} />
@@ -65,7 +65,7 @@ export function FrameDrawing({ drawing, reference, showDimensions, unit }: Frame
       <g className="fill-none stroke-muted-foreground" strokeWidth={1.25} {...thin}>
         {drawing.wheels.map((w, i) => (
           <g key={i}>
-            <circle cx={w.tyre.cx} cy={w.tyre.cy} r={w.tyre.r} />
+            <circle cx={w.tire.cx} cy={w.tire.cy} r={w.tire.r} />
             <circle cx={w.rim.cx} cy={w.rim.cy} r={w.rim.r} strokeOpacity={0.5} />
           </g>
         ))}
@@ -91,7 +91,7 @@ export function FrameDrawing({ drawing, reference, showDimensions, unit }: Frame
         <line {...line(drawing.foot[0], drawing.foot[1])} strokeDasharray="3 3" />
       </g>
       {drawing.wheels.map((w, i) => (
-        <circle key={i} cx={w.tyre.cx} cy={w.tyre.cy} r={fs * 0.3} className="fill-background stroke-foreground" strokeWidth={1.25} {...thin} />
+        <circle key={i} cx={w.tire.cx} cy={w.tire.cy} r={fs * 0.3} className="fill-background stroke-foreground" strokeWidth={1.25} {...thin} />
       ))}
       <circle cx={drawing.contact.x} cy={drawing.contact.y} r={fs * 0.25} className="fill-foreground" />
 

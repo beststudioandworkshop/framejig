@@ -44,7 +44,7 @@ export function TubeSchedule({ result, unit }: { result: FrameResult; unit: Leng
       <CardHeader>
         <CardTitle>Tube schedule</CardTitle>
         <CardDescription>
-          Lengths run joint to joint along the centreline, side view. They don&apos;t include mitre or cope
+          Lengths run joint to joint along the centerline, side view. They don&apos;t include miter or cope
           allowances or the stays&apos; splay, so don&apos;t cut from them yet.
         </CardDescription>
         <CardAction className="flex gap-2">

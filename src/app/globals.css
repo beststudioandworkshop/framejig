@@ -66,7 +66,7 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
   --primary: oklch(0.205 0 0);
-  /* Card tones: a light touch of a different palette colour per card. */
+  /* Card tones: a light touch of a different palette color per card. */
   --tone-tangerine: #ed773c;
   --tone-sky: #9ed6df;
   --tone-tea: #245e55;
@@ -155,7 +155,7 @@
     @apply font-sans;
   }
 }
-/* Card tones: a thin band of one palette colour along a card's top edge.
+/* Card tones: a thin band of one palette color along a card's top edge.
    Add `card-tone tone-<name>` to a Card. Outside any @layer so it wins. */
 .card-tone {
   border-top: 3px solid var(--tone, var(--border));

@@ -52,7 +52,7 @@ export default function ToastDemo() {
               description: "They'll receive an email shortly.",
               actionProps: {
                 children: "Undo",
-                onClick: () => toast.add({ title: "Invite cancelled" }),
+                onClick: () => toast.add({ title: "Invite canceled" }),
               },
             })
           }

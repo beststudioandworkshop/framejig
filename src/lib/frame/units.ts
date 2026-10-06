@@ -1,4 +1,4 @@
-// Length and angle parsing/formatting. Millimetres internally.
+// Length and angle parsing/formatting. Millimeters internally.
 export type LengthUnit = "mm" | "in"
 
 export const MM_PER_INCH = 25.4
@@ -8,7 +8,7 @@ export const inToMm = (inch: number) => inch * MM_PER_INCH
 
 /**
  * Parse typed length: "25", "25mm", "1.5", `1 1/2"`, "3/4in". A bare number is
- * read in `defaultUnit`. Returns millimetres, or null if it isn't a length.
+ * read in `defaultUnit`. Returns millimeters, or null if it isn't a length.
  */
 export function parseLength(text: string, defaultUnit: LengthUnit): number | null {
   const s = text.trim().toLowerCase()

@@ -77,8 +77,8 @@ export function Readouts({ inputs, result, unit }: { inputs: FrameInputs; result
           <Stat label="BB height" value={L(m?.bbHeight)} />
           <Stat label="BB drop" value={L(m?.bbDrop)} note={note("bbDrop")} />
           <Stat label="Chainstay length" value={L(m?.chainstayLength)} note={note("chainstayLength")} />
-          <Stat label="Rear centre" value={L(m?.rearCentre)} />
-          <Stat label="Front centre" value={L(m?.frontCentre)} />
+          <Stat label="Rear center" value={L(m?.rearCenter)} />
+          <Stat label="Front center" value={L(m?.frontCenter)} />
           <Stat label="Standover" value={L(m?.standover)} />
           <Stat label="Seat tube (c-t)" value={L(m?.seatTubeLength)} />
           <Stat label="Seat tube (c-c)" value={L(m?.seatTubeLengthCC)} />
@@ -88,8 +88,8 @@ export function Readouts({ inputs, result, unit }: { inputs: FrameInputs; result
           <Stat label="Reach" value={L(m?.reach)} />
           <Stat label="Top tube slope" value={m ? formatAngle(m.topTubeSlope) : "—"} />
           <Stat label="Toe clearance" value={L(m?.toeClearance)} />
-          <Stat label="Rear tyre to seat tube" value={L(m?.rearTyreClearance)} />
-          <Stat label="Front tyre to down tube" value={L(m?.frontTyreClearance)} />
+          <Stat label="Rear tire to seat tube" value={L(m?.rearTireClearance)} />
+          <Stat label="Front tire to down tube" value={L(m?.frontTireClearance)} />
         </div>
       </CardContent>
     </Card>

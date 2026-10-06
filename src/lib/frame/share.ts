@@ -7,13 +7,13 @@ import type { Drivers, FrameInputs, FrameMaterial, FrameProcess, FrameTubeSpecs,
 
 const VERSION = 1
 
-const MATERIALS: FrameMaterial[] = ["steel", "titanium", "aluminium"]
+const MATERIALS: FrameMaterial[] = ["steel", "titanium", "aluminum"]
 const PROCESSES: FrameProcess[] = ["tig", "braze", "lugged"]
 const DRIVER_VALUES: { [K in keyof Drivers]: Drivers[K][] } = {
   bb: ["drop", "height"],
-  rear: ["chainstay", "rearCentre"],
+  rear: ["chainstay", "rearCenter"],
   seat: ["ct", "cc"],
-  horizontal: ["effectiveTopTube", "frontCentre", "reach"],
+  horizontal: ["effectiveTopTube", "frontCenter", "reach"],
   vertical: ["headTubeLength", "stack"],
 }
 const TUBE_ROLES = Object.keys(DEFAULT_INPUTS.tubes) as (keyof FrameTubeSpecs)[]
@@ -89,7 +89,7 @@ export function decodeFrame(text: string | null | undefined): FrameInputs | null
     ...d,
     wheel: {
       rimDiameter: isNumber(rawWheel.rimDiameter) ? rawWheel.rimDiameter : d.wheel.rimDiameter,
-      tyreSection: isNumber(rawWheel.tyreSection) ? rawWheel.tyreSection : d.wheel.tyreSection,
+      tireSection: isNumber(rawWheel.tireSection) ? rawWheel.tireSection : d.wheel.tireSection,
     },
     material: MATERIALS.includes(c.material as FrameMaterial) ? (c.material as FrameMaterial) : d.material,
     process: PROCESSES.includes(c.process as FrameProcess) ? (c.process as FrameProcess) : d.process,

@@ -7,8 +7,8 @@ export const ANGLE_LIMITS = { min: 45, max: 89 } as const
 /** Largest length accepted in any field, mm. Catches typos like an extra zero. */
 export const LENGTH_MAX = 3000
 
-/** Tyre-to-tube gap below which we warn (mm). Below zero it is an error. */
-export const MIN_TYRE_CLEARANCE_WARN = 6
+/** Tire-to-tube gap below which we warn (mm). Below zero it is an error. */
+export const MIN_TIRE_CLEARANCE_WARN = 6
 
 /** Toe clearance below which we warn about a near-overlap (mm). Below zero it is overlap. */
 export const TOE_CLEARANCE_WARN = 10
@@ -19,7 +19,7 @@ const T = (diameter: number, wall: number): TubeSpec => ({ diameter, wall })
 export const DEFAULT_INPUTS: FrameInputs = {
   bbShellWidth: 68,
   rearSpacing: 130,
-  wheel: { rimDiameter: 622, tyreSection: 28 },
+  wheel: { rimDiameter: 622, tireSection: 28 },
   crankLength: 172.5,
   toeProjection: 120,
   material: "steel",
@@ -40,11 +40,11 @@ export const DEFAULT_INPUTS: FrameInputs = {
   headTubeLength: 140,
   stack: 543,
   reach: 389,
-  frontCentre: 585,
+  frontCenter: 585,
   bbDrop: 70,
   bbHeight: 269,
   chainstayLength: 420,
-  rearCentre: 414,
+  rearCenter: 414,
   forkAxleToCrown: 370,
   forkRake: 45,
   tubes: {
@@ -60,5 +60,5 @@ export const DEFAULT_INPUTS: FrameInputs = {
 export const MATERIAL_LABELS: Record<FrameMaterial, string> = {
   steel: "Steel",
   titanium: "Titanium",
-  aluminium: "Aluminium",
+  aluminum: "Aluminum",
 }

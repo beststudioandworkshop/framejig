@@ -5,7 +5,7 @@
 // reachable when this was written, so each part has the text to search for and
 // an empty `partNumber` for whoever orders it. Sizes marked "to suit" depend
 // on your tubes and dropouts: measure them, don't guess.
-import type { Jig, StationId } from "./jig"
+import { roundUp, type Jig } from "./jig"
 import { formatLengthValue, type LengthUnit } from "./units"
 
 export interface JigPart {
@@ -25,27 +25,25 @@ export interface JigPart {
   partNumber: string | null
 }
 
-/** Round up to the next multiple of `step`. */
-export const roundUp = (n: number, step: number) => Math.ceil(n / step - 1e-9) * step
-
-/** Space left past the last station for clamps, and so a column isn't flush with its mandrel. */
-export const ALLOWANCE = 100
 const STEP = 50
-
-function highest(jigs: Jig[], id: StationId): number {
-  return Math.max(...jigs.map((j) => j.stations.find((s) => s.id === id)!.yFromSpine))
-}
 
 /** Parts for a jig that can hold every frame in `jigs`. Empty if there are none. */
 export function jigParts(jigs: (Jig | null)[]): JigPart[] {
   const list = jigs.filter((j): j is Jig => j !== null)
   if (list.length === 0) return []
 
-  const all = list.flatMap((j) => j.stations)
-  const minX = Math.min(...all.map((s) => s.x))
-  const maxX = Math.max(...all.map((s) => s.x))
-  const spine = roundUp(maxX - minX + 2 * ALLOWANCE, STEP)
-  const column = (id: StationId) => roundUp(highest(list, id) + ALLOWANCE, STEP)
+  const spine = roundUp(Math.max(...list.map((j) => j.spine.uMax)) - Math.min(...list.map((j) => j.spine.uMin)), STEP)
+  const carrier = (id: "seat" | "head") => Math.max(...list.map((j) => j.carriers.find((c) => c.id === id)!.length))
+  const standoff = Math.max(
+    STEP,
+    roundUp(Math.min(...list.map((j) => j.stations.find((s) => s.id === "rearAxle")!.standoff)), 10),
+  )
+  const post = list[0].settings.postHeight
+  const tilt = list.map((j) => j.tilt.degrees)
+  const tiltNote =
+    list.length > 1
+      ? `${tilt.map((t) => `${Number(t.toFixed(1))}°`).join(" and ")} for these frames`
+      : `${Number(tilt[0].toFixed(1))}° for this frame`
 
   const part = (p: Omit<JigPart, "partNumber">): JigPart => ({ ...p, partNumber: null })
 
@@ -53,93 +51,101 @@ export function jigParts(jigs: (Jig | null)[]): JigPart[] {
     part({
       id: "spine",
       callout: 1,
-      name: "Spine",
+      name: "Main spine",
       qty: 1,
       spec: "Metric T-slotted framing, 40 mm x 120 mm",
       cutLength: spine,
-      note: "Runs parallel to the axle line. The rear axle block sits at one end; the stations spread along it.",
+      note: `Runs from the rear axle through the middle of the head tube, tilted ${tiltNote} above the axle-to-axle line. The carriers mount on its front face.`,
       search: "metric t-slotted framing 40 mm x 120 mm",
     }),
     part({
-      id: "rearAxleBlock",
+      id: "post",
       callout: 2,
-      name: "Rear axle block",
+      name: "Spine post",
       qty: 1,
-      spec: "Metric T-slotted framing, 40 mm x 80 mm, short length, with a bore or slot for the dummy axle",
-      cutLength: 200,
-      note: "Fixed. The one point that never moves. Dropout faces sit half the rear spacing either side of the centre plane.",
+      spec: "Metric T-slotted framing, 40 mm x 80 mm, upright",
+      cutLength: post,
+      note: "Mounts to the back side of the spine. The cut length is your pivot height; change it above to suit your bench or floor.",
       search: "metric t-slotted framing 40 mm x 80 mm",
     }),
     part({
-      id: "bbRiser",
+      id: "pivot",
       callout: 3,
-      name: "Bottom bracket riser",
+      name: "Spine pivot and angle lock",
       qty: 1,
-      spec: "Metric T-slotted framing, 40 mm x 80 mm",
-      cutLength: column("bb"),
-      note: "Slides along the spine to set the chainstay. Carries the BB mandrel.",
-      search: "metric t-slotted framing 40 mm x 80 mm",
+      spec: "Hinge or pivot bracket for the framing series, plus a way to lock the angle",
+      note: "Where the spine meets the post. It has to hold the tilt while you set the carriers and tack.",
+      search: "t-slotted framing hinges",
     }),
     part({
-      id: "headColumn",
+      id: "base",
       callout: 4,
-      name: "Head tube column",
-      qty: 1,
-      spec: "Metric T-slotted framing, 40 mm x 80 mm",
-      cutLength: column("headTop"),
-      note: "Reaches the head tube top. The mandrel is set by its bottom and top positions.",
-      search: "metric t-slotted framing 40 mm x 80 mm",
+      name: "Post base and feet",
+      qty: 4,
+      spec: "Adjustable leveling feet on a base the post bolts to",
+      note: "Level the base before you set the tilt.",
+      search: "leveling feet",
     }),
     part({
-      id: "seatColumn",
+      id: "rearStandoff",
       callout: 5,
-      name: "Seat tube column",
+      name: "Rear axle standoff",
       qty: 1,
-      spec: "Metric T-slotted framing, 40 mm x 80 mm",
-      cutLength: column("seatTop"),
-      note: "Holds the top of the seat tube. The tube also passes through the BB.",
+      spec: "Metric T-slotted framing, 40 mm x 80 mm, with a bore or slot for the dummy axle",
+      cutLength: standoff,
+      note: "Reaches out from the spine face to the near dropout face, so the dummy axle reaches the frame's center line seen from above.",
       search: "metric t-slotted framing 40 mm x 80 mm",
     }),
     part({
-      id: "frontAxlePost",
+      id: "seatCarrier",
       callout: 6,
-      name: "Front axle check post",
+      name: "Seat tube carrier",
       qty: 1,
       spec: "Metric T-slotted framing, 40 mm x 80 mm",
-      cutLength: roundUp(highest(list, "frontAxle") + ALLOWANCE, STEP),
-      note: "Optional. Where a gauge or dummy fork's axle should land, level with the rear axle.",
+      cutLength: carrier("seat"),
+      note: "Runs along the seat tube and carries the BB stop. The most adjustable carrier: along the spine, across it, and rotation.",
+      search: "metric t-slotted framing 40 mm x 80 mm",
+    }),
+    part({
+      id: "headCarrier",
+      callout: 7,
+      name: "Head tube carrier",
+      qty: 1,
+      spec: "Metric T-slotted framing, 40 mm x 80 mm",
+      cutLength: carrier("head"),
+      note: "Runs along the head tube and carries its mandrel. Rotates to the head angle.",
       search: "metric t-slotted framing 40 mm x 80 mm",
     }),
     part({
       id: "mandrels",
-      callout: 7,
-      name: "Mandrels (head tube, BB, seat tube)",
+      callout: 8,
+      name: "Mandrels (head tube, seat tube, BB)",
       qty: 3,
       spec: "Precision-ground steel shaft, diameter to suit each tube's bore (slip fit)",
-      note: "Measure each tube's inside diameter after reaming and facing. Head tube mandrel must be longer than the head tube plus the clamps.",
+      note: "Measure each tube's inside diameter after reaming and facing. The head tube mandrel must be longer than the head tube plus the clamps.",
       search: "precision ground shaft",
     }),
     part({
       id: "dummyAxle",
-      callout: 8,
+      callout: 9,
       name: "Dummy axle",
       qty: 1,
       spec: "Precision-ground shaft, diameter to suit your dropouts (quick release or thru-axle)",
-      note: "Locates the dropouts on the rear axle block.",
+      note: "Locates the dropouts on the rear axle standoff.",
       search: "precision ground shaft",
     }),
     part({
       id: "shaftCollars",
-      callout: 9,
+      callout: 10,
       name: "Shaft collars",
       qty: 8,
       spec: "Clamp-on shaft collars, bore to suit the mandrels",
-      note: "Hold each mandrel in its column and set its position.",
+      note: "Hold each mandrel in its carrier and set its position.",
       search: "clamp-on shaft collars",
     }),
     part({
       id: "framingFasteners",
-      callout: 10,
+      callout: 11,
       name: "T-nuts and bolts",
       qty: 1,
       spec: "T-slot nuts and screws to match the framing series, enough for every joint plus spares",
@@ -148,20 +154,20 @@ export function jigParts(jigs: (Jig | null)[]): JigPart[] {
     }),
     part({
       id: "brackets",
-      callout: 11,
-      name: "Framing brackets",
+      callout: 12,
+      name: "Framing brackets and pivot clamps",
       qty: 1,
-      spec: "Corner or angle brackets to match the framing series, one pair per column",
-      note: "Square each column to the spine. Check with a machinist's square before tightening.",
-      search: "t-slotted framing corner brackets",
+      spec: "Brackets to match the framing series, enough to mount each carrier to the spine with a way to rotate and lock it",
+      note: "The seat tube and head tube carriers rotate, so they need a pivot bolt and a clamp, not a fixed corner.",
+      search: "t-slotted framing brackets",
     }),
     part({
       id: "scale",
-      callout: 12,
+      callout: 13,
       name: "Spine scale",
       qty: 1,
       spec: "Adhesive-backed steel rule, long enough for the spine",
-      note: "Reads the x position of each column along the spine. Your tape and calipers still check it.",
+      note: "Reads the position of each carrier along the spine. Your tape and calipers still check it.",
       search: "adhesive backed steel rule",
     }),
     part({
@@ -172,15 +178,6 @@ export function jigParts(jigs: (Jig | null)[]): JigPart[] {
       spec: "Toggle clamps, or other quick-release hold-downs, to hold tubes while tacking",
       note: "Keep them away from the heat.",
       search: "toggle clamps",
-    }),
-    part({
-      id: "feet",
-      callout: 0,
-      name: "Levelling feet or stand",
-      qty: 4,
-      spec: "Adjustable levelling feet, rated for the jig and a frame",
-      note: "Level the spine before you set anything.",
-      search: "leveling feet",
     }),
     part({
       id: "endCaps",

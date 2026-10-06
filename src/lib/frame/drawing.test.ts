@@ -25,7 +25,7 @@ describe("drawing", () => {
   })
 
   it("still draws a frame that has errors, but with no tubes in the schedule", () => {
-    const inputs = { ...base, effectiveTopTube: 380 } // front tyre hits the down tube
+    const inputs = { ...base, effectiveTopTube: 380 } // front tire hits the down tube
     const r = buildFrame(inputs)
     expect(r.ok).toBe(false)
     expect(buildDrawing(inputs, r)!.tubes).toHaveLength(6)
@@ -34,23 +34,23 @@ describe("drawing", () => {
   it("flips Y so up is up: BB at the origin, axles above it, ground below", () => {
     const { d, m } = draw()
     expect(d.crank[0]).toEqual({ x: 0, y: -0 })
-    expect(d.wheels[0].tyre.cy).toBeCloseTo(-base.bbDrop, 9)
+    expect(d.wheels[0].tire.cy).toBeCloseTo(-base.bbDrop, 9)
     expect(d.ground[0].y).toBeCloseTo(m.bbHeight, 9)
   })
 
-  it("draws both wheels at the tyre and rim radius, centred on the axles", () => {
+  it("draws both wheels at the tire and rim radius, centerd on the axles", () => {
     const { d, p, m } = draw()
     const [rear, front] = d.wheels
-    expect(rear.tyre.cx).toBeCloseTo(p.rearAxle.x, 9)
-    expect(front.tyre.cx).toBeCloseTo(p.frontAxle.x, 9)
-    expect(rear.tyre.r).toBe(m.wheelRadius)
+    expect(rear.tire.cx).toBeCloseTo(p.rearAxle.x, 9)
+    expect(front.tire.cx).toBeCloseTo(p.frontAxle.x, 9)
+    expect(rear.tire.r).toBe(m.wheelRadius)
     expect(rear.rim.r).toBe(base.wheel.rimDiameter / 2)
-    expect(front.rim.r).toBeLessThan(front.tyre.r)
+    expect(front.rim.r).toBeLessThan(front.tire.r)
   })
 
-  it("the tyres touch the ground line", () => {
+  it("the tires touch the ground line", () => {
     const { d } = draw()
-    for (const w of d.wheels) expect(w.tyre.cy + w.tyre.r).toBeCloseTo(d.ground[0].y, 9)
+    for (const w of d.wheels) expect(w.tire.cy + w.tire.r).toBeCloseTo(d.ground[0].y, 9)
   })
 
   it("draws each tube at its real diameter and length", () => {
@@ -152,8 +152,8 @@ describe("offset and bounds", () => {
     const result = buildFrame(inputs)
     const a = buildDrawing(inputs, result)!
     const b = buildDrawing(inputs, result, { x: 100, y: 50 })!
-    expect(b.wheels[0].tyre.cx).toBeCloseTo(a.wheels[0].tyre.cx + 100, 9)
-    expect(b.wheels[0].tyre.cy).toBeCloseTo(a.wheels[0].tyre.cy - 50, 9)
+    expect(b.wheels[0].tire.cx).toBeCloseTo(a.wheels[0].tire.cx + 100, 9)
+    expect(b.wheels[0].tire.cy).toBeCloseTo(a.wheels[0].tire.cy - 50, 9)
     expect(b.dims[0].value).toBeCloseTo(a.dims[0].value, 9)
     expect(b.bounds.minX).toBeCloseTo(a.bounds.minX + 100, 9)
     expect(b.bounds.maxY).toBeCloseTo(a.bounds.maxY - 50, 9)
@@ -162,8 +162,8 @@ describe("offset and bounds", () => {
   it("bounds contain the wheels, tubes and dimension lines", () => {
     const { d } = draw()
     for (const w of d.wheels) {
-      expect(w.tyre.cx - w.tyre.r).toBeGreaterThanOrEqual(d.bounds.minX)
-      expect(w.tyre.cy + w.tyre.r).toBeLessThanOrEqual(d.bounds.maxY)
+      expect(w.tire.cx - w.tire.r).toBeGreaterThanOrEqual(d.bounds.minX)
+      expect(w.tire.cy + w.tire.r).toBeLessThanOrEqual(d.bounds.maxY)
     }
     for (const t of d.tubes) for (const c of t.corners) {
       expect(c.x).toBeGreaterThanOrEqual(d.bounds.minX)

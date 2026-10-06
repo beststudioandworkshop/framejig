@@ -1,6 +1,6 @@
 # Framejig
 
-A bike frame geometry planner for custom builders, modelled on the Plyhead
+A bike frame geometry planner for custom builders, modeled on the Plyhead
 plywood box tool. One pure, tested geometry module (`src/lib/frame/`) feeds
 every output: the side-view drawing, readouts, tube schedule and jig settings.
 
