@@ -159,7 +159,7 @@ export function FrameLogic() {
         <CardContent className="flex flex-col gap-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <Tabs value={family} onValueChange={(v) => pickFamily(v as Family)}>
-              <TabsList className="h-auto flex-wrap">
+              <TabsList className="group-data-horizontal/tabs:h-auto w-full grid-cols-4 gap-1 max-sm:grid sm:w-fit sm:flex-wrap">
                 {BIKE_TYPES.map((t) => (
                   <TabsTrigger key={t} value={t}>
                     {BIKE_TYPE_LABELS[t]}
@@ -235,7 +235,27 @@ export function FrameLogic() {
                   </ul>
                 </div>
               )}
-              <Table>
+              <ul className="flex flex-col divide-y sm:hidden" aria-label="Typical ranges">
+                {RANGE_ROWS.map((k) => (
+                  <li key={k} className="flex flex-col gap-1 py-3">
+                    <div className="flex flex-wrap items-baseline gap-x-3">
+                      <span className="font-medium">{cat.ranges[k].label}</span>
+                      <span className="font-mono tabular-nums">{fmtRange(k)}</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{cat.rangeWhy[k]}</p>
+                  </li>
+                ))}
+                <li className="flex flex-col gap-1 py-3">
+                  <div className="flex flex-wrap items-baseline gap-x-3">
+                    <span className="font-medium">Stack to reach</span>
+                    <span className="font-mono tabular-nums">
+                      {cat.positionRange.low.toFixed(2)} to {cat.positionRange.high.toFixed(2)}
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{cat.rangeWhy.position}</p>
+                </li>
+              </ul>
+              <Table className="max-sm:hidden">
                 <TableHeader>
                   <TableRow>
                     <TableHead>Measure</TableHead>
