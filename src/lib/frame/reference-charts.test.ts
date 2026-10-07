@@ -1,0 +1,55 @@
+import { describe, expect, it } from "vitest"
+
+import { chartValue, REFERENCE_CHARTS, type ChartRow } from "./reference-charts"
+
+const rad = (d: number) => (d * Math.PI) / 180
+
+describe("reference charts", () => {
+  it("gives every row one value, or one per size", () => {
+    for (const c of REFERENCE_CHARTS) {
+      for (const [row, v] of Object.entries(c.rows)) {
+        if (Array.isArray(v)) expect(v.length, `${c.id} ${row}`).toBe(c.sizes.length)
+      }
+    }
+  })
+
+  it("has unique ids", () => {
+    const ids = REFERENCE_CHARTS.map((c) => c.id)
+    expect(new Set(ids).size).toBe(ids.length)
+  })
+
+  // The published "effective top tube" is the horizontal distance between the seat
+  // tube line and the head tube top, measured at the head tube top: reach + stack / tan(seat angle).
+  // It holds to a couple of millimeters on every chart, so it also catches typing slips.
+  it("has an effective top tube that matches reach, stack and seat angle", () => {
+    for (const c of REFERENCE_CHARTS) {
+      c.sizes.forEach((s, i) => {
+        const g = (r: ChartRow) => chartValue(c, r, i)
+        const reach = g("reach")
+        const stack = g("stack")
+        const sta = g("seatTubeAngle")
+        const ett = g("effectiveTopTube")
+        if (reach === undefined || stack === undefined || sta === undefined || ett === undefined) return
+        expect(Math.abs(reach + stack / Math.tan(rad(sta)) - ett), `${c.id} ${s}`).toBeLessThan(3)
+      })
+    }
+  })
+
+  it("has a stack that matches the head tube, fork and angles (to the nearest few millimeters)", () => {
+    // Only a sanity bound: the charts differ in how they count the headset.
+    for (const c of REFERENCE_CHARTS) {
+      c.sizes.forEach((s, i) => {
+        const g = (r: ChartRow) => chartValue(c, r, i)
+        const stack = g("stack")
+        const hta = g("headTubeAngle")
+        const htl = g("headTubeLength")
+        const fork = g("forkAxleToCrown")
+        const drop = g("bbDrop")
+        if (stack === undefined || hta === undefined || htl === undefined || fork === undefined || drop === undefined) return
+        const estimate = drop + (fork + htl) * Math.sin(rad(hta))
+        // Axles sit `drop` above the BB, so the head top is that much plus the fork and head tube up the steering axis.
+        expect(Math.abs(estimate - stack), `${c.id} ${s}`).toBeLessThan(20)
+      })
+    }
+  })
+})
