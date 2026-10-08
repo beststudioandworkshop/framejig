@@ -62,7 +62,8 @@ describe("reference charts", () => {
   describe("the tool reproduces the published numbers", () => {
     for (const c of REFERENCE_CHARTS) {
       // Only charts that give everything the tool needs to place the frame.
-      const needed: ChartRow[] = ["forkAxleToCrown", "forkOffset", "bbDrop", "chainstay", "seatTubeCT", "effectiveTopTube", "headTubeLength", "headTubeAngle", "seatTubeAngle", "stack", "reach", "wheelbase"]
+      const needed: ChartRow[] = ["forkAxleToCrown", "forkOffset", "bbDrop", "chainstay", "effectiveTopTube", "headTubeLength", "headTubeAngle", "seatTubeAngle", "stack", "reach", "wheelbase"]
+      if (chartValue(c, "seatTubeCT", 0) === undefined && chartValue(c, "seatTubeCC", 0) === undefined) continue
       if (needed.some((row) => chartValue(c, row, 0) === undefined)) continue
       c.sizes.forEach((size, i) => {
         it(`${c.id} ${size}: stack, reach and wheelbase`, () => {
@@ -71,7 +72,9 @@ describe("reference charts", () => {
             ...DEFAULT_INPUTS,
             seatTubeAngle: g("seatTubeAngle"),
             headTubeAngle: g("headTubeAngle"),
-            seatTubeLength: g("seatTubeCT"),
+            ...(chartValue(c, "seatTubeCT", i) !== undefined
+              ? { seatTubeLength: g("seatTubeCT") }
+              : { drivers: { ...DEFAULT_INPUTS.drivers, seat: "cc" as const }, seatTubeLengthCC: g("seatTubeCC") }),
             effectiveTopTube: g("effectiveTopTube"),
             headTubeLength: g("headTubeLength"),
             bbDrop: g("bbDrop"),
