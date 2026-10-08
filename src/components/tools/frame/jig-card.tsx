@@ -130,7 +130,7 @@ export function JigCard({ inputs, result, jig, referenceJig, unit, settings, onS
                 </ZoomPanel>
                 <p className="text-xs text-muted-foreground">
                   To scale: the spine and posts are the 40 x 120 profile, the carriers and the standoff the 40 x 80. The
-                  jig is drawn solid, with the frame's tube outlines over it so you can see where they meet. This view shows
+                  jig is drawn solid, with the frame&apos;s tube outlines over it so you can see where they meet. This view shows
                   the key dimensions; Enlarge shows them all. The angles are the tube angles each carrier is turned to.
                 </p>
               </TabsContent>
