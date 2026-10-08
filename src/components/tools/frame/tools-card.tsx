@@ -2,23 +2,19 @@
 
 import { frameTools, TOOL_CATEGORIES, MATERIAL_LABELS, type FrameInputs } from "@/lib/frame"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { CollapsibleCard } from "./collapsible-card"
 
 const PROCESS_LABEL = { tig: "TIG welded", braze: "fillet brazed", lugged: "lugged" } as const
 
 export function ToolsCard({ inputs }: { inputs: FrameInputs }) {
   const items = frameTools(inputs)
   return (
-    <Card className="card-tone tone-tea">
-      <CardHeader>
-        <CardTitle>Tools for building it</CardTitle>
-        <CardDescription>
-          For a {MATERIAL_LABELS[inputs.material].toLowerCase()} frame, {PROCESS_LABEL[inputs.process]}. Material and
-          joining process are set in the frame tool, and this list follows them. It&apos;s a starting point, not a
-          safety course. Anyone using a torch or welder should be trained for it.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="grid gap-6 sm:grid-cols-2">
+    <CollapsibleCard
+      className="card-tone tone-tea"
+      title="Tools for building it"
+      description={`For a ${MATERIAL_LABELS[inputs.material].toLowerCase()} frame, ${PROCESS_LABEL[inputs.process]}. Material and joining process are set in the frame tool, and this list follows them. It's a starting point, not a safety course. Anyone using a torch or welder should be trained for it.`}
+    >
+      <div className="grid gap-6 sm:grid-cols-2">
         {TOOL_CATEGORIES.map((cat) => {
           const list = items.filter((i) => i.category === cat)
           if (list.length === 0) return null
@@ -41,7 +37,7 @@ export function ToolsCard({ inputs }: { inputs: FrameInputs }) {
             </section>
           )
         })}
-      </CardContent>
-    </Card>
+      </div>
+    </CollapsibleCard>
   )
 }

@@ -7,27 +7,20 @@ import {
   formatLengthValue,
   jigPartsCsv,
   jigPartsText,
-  type FrameInputs,
-  type FrameResult,
-  type Jig,
   type JigPart,
   type LengthUnit,
 } from "@/lib/frame"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { JigDrawing } from "./jig-drawing"
+import { CollapsibleCard } from "./collapsible-card"
 
 interface Props {
-  inputs: FrameInputs
-  result: FrameResult
-  jig: Jig | null
   parts: JigPart[]
   unit: LengthUnit
 }
 
-export function JigPartsCard({ inputs, result, jig, parts, unit }: Props) {
+export function JigPartsCard({ parts, unit }: Props) {
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(jigPartsText(parts, unit))
@@ -46,24 +39,20 @@ export function JigPartsCard({ inputs, result, jig, parts, unit }: Props) {
   }
 
   return (
-    <Card className="card-tone tone-lavender">
-      <CardHeader>
-        <CardTitle>Jig parts</CardTitle>
-        <CardDescription>
-          A T-slot spine with columns, sized for the frames above. Each line has search terms for McMaster-Carr;
-          you confirm sizes and availability. The drawing is a schematic; numbers match the list.
-        </CardDescription>
-        <CardAction className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={copy} disabled={parts.length === 0}>
-            <CopyIcon /> Copy
-          </Button>
-          <Button variant="outline" size="sm" onClick={download} disabled={parts.length === 0}>
-            <DownloadIcon /> CSV
-          </Button>
-        </CardAction>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4">
-        <Alert>
+    <CollapsibleCard
+      className="card-tone tone-lavender"
+      title="Jig parts"
+      description="A T-slot spine with posts and carriers, sized for the frames above. Each line has search terms for McMaster-Carr; you confirm sizes and availability. Numbers match the drawing in the jig settings."
+    >
+      <div className="flex gap-2">
+        <Button variant="outline" size="sm" onClick={copy} disabled={parts.length === 0}>
+          <CopyIcon /> Copy
+        </Button>
+        <Button variant="outline" size="sm" onClick={download} disabled={parts.length === 0}>
+          <DownloadIcon /> CSV
+        </Button>
+      </div>
+      <Alert>
           <AlertTitle>No part numbers yet</AlertTitle>
           <AlertDescription>
             McMaster-Carr&apos;s catalog wasn&apos;t reachable when this was built, so the part numbers are blank on
@@ -71,12 +60,6 @@ export function JigPartsCard({ inputs, result, jig, parts, unit }: Props) {
             number in the CSV. Sizes marked &quot;to suit&quot; depend on your tubes and dropouts.
           </AlertDescription>
         </Alert>
-
-        {jig && (
-          <div>
-            <JigDrawing inputs={inputs} result={result} jig={jig} parts={parts} />
-          </div>
-        )}
 
         {parts.length === 0 ? (
           <p className="text-sm text-muted-foreground">Fix the problems above to see the parts.</p>
@@ -111,7 +94,6 @@ export function JigPartsCard({ inputs, result, jig, parts, unit }: Props) {
             </TableBody>
           </Table>
         )}
-      </CardContent>
-    </Card>
+    </CollapsibleCard>
   )
 }

@@ -10,6 +10,8 @@ import {
   jigText,
   parseLength,
   type FrameInputs,
+  type FrameResult,
+  type JigPart,
   type Jig,
   type JigSettings,
   type LengthUnit,
@@ -17,10 +19,13 @@ import {
 import { Button } from "@/components/ui/button"
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { JigDrawing } from "./jig-drawing"
 import { ValueInput } from "./value-input"
 
 interface JigCardProps {
   inputs: FrameInputs
+  result: FrameResult
+  parts: JigPart[]
   jig: Jig | null
   referenceJig: Jig | null
   unit: LengthUnit
@@ -38,7 +43,7 @@ function download(name: string, text: string) {
   URL.revokeObjectURL(url)
 }
 
-export function JigCard({ inputs, jig, referenceJig, unit, settings, onSettings, onWidths }: JigCardProps) {
+export function JigCard({ inputs, result, parts, jig, referenceJig, unit, settings, onSettings, onWidths }: JigCardProps) {
   const f = (mm: number) => formatLengthValue(mm, unit)
   const env = jigEnvelope([jig, referenceJig])
 
@@ -113,6 +118,14 @@ export function JigCard({ inputs, jig, referenceJig, unit, settings, onSettings,
           <p className="text-sm text-muted-foreground">Fix the problems above to see the jig settings.</p>
         ) : (
           <>
+            <div>
+              <JigDrawing inputs={inputs} result={result} jig={jig} parts={parts} />
+              <p className="mt-2 text-xs text-muted-foreground">
+                A schematic, not to scale in its hardware. The numbers are parts from the list below; the angles are
+                the tube angles each carrier is turned to.
+              </p>
+            </div>
+
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {[
                 ["Spine bottom edge", `${f(jig.spine.bottom)} ${unit} above the axle line`],

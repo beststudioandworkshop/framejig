@@ -127,6 +127,8 @@ export function JigConfigurator({ frame, reference }: JigConfiguratorProps) {
 
       <JigCard
         inputs={inputs}
+        result={result}
+        parts={parts}
         jig={jig}
         referenceJig={refJig}
         unit={unit}
@@ -134,7 +136,7 @@ export function JigConfigurator({ frame, reference }: JigConfiguratorProps) {
         onSettings={setSettings}
         onWidths={(w) => setWidths((prev) => ({ ...prev, ...w }))}
       />
-      <JigPartsCard inputs={inputs} result={result} jig={jig} parts={parts} unit={unit} />
+      <JigPartsCard parts={parts} unit={unit} />
       <ToolsCard inputs={inputs} />
       <BuildingNotesCard inputs={inputs} />
     </div>
