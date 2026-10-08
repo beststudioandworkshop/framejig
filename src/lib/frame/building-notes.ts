@@ -86,7 +86,7 @@ const STEPS: BuildStep[] = [
   {
     id: "jig",
     title: "Set up the jig",
-    body: "Use the jig tool. Set the spine tilt, set each carrier's angle and where it crosses the spine, fit the standoff and dummy axle, and mount the tubes on the mandrels. Level the base first. Then measure the tape checks before you tack anything.",
+    body: "Use the jig tool. Level the spine at its set height above the axle line, slide each post to its pin position, set each carrier's angle about its pin, fit the standoff and dummy axle, and mount the tubes on the mandrels. Then measure the tape checks before you tack anything.",
   },
   {
     id: "tack",

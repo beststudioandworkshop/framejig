@@ -36,7 +36,7 @@ export function frameTools(inputs: Pick<FrameInputs, "process" | "material">): T
   const items: ToolItem[] = [
     t("calipers", "Measuring", "Digital calipers", "Tube diameters and wall thicknesses, mandrel fits."),
     t("tape", "Measuring", "Steel rule and tape", "Every check distance on the jig."),
-    t("angle", "Measuring", "Digital angle gauge", "Setting the spine tilt and the carrier angles, and checking tube angles and miters. Check it against a known flat before you trust it."),
+    t("angle", "Measuring", "Digital angle gauge", "Setting the carrier angles about their pins, and checking tube angles and miters. Check it against a known flat before you trust it."),
     t("square", "Measuring", "Machinist's square", "Squaring the jig columns to the spine."),
     t("align", "Measuring", "Frame alignment gauge", "Checks the rear triangle and head tube are in line after the frame is joined.", false),
     t("saw", "Cutting and prep", "Fine-tooth saw or tube cutter", "Cutting tubes to length with a square end."),

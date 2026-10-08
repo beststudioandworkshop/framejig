@@ -62,7 +62,7 @@ describe("building notes", () => {
 
   it("the jig step points at the jig tool's settings", () => {
     const jig = buildingNotes({ process: "tig", material: "steel" }).find((s) => s.id === "jig")!
-    expect(jig.body).toContain("tilt")
+    expect(jig.body).toContain("pin")
     expect(jig.body).toContain("tape")
   })
 })

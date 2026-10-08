@@ -55,11 +55,11 @@ describe("jig parts", () => {
     expect(callouts).toEqual(callouts.map((_, i) => i + 1))
   })
 
-  it("has the tilted-spine layout: spine, post, pivot, base, standoff and two carriers", () => {
-    for (const id of ["spine", "post", "pivot", "base", "rearStandoff", "seatCarrier", "headCarrier"]) {
+  it("has the level-spine layout: spine, two posts, pins, standoff and two carriers", () => {
+    for (const id of ["spine", "bbPost", "headPost", "pivotPins", "rearStandoff", "seatCarrier", "headCarrier"]) {
       expect(by(id), id).toBeDefined()
     }
-    expect(parts.some((p) => p.id === "bbRiser" || p.id === "frontAxlePost")).toBe(false)
+    expect(parts.some((p) => p.id === "post" || p.id === "pivot" || p.id === "base")).toBe(false)
   })
 
   it("the spine is as long as the jig says, and the carriers as long as theirs", () => {
@@ -68,10 +68,9 @@ describe("jig parts", () => {
     expect(by("headCarrier").cutLength).toBe(jig.carriers.find((c) => c.id === "head")!.length)
   })
 
-  it("the post is the pivot height from the settings", () => {
-    expect(by("post").cutLength).toBe(DEFAULT_JIG.postHeight)
-    const tall = jigParts([jigOf({}, { postHeight: 950 })]).find((p) => p.id === "post")!
-    expect(tall.cutLength).toBe(950)
+  it("each post is as long as its carrier needs", () => {
+    expect(by("bbPost").cutLength).toBe(jig.carriers.find((c) => c.id === "seat")!.postLength)
+    expect(by("headPost").cutLength).toBe(jig.carriers.find((c) => c.id === "head")!.postLength)
   })
 
   it("the rear standoff reaches the near dropout face, rounded up to 10 mm", () => {
@@ -82,8 +81,9 @@ describe("jig parts", () => {
     )
   })
 
-  it("mentions the tilt angle in the spine note", () => {
-    expect(by("spine").note).toContain(`${Number(jig.tilt.degrees.toFixed(1))}°`)
+  it("says in the spine note how high the bottom edge sits above the axle line", () => {
+    expect(by("spine").note).toContain("120 mm above")
+    expect(jigParts([jigOf({}, { spineClearance: 150 })]).find((p) => p.id === "spine")!.note).toContain("150 mm above")
   })
 
   it("two frames: the parts are big enough for both", () => {
@@ -92,7 +92,7 @@ describe("jig parts", () => {
     const both = jigParts([small, big])
     for (const j of [small, big]) {
       const alone = jigParts([j])
-      for (const id of ["spine", "seatCarrier", "headCarrier"]) {
+      for (const id of ["spine", "seatCarrier", "headCarrier", "bbPost", "headPost"]) {
         expect(both.find((p) => p.id === id)!.cutLength!).toBeGreaterThanOrEqual(alone.find((p) => p.id === id)!.cutLength!)
       }
     }

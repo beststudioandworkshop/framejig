@@ -57,8 +57,8 @@ export function JigCard({ inputs, jig, referenceJig, unit, settings, onSettings,
       <CardHeader>
         <CardTitle>Jig settings</CardTitle>
         <CardDescription>
-          The rear axle is fixed. The main spine runs from it through the middle of the head tube, so its tilt comes from
-          the frame. Carriers on its face hold the seat tube and head tube.
+          The rear axle is fixed. The main spine runs level, parallel to the axle line. The seat tube carrier pivots at the
+          center of the bottom bracket and the head tube carrier pivots at the bottom of the head tube.
         </CardDescription>
         <CardAction className="flex gap-2">
           <Button variant="outline" size="sm" onClick={copy} disabled={!jig}>
@@ -81,13 +81,13 @@ export function JigCard({ inputs, jig, referenceJig, unit, settings, onSettings,
             onChange={(v) => onSettings({ ...settings, centerOffset: v })}
           />
           <ValueInput
-            label="Post height"
+            label="Spine bottom edge above the axle line"
             unit={unit}
-            hint="Base up to the pivot where the spine mounts."
-            value={settings.postHeight}
+            hint="From the axle line up to the bottom edge of the spine. The spine is 120 mm tall."
+            value={settings.spineClearance}
             parse={(t) => parseLength(t, unit)}
             format={(mm) => formatLengthValue(mm, unit)}
-            onChange={(v) => onSettings({ ...settings, postHeight: v })}
+            onChange={(v) => onSettings({ ...settings, spineClearance: v })}
           />
           <ValueInput
             label="Rear spacing"
@@ -115,10 +115,10 @@ export function JigCard({ inputs, jig, referenceJig, unit, settings, onSettings,
           <>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {[
-                ["Spine tilt", `${Number(jig.tilt.degrees.toFixed(2))}° above the axle line`],
-                ["Rise over 1000 mm", `${Number(jig.tilt.risePerMeter.toFixed(1))} mm`],
+                ["Spine bottom edge", `${f(jig.spine.bottom)} ${unit} above the axle line`],
+                ["Spine top edge", `${f(jig.spine.top)} ${unit} above the axle line`],
                 ["Spine length", `${f(jig.spine.length)} ${unit}`],
-                ["Post height", `${f(jig.settings.postHeight)} ${unit}`],
+                ["Spine centerline", `${f(jig.spine.centerline)} ${unit} above the axle line`],
               ].map(([k, v]) => (
                 <div key={k} className="flex flex-col gap-0.5 rounded-lg border p-3 text-sm">
                   <span className="text-muted-foreground">{k}</span>
@@ -127,9 +127,8 @@ export function JigCard({ inputs, jig, referenceJig, unit, settings, onSettings,
               ))}
             </div>
             <p className="-mt-3 text-sm text-muted-foreground">
-              Set the spine so its centerline runs from the rear axle through the middle of the head tube. The tilt is
-              measured from the axle-to-axle line. Along the spine is measured from the rear axle; across is up
-              (toward the seat tube) from the spine&apos;s centerline, down is negative.
+              Set the spine level, with its bottom edge at that height above the axle line. Along the spine is measured
+              forward from the rear axle; across is up from the spine&apos;s centerline, down is negative.
             </p>
 
             {jig.notes.length > 0 && (
@@ -168,17 +167,19 @@ export function JigCard({ inputs, jig, referenceJig, unit, settings, onSettings,
             <div className="flex flex-col gap-2">
               <h3 className="text-sm font-medium">Carriers</h3>
               <p className="text-sm text-muted-foreground">
-                Each carrier crosses the spine and runs along its tube. Set the angle, then slide the carrier to where
-                it crosses. The stops are measured along the carrier from that crossing, up the tube is positive.
+                Each carrier turns about a pin on its post. Slide the post along the spine to the pin position, set the pin
+                at the height shown from the spine edge, then turn the carrier to the tube angle. The stops are measured
+                along the carrier from the pin, up the tube is positive.
               </p>
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Carrier</TableHead>
-                    <TableHead className="text-right">Angle to spine</TableHead>
-                    <TableHead className="text-right">Off square</TableHead>
-                    <TableHead className="text-right">Crosses spine at ({unit})</TableHead>
-                    <TableHead className="text-right">Cut ({unit})</TableHead>
+                    <TableHead className="text-right">Tube angle</TableHead>
+                    <TableHead className="text-right">Pin along spine ({unit})</TableHead>
+                    <TableHead className="text-right">Pin beyond the spine edge ({unit})</TableHead>
+                    <TableHead className="text-right">Post cut ({unit})</TableHead>
+                    <TableHead className="text-right">Carrier cut ({unit})</TableHead>
                     <TableHead>Stops</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -186,12 +187,12 @@ export function JigCard({ inputs, jig, referenceJig, unit, settings, onSettings,
                   {jig.carriers.map((c) => (
                     <TableRow key={c.id}>
                       <TableCell className="font-medium">{c.name}</TableCell>
-                      <TableCell className="text-right font-mono tabular-nums">{Number(c.angleToSpine.toFixed(1))}°</TableCell>
+                      <TableCell className="text-right font-mono tabular-nums">{Number(c.tubeAngle.toFixed(1))}°</TableCell>
+                      <TableCell className="text-right font-mono tabular-nums">{f(c.pivotU)}</TableCell>
                       <TableCell className="text-right font-mono tabular-nums">
-                        {c.offSquare > 0 ? "+" : c.offSquare < 0 ? "−" : ""}
-                        {Number(Math.abs(c.offSquare).toFixed(1))}°
+                        {f(c.pinClearance)} {c.side === "below" ? "below" : "above"}
                       </TableCell>
-                      <TableCell className="text-right font-mono tabular-nums">{c.crossing === null ? "–" : f(c.crossing)}</TableCell>
+                      <TableCell className="text-right font-mono tabular-nums">{f(c.postLength)}</TableCell>
                       <TableCell className="text-right font-mono tabular-nums">{f(c.length)}</TableCell>
                       <TableCell className="text-sm whitespace-normal">
                         {c.stops
@@ -207,8 +208,7 @@ export function JigCard({ inputs, jig, referenceJig, unit, settings, onSettings,
             <div className="flex flex-col gap-2">
               <h3 className="text-sm font-medium">Check with a tape</h3>
               <p className="text-sm text-muted-foreground">
-                Straight-line distances between stations. They don&apos;t change with the tilt. Measure these on the
-                jig before you tack anything.
+                Straight-line distances between stations. Measure these on the jig before you tack anything.
               </p>
               <Table>
                 <TableBody>
@@ -228,13 +228,14 @@ export function JigCard({ inputs, jig, referenceJig, unit, settings, onSettings,
                   Room and travel {env.frames > 1 ? "for your frame and the reference" : "for this frame"}
                 </span>
                 <span className="text-muted-foreground">
-                  The spine tilts {Number(env.tilt.min.toFixed(1))}° to {Number(env.tilt.max.toFixed(1))}° and needs{" "}
-                  {f(env.spineLength)} {unit}. Stations reach up to {f(env.maxAcross)} {unit} from the spine centerline.
+                  The spine needs {f(env.spineLength)} {unit}. Stations reach up to {f(env.maxAcross)} {unit} from the
+                  spine centerline.
                 </span>
                 {env.carriers.map((c) => (
                   <span key={c.id} className="text-muted-foreground">
-                    {c.name}: crosses the spine at {f(c.crossing.min)} to {f(c.crossing.max)} {unit}, angle{" "}
-                    {Number(c.angleToSpine.min.toFixed(1))}° to {Number(c.angleToSpine.max.toFixed(1))}°.
+                    {c.name}: pin at {f(c.pivotU.min)} to {f(c.pivotU.max)} {unit} along the spine, {f(c.pinClearance.min)} to{" "}
+                    {f(c.pinClearance.max)} {unit} beyond the spine edge, turned {Number((180 - c.angleToSpine.max).toFixed(1))}° to{" "}
+                    {Number((180 - c.angleToSpine.min).toFixed(1))}° from horizontal.
                   </span>
                 ))}
               </div>

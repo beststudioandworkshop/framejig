@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest"
 
 import {
   ALLOWANCE,
+  POST_OVERLAP,
+  SPINE_HEIGHT,
   buildFrame,
   buildJig,
   DEFAULT_INPUTS,
@@ -18,7 +20,6 @@ import {
 
 const base = DEFAULT_INPUTS
 const rad = (d: number) => (d * Math.PI) / 180
-const deg = (r: number) => (r * 180) / Math.PI
 
 function jigOf(over: Partial<FrameInputs> = {}, settings: Partial<JigSettings> = {}) {
   const inputs = { ...base, ...over }
@@ -47,9 +48,11 @@ describe("jig stations", () => {
     expect(jigOf().jig.stations.map((s) => s.id)).toEqual(["rearAxle", "bb", "headBottom", "headTop", "seatTop", "frontAxle"])
   })
 
-  it("the rear axle is the origin in both views", () => {
-    const s = station(jigOf().jig, "rearAxle")
-    for (const v of [s.x, s.y, s.u, s.v]) expect(v).toBeCloseTo(0, 9)
+  it("the rear axle is the origin: nothing forward of it, on the axle line, below the spine's centerline", () => {
+    const { jig } = jigOf()
+    const s = station(jig, "rearAxle")
+    for (const v of [s.x, s.y, s.u]) expect(v).toBeCloseTo(0, 9)
+    expect(s.v).toBeCloseTo(-jig.spine.centerline, 9)
   })
 
   it("in the level view the BB is rear center forward and the BB drop below", () => {
@@ -111,40 +114,31 @@ describe("jig stations", () => {
   })
 })
 
-describe("spine tilt", () => {
-  it.each(grid)("is the angle of the line from the rear axle to the middle of the head tube (%#)", (over) => {
-    const { jig } = jigOf(over)
-    const hb = station(jig, "headBottom")
-    const ht = station(jig, "headTop")
-    const midX = (hb.x + ht.x) / 2
-    const midY = (hb.y + ht.y) / 2
-    expect(jig.tilt.degrees).toBeCloseTo(deg(Math.atan2(midY, midX)), 9)
-    expect(jig.tilt.risePerMeter).toBeCloseTo(Math.tan(rad(jig.tilt.degrees)) * 1000, 9)
-  })
-
-  it.each(grid)("puts the head tube middle on the spine centerline, and the head tube about it (%#)", (over) => {
-    const { jig } = jigOf(over)
-    const hb = station(jig, "headBottom")
-    const ht = station(jig, "headTop")
-    expect((hb.v + ht.v) / 2).toBeCloseTo(0, 9)
-    expect(hb.v).toBeLessThan(0)
-    expect(ht.v).toBeGreaterThan(0)
-  })
-
-  it("is a rotation: every distance between stations is the same along/across as level", () => {
-    for (const over of grid) {
-      const { jig } = jigOf(over)
-      for (const a of jig.stations)
-        for (const b of jig.stations) {
-          expect(Math.hypot(b.u - a.u, b.v - a.v)).toBeCloseTo(Math.hypot(b.x - a.x, b.y - a.y), 9)
-        }
+describe("level spine", () => {
+  it("v is the height above the spine's centerline, and u is the distance from the rear axle", () => {
+    const { jig } = jigOf()
+    const centerline = DEFAULT_JIG.spineClearance + SPINE_HEIGHT / 2
+    expect(jig.spine.bottom).toBe(DEFAULT_JIG.spineClearance)
+    expect(jig.spine.top).toBe(DEFAULT_JIG.spineClearance + SPINE_HEIGHT)
+    expect(jig.spine.centerline).toBe(centerline)
+    for (const s of jig.stations) {
+      expect(s.u).toBeCloseTo(s.x, 9)
+      expect(s.v).toBeCloseTo(s.y - centerline, 9)
     }
   })
 
-  it("a taller front end tilts the spine more", () => {
-    expect(jigOf({ drivers: { ...base.drivers, vertical: "stack" }, stack: 620 }).jig.tilt.degrees).toBeGreaterThan(
-      jigOf({ drivers: { ...base.drivers, vertical: "stack" }, stack: 520 }).jig.tilt.degrees,
-    )
+  it("the spine's height is 120 mm and its bottom edge starts 120 mm above the axle line", () => {
+    expect(SPINE_HEIGHT).toBe(120)
+    expect(DEFAULT_JIG.spineClearance).toBe(120)
+  })
+
+  it("raising the spine moves every v down by the same amount and leaves u alone", () => {
+    const a = jigOf().jig.stations
+    const b = jigOf({}, { spineClearance: 170 }).jig.stations
+    a.forEach((s, i) => {
+      expect(b[i].u).toBeCloseTo(s.u, 9)
+      expect(b[i].v).toBeCloseTo(s.v - 50, 9)
+    })
   })
 
   it("the BB is below the spine and the seat tube top above it", () => {
@@ -159,59 +153,88 @@ describe("carriers", () => {
     expect(jigOf().jig.carriers.map((c) => c.id)).toEqual(["seat", "head"])
   })
 
-  it.each(grid)("angle to the spine is the tube's angle taken round by the tilt (%#)", (over) => {
-    const { jig, inputs } = jigOf(over)
-    expect(carrier(jig, "head").angleToSpine).toBeCloseTo(180 - inputs.headTubeAngle - jig.tilt.degrees, 9)
-    expect(carrier(jig, "seat").angleToSpine).toBeCloseTo(180 - inputs.seatTubeAngle - jig.tilt.degrees, 9)
-    for (const c of jig.carriers) expect(c.offSquare).toBeCloseTo(c.angleToSpine - 90, 9)
+  it("the seat carrier pivots at the BB and the head carrier at the bottom of the head tube", () => {
+    const { jig } = jigOf()
+    expect(carrier(jig, "seat").pivot).toBe("bb")
+    expect(carrier(jig, "head").pivot).toBe("headBottom")
+    expect(carrier(jig, "seat").pivotU).toBeCloseTo(station(jig, "bb").u, 9)
+    expect(carrier(jig, "head").pivotU).toBeCloseTo(station(jig, "headBottom").u, 9)
   })
 
-  it.each(grid)("the carrier's axis runs through both of its stations (%#)", (over) => {
+  it.each(grid)("the tube angle is the frame's own angle and the angle to the spine is its supplement (%#)", (over) => {
+    const { jig, inputs } = jigOf(over)
+    expect(carrier(jig, "head").tubeAngle).toBe(inputs.headTubeAngle)
+    expect(carrier(jig, "seat").tubeAngle).toBe(inputs.seatTubeAngle)
+    for (const c of jig.carriers) {
+      expect(c.angleToSpine).toBeCloseTo(180 - c.tubeAngle, 9)
+      expect(c.offSquare).toBeCloseTo(c.angleToSpine - 90, 9)
+    }
+  })
+
+  it.each(grid)("the carrier's axis runs through the pin and its other station (%#)", (over) => {
     const { jig } = jigOf(over)
     for (const c of jig.carriers) {
-      const a = rad(c.angleToSpine)
+      const a = rad(c.tubeAngle)
+      const pin = station(jig, c.pivot)
       for (const stop of c.stops) {
         const s = station(jig, stop.station)
-        // Perpendicular distance from the station to the axis line through (crossing, 0).
-        const off = (s.u - c.crossing!) * Math.sin(a) - s.v * Math.cos(a)
+        // Perpendicular distance from the station to the axis line through the pin, with the tube going up and back.
+        const off = (s.u - pin.u) * Math.sin(a) + (s.v - pin.v) * Math.cos(a)
         expect(off, `${c.id} ${stop.station}`).toBeCloseTo(0, 6)
       }
     }
   })
 
-  it("the head tube carrier crosses the spine at the head tube middle, with stops half the head tube either side", () => {
+  it("the stops are the pin at zero and the tube's top at its length", () => {
     const { jig, m } = jigOf()
-    const hb = station(jig, "headBottom")
-    const ht = station(jig, "headTop")
-    const c = carrier(jig, "head")
-    expect(c.crossing).toBeCloseTo((hb.u + ht.u) / 2, 9)
-    expect(c.stops[0].along).toBeCloseTo(-m.headTubeLength / 2, 9)
-    expect(c.stops[1].along).toBeCloseTo(m.headTubeLength / 2, 9)
+    const seat = carrier(jig, "seat")
+    const head = carrier(jig, "head")
+    expect(seat.stops[0]).toEqual({ station: "bb", along: 0 })
+    expect(seat.stops[1].along).toBeCloseTo(m.seatTubeLength, 9)
+    expect(head.stops[0]).toEqual({ station: "headBottom", along: 0 })
+    expect(head.stops[1].along).toBeCloseTo(m.headTubeLength, 9)
   })
 
-  it("the seat carrier's stops are a seat tube length apart, BB below the crossing and the top above", () => {
-    const { jig, m } = jigOf()
-    const c = carrier(jig, "seat")
-    const [bb, top] = c.stops
-    expect(top.along - bb.along).toBeCloseTo(m.seatTubeLength, 9)
-    expect(bb.along).toBeLessThan(0)
-    expect(top.along).toBeGreaterThan(0)
+  it("the seat post hangs below the spine and the head post stands above it, by the pin's clearance", () => {
+    const { jig } = jigOf()
+    const seat = carrier(jig, "seat")
+    const head = carrier(jig, "head")
+    expect(seat.side).toBe("below")
+    expect(head.side).toBe("above")
+    expect(seat.pinClearance).toBeCloseTo(jig.spine.bottom - station(jig, "bb").y, 9)
+    expect(head.pinClearance).toBeCloseTo(station(jig, "headBottom").y - jig.spine.top, 9)
+    expect(seat.pinClearance).toBeGreaterThan(0)
+    expect(head.pinClearance).toBeGreaterThan(0)
   })
 
-  it("a carrier is long enough for its stops and the crossing, plus room each end, in 50 mm steps", () => {
+  it("the default frame's pins land where the sketch puts them: 190 below the spine, 99 above it", () => {
+    const { jig } = jigOf()
+    expect(Math.round(carrier(jig, "seat").pinClearance)).toBe(190)
+    expect(Math.round(carrier(jig, "head").pinClearance)).toBe(99)
+  })
+
+  it("a carrier is long enough for its stops plus room each end, in 50 mm steps; a post for its overlap, clearance and room", () => {
     for (const over of grid) {
       for (const c of jigOf(over).jig.carriers) {
-        const lo = Math.min(0, ...c.stops.map((s) => s.along))
-        const hi = Math.max(0, ...c.stops.map((s) => s.along))
-        expect(c.length).toBeGreaterThanOrEqual(hi - lo + 2 * ALLOWANCE)
+        const reach = c.stops[1].along
+        expect(c.length).toBeGreaterThanOrEqual(reach + 2 * ALLOWANCE)
         expect(c.length % 50).toBe(0)
-        expect(c.length - (hi - lo + 2 * ALLOWANCE)).toBeLessThan(50)
+        expect(c.length - (reach + 2 * ALLOWANCE)).toBeLessThan(50)
+        expect(c.postLength).toBeGreaterThanOrEqual(POST_OVERLAP + Math.max(0, c.pinClearance) + ALLOWANCE)
+        expect(c.postLength % 50).toBe(0)
       }
     }
   })
 
-  it("the carriers are close to square to the spine for a normal frame", () => {
-    for (const c of jigOf().jig.carriers) expect(Math.abs(c.offSquare)).toBeLessThan(20)
+  it("the carriers lean back, about 105 to 110 degrees from the spine's forward direction for a normal frame", () => {
+    for (const c of jigOf().jig.carriers) expect(c.angleToSpine).toBeGreaterThan(100)
+    for (const c of jigOf().jig.carriers) expect(c.angleToSpine).toBeLessThan(112)
+  })
+
+  it("warns when a pin falls inside the spine's height", () => {
+    // A very low spine puts the head tube bottom pin inside it; a very high one does the same to the seat pin.
+    expect(jigOf({}, { spineClearance: 300 }).jig.notes.some((n) => n.includes("inside the spine"))).toBe(true)
+    expect(jigOf().jig.notes).toEqual([])
   })
 })
 
@@ -237,14 +260,13 @@ describe("standoffs and notes", () => {
 })
 
 describe("spine", () => {
-  it("covers the rear axle, the head tube and where each carrier crosses, with room at each end", () => {
+  it("covers every station but the front axle, with room at each end", () => {
     for (const over of grid) {
       const { jig } = jigOf(over)
-      const marks = [0, station(jig, "headBottom").u, station(jig, "headTop").u, ...jig.carriers.map((c) => c.crossing!)]
-      expect(jig.spine.uMin).toBeLessThanOrEqual(Math.min(...marks) - ALLOWANCE + 1e-9)
-      expect(jig.spine.uMax).toBeGreaterThanOrEqual(Math.max(...marks) + ALLOWANCE - 1e-9)
+      const marks = jig.stations.filter((s) => s.id !== "frontAxle").map((s) => s.u)
+      expect(jig.spine.uMin).toBeCloseTo(Math.min(...marks) - ALLOWANCE, 9)
+      expect(jig.spine.uMax).toBeCloseTo(Math.max(...marks) + ALLOWANCE, 9)
       expect(jig.spine.length).toBe(roundUp(jig.spine.uMax - jig.spine.uMin, 50))
-      expect(jig.spine.postU).toBeCloseTo((jig.spine.uMin + jig.spine.uMax) / 2, 9)
     }
   })
 })
@@ -287,12 +309,11 @@ describe("jig envelope", () => {
     const { jig } = jigOf()
     const e = jigEnvelope([jig])!
     expect(e.frames).toBe(1)
-    expect(e.tilt.min).toBe(e.tilt.max)
-    expect(e.tilt.min).toBe(jig.tilt.degrees)
     expect(e.spineLength).toBe(jig.spine.length)
     for (const c of e.carriers) {
       expect(c.angleToSpine.min).toBe(c.angleToSpine.max)
-      expect(c.crossing.min).toBe(c.crossing.max)
+      expect(c.pivotU.min).toBe(c.pivotU.max)
+      expect(c.pinClearance.min).toBe(c.pinClearance.max)
     }
     expect(e.maxAcross).toBe(Math.max(...jig.stations.map((s) => Math.abs(s.v))))
   })
@@ -302,26 +323,28 @@ describe("jig envelope", () => {
     const big = jigOf({ effectiveTopTube: 600, chainstayLength: 440, seatTubeLength: 600, headTubeAngle: 73.5 }).jig
     const e = jigEnvelope([small, null, big])!
     expect(e.frames).toBe(2)
-    expect(e.tilt.min).toBeLessThan(e.tilt.max)
-    expect(e.tilt.min).toBe(Math.min(small.tilt.degrees, big.tilt.degrees))
     expect(e.spineLength).toBeGreaterThanOrEqual(small.spine.length)
     expect(e.spineLength).toBeGreaterThanOrEqual(big.spine.length)
     const seat = e.carriers.find((c) => c.id === "seat")!
     expect(seat.length).toBeGreaterThanOrEqual(carrier(small, "seat").length)
     expect(seat.length).toBeGreaterThanOrEqual(carrier(big, "seat").length)
-    expect(seat.angleToSpine.max).toBeGreaterThanOrEqual(seat.angleToSpine.min)
+    expect(seat.postLength).toBeGreaterThanOrEqual(carrier(big, "seat").postLength)
+    expect(seat.pivotU.max).toBeGreaterThanOrEqual(seat.pivotU.min)
+    const head = e.carriers.find((c) => c.id === "head")!
+    expect(head.angleToSpine.max).toBeGreaterThan(head.angleToSpine.min)
   })
 })
 
 describe("jig export", () => {
   const { jig } = jigOf()
-  it("CSV has the tilt, a station table and a carrier table in the chosen unit", () => {
+  it("CSV has the spine line, a station table and a carrier table in the chosen unit", () => {
     const csv = jigCsv(jig, "mm")
-    expect(csv).toContain("Spine tilt")
+    expect(csv).toContain("Spine bottom edge above the axle line")
     expect(csv).toContain("Along spine (mm)")
-    expect(csv).toContain("Carrier,Angle to spine")
+    expect(csv).toContain("Carrier,Tube angle")
     expect(csv).toContain("Seat tube carrier")
     expect(csv).toContain("Head tube carrier")
+    expect(csv).not.toContain("tilt")
     expect(jigCsv(jig, "in")).toContain("Along spine (in)")
     const bb = csv.split("\n").find((l) => l.startsWith("Bottom bracket"))!.split(",")
     expect(Number(bb[2])).toBeCloseTo(station(jig, "bb").v, 0)

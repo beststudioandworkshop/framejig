@@ -8,47 +8,40 @@ differ from the defaults are stored; a bad or missing link falls back to the
 example frame with a notice, and a bad field falls back to its default. The
 frame page has "Transfer dims to jig" buttons that build that link.
 
-## The jig this models (tilted spine)
+## The jig this models (level spine)
+
+Replaced the earlier tilted-spine design after the user's Rhino sketches (side, perspective and top views).
 
 - The **rear axle is fixed** and is the origin for every number.
-- A long **main spine** (planned as 40 x 120 mm T-slot) whose centerline runs
-  **from the rear axle through the middle of the head tube**. Its tilt is the
-  angle of that line above the axle-to-axle line, so it comes from the frame.
-  The tool gives the angle and the rise over 1000 mm (set it with a level and a
-  rule).
-- The spine is **mounted to a post on its back side**, at a pivot with an
-  angle lock. Post height (base to pivot) is an input; 700 mm is an example.
-- **Carriers** (40 x 80 mm) mount on the spine's front face and cross it:
-  - the **seat tube carrier** runs along the seat tube axis and carries the BB
-    stop. It is the most adjustable: along the spine, across it, and rotation;
-  - the **head tube carrier** runs along the head tube axis and carries its
-    mandrel; it crosses the spine at the middle of the head tube by
-    construction;
-  - the **rear axle standoff** is a block that reaches from the spine face to
-    the near dropout face, so the dummy axle reaches the frame's center line
-    seen from above.
-- Positions are given **along the spine** (u, from the rear axle toward the head
-  tube) and **across it** (v, up toward the seat tube side, negative below). It is
-  a rotation of the same key points as the drawing, so it can't disagree with it;
-  every check distance is unchanged by it (tested).
-- Carrier settings: angle to the spine, how far off square that is, where the
-  carrier's axis crosses the spine centerline, and the distance along the
-  carrier from that crossing to each stop (BB and seat tube top; head tube
-  bottom and top). Up the tube is positive.
-- **Standoff** is how far a locator reaches out from the spine face. The input
-  "spine face to the frame's center plane" (seen from above) is an example at
-  150 mm. Rear axle and BB standoffs are shortened by half the rear spacing or
-  BB shell width, because those faces are what touch. The tool warns if the
-  offset is too small for that.
-- Wheel size does not move any station (tested), because the axle is fixed and
-  the BB position comes from the BB drop.
+- A long **main spine** (planned as 40 x 120 mm T-slot) runs **level**, parallel to the axle line, with its 120 mm
+  face standing up. Its **bottom edge is a set height above the axle line**: an input, 120 mm to start with. So
+  its top edge is 240 mm up and its centerline 180 mm up.
+- Two **posts** (40 x 80 mm) bolt to the spine's front face and slide along it:
+  - the **seat tube post hangs below the spine**. The **seat tube carrier pivots on a pin at the center of the
+    bottom bracket**. For the default frame that pin sits 190 mm below the spine's bottom edge;
+  - the **head tube post stands above the spine**. The **head tube carrier pivots on a pin at the bottom of the head
+    tube**. For the default frame that pin sits 99 mm above the spine's top edge.
+- Each **carrier** (40 x 80 mm) turns about its pin. Because the spine is level, its angle is simply the frame's own
+  seat or head tube angle (the tool also shows the angle from the spine's forward direction, 180 minus that).
+  Stops are measured **along the carrier from the pin**, up the tube positive: the seat tube top, and the head tube
+  top. The carrier is cut to reach plus 100 mm each end.
+- The **rear axle standoff** is a block on the spine's front face that reaches to the near dropout face, so the dummy
+  axle reaches the frame's center line seen from above. "Spine face to the frame's center plane" is an input
+  (150 mm to start with).
+- Positions are given **along the spine** (u, forward from the rear axle) and **across it** (v, up from the spine's
+  centerline, negative below). With a level spine these are the frame's own x and y, shifted. Every check distance
+  is unchanged (tested).
+- A note appears if a pin falls inside the spine's own height (the post can't hang there).
+- Wheel size does not move any station (tested), because the axle is fixed and the BB position comes from the BB drop.
+- Not decided yet: how the spine is supported, and how a carrier's angle is locked. The parts list has placeholders
+  for both ("Spine supports and base", "Angle clamps for the carriers").
 
 ## Check distances and envelope
 
 Ten straight-line distances between stations let a tape confirm a set-up. The
 "room and travel" panel covers your frame and the pinned reference: the range of
-spine tilt, spine length, how far stations sit from the spine centerline, and
-each carrier's crossing and angle range. A real size run (many frames) is not
+spine length, how far stations sit from the spine centerline, and
+each carrier's pin range and angle range. A real size run (many frames) is not
 built yet; the envelope only covers two frames.
 
 ## Parts list
@@ -75,7 +68,6 @@ heat-treatment prompt). Rules of thumb, not a safety course.
 - A size run (many frames) for the envelope.
 - Dropout angle and thru-axle details; a front-on and top view of the jig.
 - Real part numbers once the McMaster catalog can be read.
-- Where along the spine the post sits (the drawing puts it at the middle).
 
 ## Links, building notes and styling
 

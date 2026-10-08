@@ -1,5 +1,6 @@
 // Parts list for the jig, sized from the frames you've loaded. The jig is a
-// T-slot extrusion spine with uprights (the design in docs/jig-notes.md).
+// T-slot extrusion spine, level, with two posts that carry the pivoting carriers
+// (the design in docs/jig-notes.md).
 //
 // Part numbers are NEVER filled in here. McMaster-Carr's catalog wasn't
 // reachable when this was written, so each part has the text to search for and
@@ -34,16 +35,12 @@ export function jigParts(jigs: (Jig | null)[]): JigPart[] {
 
   const spine = roundUp(Math.max(...list.map((j) => j.spine.uMax)) - Math.min(...list.map((j) => j.spine.uMin)), STEP)
   const carrier = (id: "seat" | "head") => Math.max(...list.map((j) => j.carriers.find((c) => c.id === id)!.length))
+  const post = (id: "seat" | "head") => Math.max(...list.map((j) => j.carriers.find((c) => c.id === id)!.postLength))
   const standoff = Math.max(
     STEP,
     roundUp(Math.min(...list.map((j) => j.stations.find((s) => s.id === "rearAxle")!.standoff)), 10),
   )
-  const post = list[0].settings.postHeight
-  const tilt = list.map((j) => j.tilt.degrees)
-  const tiltNote =
-    list.length > 1
-      ? `${tilt.map((t) => `${Number(t.toFixed(1))}°`).join(" and ")} for these frames`
-      : `${Number(tilt[0].toFixed(1))}° for this frame`
+  const clearance = list[0].spine.bottom
 
   const part = (p: Omit<JigPart, "partNumber">): JigPart => ({ ...p, partNumber: null })
 
@@ -55,40 +52,32 @@ export function jigParts(jigs: (Jig | null)[]): JigPart[] {
       qty: 1,
       spec: "Metric T-slotted framing, 40 mm x 120 mm",
       cutLength: spine,
-      note: `Runs from the rear axle through the middle of the head tube, tilted ${tiltNote} above the axle-to-axle line. The carriers mount on its front face.`,
+      note: `Runs level, parallel to the axle line, with its bottom edge ${Number(clearance.toFixed(1))} mm above it and its 120 mm face standing up. The posts and the rear standoff mount on its front face.`,
       search: "metric t-slotted framing 40 mm x 120 mm",
     }),
     part({
-      id: "post",
+      id: "bbPost",
       callout: 2,
-      name: "Spine post",
+      name: "Seat tube post (BB pivot)",
       qty: 1,
       spec: "Metric T-slotted framing, 40 mm x 80 mm, upright",
-      cutLength: post,
-      note: "Mounts to the back side of the spine. The cut length is your pivot height; change it above to suit your bench or floor.",
+      cutLength: post("seat"),
+      note: "Bolts to the spine's front face and hangs below it. It slides along the spine to the BB position. The seat tube carrier pivots on a pin at the BB center.",
       search: "metric t-slotted framing 40 mm x 80 mm",
     }),
     part({
-      id: "pivot",
+      id: "headPost",
       callout: 3,
-      name: "Spine pivot and angle lock",
+      name: "Head tube post (head tube bottom pivot)",
       qty: 1,
-      spec: "Hinge or pivot bracket for the framing series, plus a way to lock the angle",
-      note: "Where the spine meets the post. It has to hold the tilt while you set the carriers and tack.",
-      search: "t-slotted framing hinges",
-    }),
-    part({
-      id: "base",
-      callout: 4,
-      name: "Post base and feet",
-      qty: 4,
-      spec: "Adjustable leveling feet on a base the post bolts to",
-      note: "Level the base before you set the tilt.",
-      search: "leveling feet",
+      spec: "Metric T-slotted framing, 40 mm x 80 mm, upright",
+      cutLength: post("head"),
+      note: "Bolts to the spine's front face and stands above it. It slides along the spine to the head tube bottom. The head tube carrier pivots on a pin at the bottom of the head tube.",
+      search: "metric t-slotted framing 40 mm x 80 mm",
     }),
     part({
       id: "rearStandoff",
-      callout: 5,
+      callout: 4,
       name: "Rear axle standoff",
       qty: 1,
       spec: "Metric T-slotted framing, 40 mm x 80 mm, with a bore or slot for the dummy axle",
@@ -98,23 +87,32 @@ export function jigParts(jigs: (Jig | null)[]): JigPart[] {
     }),
     part({
       id: "seatCarrier",
-      callout: 6,
+      callout: 5,
       name: "Seat tube carrier",
       qty: 1,
       spec: "Metric T-slotted framing, 40 mm x 80 mm",
       cutLength: carrier("seat"),
-      note: "Runs along the seat tube and carries the BB stop. The most adjustable carrier: along the spine, across it, and rotation.",
+      note: "Rotates about the BB pin to the seat tube angle and carries the seat tube mandrel. The most adjustable carrier: along the spine, up and down the post, and rotation.",
       search: "metric t-slotted framing 40 mm x 80 mm",
     }),
     part({
       id: "headCarrier",
-      callout: 7,
+      callout: 6,
       name: "Head tube carrier",
       qty: 1,
       spec: "Metric T-slotted framing, 40 mm x 80 mm",
       cutLength: carrier("head"),
-      note: "Runs along the head tube and carries its mandrel. Rotates to the head angle.",
+      note: "Rotates about the head tube bottom pin to the head angle and carries the head tube mandrel.",
       search: "metric t-slotted framing 40 mm x 80 mm",
+    }),
+    part({
+      id: "pivotPins",
+      callout: 7,
+      name: "Pivot pins",
+      qty: 2,
+      spec: "Shoulder bolts or precision-ground pins, diameter to suit your framing's bore, with a locking nut or collar",
+      note: "One at the BB center, one at the bottom of the head tube. Each carrier turns about its pin.",
+      search: "shoulder screws",
     }),
     part({
       id: "mandrels",
@@ -155,11 +153,11 @@ export function jigParts(jigs: (Jig | null)[]): JigPart[] {
     part({
       id: "brackets",
       callout: 12,
-      name: "Framing brackets and pivot clamps",
-      qty: 1,
-      spec: "Brackets to match the framing series, enough to mount each carrier to the spine with a way to rotate and lock it",
-      note: "The seat tube and head tube carriers rotate, so they need a pivot bolt and a clamp, not a fixed corner.",
-      search: "t-slotted framing brackets",
+      name: "Angle clamps for the carriers",
+      qty: 2,
+      spec: "A clamp or locking bracket on each carrier to hold its angle about the pin",
+      note: "The carriers rotate, so they need a pivot and a clamp to hold the angle you set. Set the angle with a digital angle gauge on the carrier.",
+      search: "t-slotted framing pivot hinges",
     }),
     part({
       id: "scale",
@@ -167,8 +165,17 @@ export function jigParts(jigs: (Jig | null)[]): JigPart[] {
       name: "Spine scale",
       qty: 1,
       spec: "Adhesive-backed steel rule, long enough for the spine",
-      note: "Reads the position of each carrier along the spine. Your tape and calipers still check it.",
+      note: "Reads the position of each post along the spine. Your tape and calipers still check it.",
       search: "adhesive backed steel rule",
+    }),
+    part({
+      id: "supports",
+      callout: 0,
+      name: "Spine supports and base",
+      qty: 1,
+      spec: "To suit your bench or floor: uprights or brackets that hold the spine level, with leveling feet",
+      note: `Hold the spine level and ${Number(clearance.toFixed(1))} mm above the axle line. Level it before you set anything.`,
+      search: "leveling feet",
     }),
     part({
       id: "clamps",
