@@ -105,51 +105,6 @@ export function FrameLogic() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Card className="card-tone tone-sky">
-        <CardHeader>
-          <CardTitle>The map</CardTitle>
-          <CardDescription>
-            Every kind of bike, and the sub-styles inside it, drawn where its typical numbers sit. Boxes are ranges, not
-            single numbers, and the dashed outlines are whole families. Click any box to read about it. All the numbers are
-            my estimates for now.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <ToggleGroup
-              variant="outline"
-              size="sm"
-              spacing={0}
-              value={[view]}
-              onValueChange={(v) => v[0] && setView(v[0] as ChartView)}
-              aria-label="Chart view"
-              className="flex-wrap"
-            >
-              {(Object.keys(CHART_VIEWS) as ChartView[]).map((v) => (
-                <ToggleGroupItem key={v} value={v}>
-                  {CHART_VIEWS[v].label}
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
-            <Label className="gap-2">
-              <Switch size="sm" checked={showFamilies} onCheckedChange={setShowFamilies} />
-              Show whole families
-            </Label>
-          </div>
-          <p className="text-sm text-muted-foreground">{CHART_VIEWS[view].blurb}</p>
-          <TaxonomyChart
-            view={view}
-            showFamilies={showFamilies}
-            selected={{ family: type, style }}
-            focused={family !== "freak"}
-            onSelect={(fam, st) => {
-              setFamily(fam)
-              setStyle(st)
-            }}
-          />
-        </CardContent>
-      </Card>
-
       <Card className="card-tone tone-tangerine">
         <CardHeader>
           <CardTitle>Pick the kind of bike</CardTitle>
@@ -205,118 +160,55 @@ export function FrameLogic() {
         </CardContent>
       </Card>
 
+      <Card className="card-tone tone-sky">
+        <CardHeader>
+          <CardTitle>The map</CardTitle>
+          <CardDescription>
+            Every kind of bike, and the sub-styles inside it, drawn where its typical numbers sit. Boxes are ranges, not
+            single numbers, and the dashed outlines are whole families. Click any box to read about it. All the numbers are
+            my estimates for now.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <ToggleGroup
+              variant="outline"
+              size="sm"
+              spacing={0}
+              value={[view]}
+              onValueChange={(v) => v[0] && setView(v[0] as ChartView)}
+              aria-label="Chart view"
+              className="flex-wrap"
+            >
+              {(Object.keys(CHART_VIEWS) as ChartView[]).map((v) => (
+                <ToggleGroupItem key={v} value={v}>
+                  {CHART_VIEWS[v].label}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+            <Label className="gap-2">
+              <Switch size="sm" checked={showFamilies} onCheckedChange={setShowFamilies} />
+              Show whole families
+            </Label>
+          </div>
+          <p className="text-sm text-muted-foreground">{CHART_VIEWS[view].blurb}</p>
+          <TaxonomyChart
+            view={view}
+            showFamilies={showFamilies}
+            selected={{ family: type, style }}
+            focused={family !== "freak"}
+            onSelect={(fam, st) => {
+              setFamily(fam)
+              setStyle(st)
+            }}
+          />
+        </CardContent>
+      </Card>
+
       {family === "freak" ? (
         <FreakBikes />
       ) : (
         <>
-          <Card className="card-tone tone-lavender">
-            <CardHeader>
-              <CardTitle>
-                {BIKE_TYPE_LABELS[type]}
-                {style ? `: ${cat.label}` : ""}. {cat.tagline}
-              </CardTitle>
-              <CardDescription>{cat.forWhat}</CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4">
-              <Alert>
-                <InfoIcon />
-                <AlertTitle>These numbers are estimates</AlertTitle>
-                <AlertDescription>
-                  {cat.reference} Ranges are for a medium and are rules of thumb, not limits. Real bikes sit outside them for
-                  good reasons.
-                </AlertDescription>
-              </Alert>
-              {cat.different && (
-                <div className="flex flex-col gap-1">
-                  <h3 className="text-sm font-medium">What sets {cat.label.toLowerCase()} apart from the rest of {BIKE_TYPE_LABELS[type].toLowerCase()}</h3>
-                  <ul className="list-disc pl-5 text-sm text-muted-foreground">
-                    {cat.different.map((d) => (
-                      <li key={d}>{d}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              <ul className="flex flex-col divide-y sm:hidden" aria-label="Typical ranges">
-                {RANGE_ROWS.map((k) => (
-                  <li key={k} className="flex flex-col gap-1 py-3">
-                    <div className="flex flex-wrap items-baseline gap-x-3">
-                      <span className="font-medium">{cat.ranges[k].label}</span>
-                      <span className="font-mono tabular-nums">{fmtRange(k)}</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">{cat.rangeWhy[k]}</p>
-                  </li>
-                ))}
-                <li className="flex flex-col gap-1 py-3">
-                  <div className="flex flex-wrap items-baseline gap-x-3">
-                    <span className="font-medium">Stack to reach</span>
-                    <span className="font-mono tabular-nums">
-                      {cat.positionRange.low.toFixed(2)} to {cat.positionRange.high.toFixed(2)}
-                    </span>
-                  </div>
-                  <p className="text-sm text-muted-foreground">{cat.rangeWhy.position}</p>
-                </li>
-              </ul>
-              <Table className="max-sm:hidden">
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Measure</TableHead>
-                    <TableHead>Typical</TableHead>
-                    <TableHead>Why</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {RANGE_ROWS.map((k) => (
-                    <TableRow key={k}>
-                      <TableCell className="font-medium whitespace-normal">{cat.ranges[k].label}</TableCell>
-                      <TableCell className="font-mono whitespace-nowrap tabular-nums">{fmtRange(k)}</TableCell>
-                      <TableCell className="whitespace-normal">{cat.rangeWhy[k]}</TableCell>
-                    </TableRow>
-                  ))}
-                  <TableRow>
-                    <TableCell className="font-medium whitespace-normal">Stack to reach</TableCell>
-                    <TableCell className="font-mono whitespace-nowrap tabular-nums">
-                      {cat.positionRange.low.toFixed(2)} to {cat.positionRange.high.toFixed(2)}
-                    </TableCell>
-                    <TableCell className="whitespace-normal">{cat.rangeWhy.position}</TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card className="card-tone tone-tea">
-              <CardHeader>
-                <CardTitle>What makes it feel the way it does</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="flex flex-col gap-3">
-                  {cat.feel.map((n) => (
-                    <li key={n.title} className="flex flex-col gap-0.5">
-                      <h3 className="text-sm font-medium">{n.title}</h3>
-                      <p className="text-sm text-muted-foreground">{n.text}</p>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-            <Card className="card-tone tone-mustard">
-              <CardHeader>
-                <CardTitle>What varies inside {BIKE_TYPE_LABELS[type].toLowerCase()}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="flex flex-col gap-3">
-                  {cat.variables.map((n) => (
-                    <li key={n.title} className="flex flex-col gap-0.5">
-                      <h3 className="text-sm font-medium">{n.title}</h3>
-                      <p className="text-sm text-muted-foreground">{n.text}</p>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
-
           <Card className="card-tone tone-sky entry-zone">
             <CardHeader>
               <CardTitle>Start from a size</CardTitle>
@@ -437,6 +329,114 @@ export function FrameLogic() {
               </div>
             </CardContent>
           </Card>
+
+          <Card className="card-tone tone-lavender">
+            <CardHeader>
+              <CardTitle>
+                {BIKE_TYPE_LABELS[type]}
+                {style ? `: ${cat.label}` : ""}. {cat.tagline}
+              </CardTitle>
+              <CardDescription>{cat.forWhat}</CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+              <Alert>
+                <InfoIcon />
+                <AlertTitle>These numbers are estimates</AlertTitle>
+                <AlertDescription>
+                  {cat.reference} Ranges are for a medium and are rules of thumb, not limits. Real bikes sit outside them for
+                  good reasons.
+                </AlertDescription>
+              </Alert>
+              {cat.different && (
+                <div className="flex flex-col gap-1">
+                  <h3 className="text-sm font-medium">What sets {cat.label.toLowerCase()} apart from the rest of {BIKE_TYPE_LABELS[type].toLowerCase()}</h3>
+                  <ul className="list-disc pl-5 text-sm text-muted-foreground">
+                    {cat.different.map((d) => (
+                      <li key={d}>{d}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <ul className="flex flex-col divide-y sm:hidden" aria-label="Typical ranges">
+                {RANGE_ROWS.map((k) => (
+                  <li key={k} className="flex flex-col gap-1 py-3">
+                    <div className="flex flex-wrap items-baseline gap-x-3">
+                      <span className="font-medium">{cat.ranges[k].label}</span>
+                      <span className="font-mono tabular-nums">{fmtRange(k)}</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{cat.rangeWhy[k]}</p>
+                  </li>
+                ))}
+                <li className="flex flex-col gap-1 py-3">
+                  <div className="flex flex-wrap items-baseline gap-x-3">
+                    <span className="font-medium">Stack to reach</span>
+                    <span className="font-mono tabular-nums">
+                      {cat.positionRange.low.toFixed(2)} to {cat.positionRange.high.toFixed(2)}
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{cat.rangeWhy.position}</p>
+                </li>
+              </ul>
+              <Table className="max-sm:hidden">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Measure</TableHead>
+                    <TableHead>Typical</TableHead>
+                    <TableHead>Why</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {RANGE_ROWS.map((k) => (
+                    <TableRow key={k}>
+                      <TableCell className="font-medium whitespace-normal">{cat.ranges[k].label}</TableCell>
+                      <TableCell className="font-mono whitespace-nowrap tabular-nums">{fmtRange(k)}</TableCell>
+                      <TableCell className="whitespace-normal">{cat.rangeWhy[k]}</TableCell>
+                    </TableRow>
+                  ))}
+                  <TableRow>
+                    <TableCell className="font-medium whitespace-normal">Stack to reach</TableCell>
+                    <TableCell className="font-mono whitespace-nowrap tabular-nums">
+                      {cat.positionRange.low.toFixed(2)} to {cat.positionRange.high.toFixed(2)}
+                    </TableCell>
+                    <TableCell className="whitespace-normal">{cat.rangeWhy.position}</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+
+          <div className="grid gap-6 md:grid-cols-2">
+            <Card className="card-tone tone-tea">
+              <CardHeader>
+                <CardTitle>What makes it feel the way it does</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="flex flex-col gap-3">
+                  {cat.feel.map((n) => (
+                    <li key={n.title} className="flex flex-col gap-0.5">
+                      <h3 className="text-sm font-medium">{n.title}</h3>
+                      <p className="text-sm text-muted-foreground">{n.text}</p>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+            <Card className="card-tone tone-mustard">
+              <CardHeader>
+                <CardTitle>What varies inside {BIKE_TYPE_LABELS[type].toLowerCase()}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="flex flex-col gap-3">
+                  {cat.variables.map((n) => (
+                    <li key={n.title} className="flex flex-col gap-0.5">
+                      <h3 className="text-sm font-medium">{n.title}</h3>
+                      <p className="text-sm text-muted-foreground">{n.text}</p>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
         </>
       )}
     </div>
