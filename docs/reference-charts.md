@@ -1,7 +1,7 @@
 # Reference charts and what they showed
 
 The charts are typed into `src/lib/frame/reference-charts.ts` (mm and degrees).
-Nothing in the tool reads them yet; only the tests do. One chart (XS to XL, 69 degree head, 483 mm fork) still has no model name. Nothing is filed under a category until the user says where it goes.
+Nothing in the tool reads them yet; only the tests do. Nothing is filed under a category until the user says where it goes.
 
 | id | maker / model | sizes | filed as |
 | --- | --- | --- | --- |
@@ -9,8 +9,11 @@ Nothing in the tool reads them yet; only the tests do. One chart (XS to XL, 69 d
 | surly-pugsley | Surly Pugsley, sent in inches | xS to xL | not filed |
 | surly-krampus | Surly Krampus, "preliminary" | SM to LG | not filed |
 | surly-ogre | Surly Ogre | SM to XL | not filed |
+| surly-karate-monkey | Surly Karate Monkey | XS to XL | not filed |
+| surly-cross-check | Surly Cross-Check | 42 to 64 | not filed |
+| surly-disc-trucker-26 | Surly Disc Trucker, 26-inch sizes | 42 to 56 | not filed |
+| surly-disc-trucker-700c | Surly Disc Trucker, 700c sizes | 56 to 64 | not filed |
 | salsa-timberjack | Timberjack (maker assumed Salsa), "preliminary" | XS to XL | not filed |
-| unnamed-xs-xl-483 | probably Surly | XS to XL | not filed |
 | crust-scapegoat | Crust Scapegoat | S to XL | not filed |
 
 ## What I checked: does the geometry maths reproduce the published numbers?
