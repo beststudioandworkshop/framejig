@@ -117,21 +117,24 @@ heat-treatment prompt). Rules of thumb, not a safety course.
 ## What the user's Rhino model (Frame_Jig.3dm) shows
 
 Read with `rhino3dm`; units are millimeters. The side view is the model's Y (along) and Z (up); the frame's center plane
-is at X = -792.9.
+is at X = -792.9. **Measure parts from their render meshes, not from `GetBoundingBox()`**: a first read used the
+bounding boxes of the solids, which are about 1.2 times too big, and wrongly reported 144 x 48 profiles. The meshes
+give the true sizes below, which match what the user drew.
 
-- **Pin positions agree with the tool.** Taking the spine's centerline as 180 mm above the axle line (which is what a
-  120 mm bottom edge and a 120 mm tall spine give), the BB pin sits 216 below the centerline and the head tube bottom
-  pin 234.8 above it, exactly what `buildJig` gives for the same frame.
-- **The frame in the model** (read from its purple outline): chainstay about 437.5, BB drop 36, seat tube about 440
+- **Sizes.** Spine 40 x 120 x 1200 long, centered at Z = 0, so its bottom edge is 120 above the axle line (the axle
+  line is at Z = -180). Both posts 40 x 120 x 300 long. Carriers 40 x 80. The rear standoff pieces are two 40 x 120
+  blocks 80 long side by side, in front of a 40 x 120 x 300 plate centered on the frame's center plane.
+- **Pin positions agree with the tool.** With the spine centerline 180 above the axle line, the BB pin is 216 below it
+  and the head tube bottom pin 234.8 above it, exactly what `buildJig` gives for the same frame.
+- **The frame in the model** (from its purple outline): chainstay about 437.5, BB drop 36, seat tube about 440
   (center to top) at about 72.8 degrees, head tube about 83.7 mm long at 65.0 degrees, reach about 423, stack about
   527. No fork or front axle is drawn.
-- **Hardware sizes in the model are 1.2 times what the notes say.** The spine, the two posts and the rear column are
-  144 x 48 mm (the notes say 120 x 40), and the standoff pieces are 96 x 48 (the notes say 80 x 40). The spine is
-  1440 mm long and centered on Z = 0, the axle line is at Z = -180, and the spine's bottom edge is therefore 108
-  above the axle line, not 120. To be confirmed with the user.
-- **Posts are in the spine's plane** (same 48 mm thickness band, overlapping the spine by about 42 mm in height), not on
-  its front face as the first top view drew them. **Carriers sit directly on the spine's front face** (touching it),
-  not 40 mm further out.
-- **The frame's center plane is 96 mm from the spine's front face** (two 48 mm thicknesses), not the 150 mm example.
-- The rear axle fixture is a pair of 48 x 144 blocks, 96 mm deep, reaching from the spine plane toward the frame, with
-  the dropout plates at 130 mm spacing around the center plane (matches the default rear spacing).
+- **Posts are in the spine's plane** (the same 40 mm band) and **butt end to end** against the spine's bottom or top edge
+  (the BB post runs Z -60 to -360, the head post 60 to 360). They do not overlap the spine. The tool's `POST_OVERLAP` of
+  100 mm is therefore wrong for this build; with no overlap the cut length would be pin clearance plus 100 mm,
+  which rounds to 300 for both posts, as modeled.
+- **Carriers sit directly on the spine's front face** (touching it), not a post-thickness further out. The seat carrier
+  is about 610 long and the head carrier about 305.
+- **The frame's center plane is 100 mm from the spine's front face**, not the 150 mm example.
+- Not yet in the tool: the real rear fixture (two blocks and a plate behind the dropouts, with dropout plates and
+  three locating pins), and the way the posts are joined to the spine.
