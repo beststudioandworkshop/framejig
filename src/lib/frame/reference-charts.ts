@@ -20,6 +20,7 @@ export interface ReferenceChart {
 export type ChartRow =
   | "seatTubeCT"
   | "seatTubeCC"
+  /** Straight-line, BB center to front axle, the way the charts print it. (The tool's own front center input is level.) */
   | "frontCenter"
   | "topTubeCC"
   | "effectiveTopTube"
@@ -267,7 +268,8 @@ export const REFERENCE_CHARTS: ReferenceChart[] = [
       "One size only. A reference for the retro mountain bike style.",
       "Seat tube is center-to-center. Top tube is the actual, center-to-center length.",
       "26-inch wheels; the tire size is not given. Stem 130 mm, seatpost 30.9 mm.",
-      "No stack, reach, effective top tube, chainstay or BB drop given. Rear center works out to 1052.7 - 625.9 = 426.8 mm.",
+      "No stack, reach, effective top tube, chainstay or BB drop given.",
+      "Front centre is the straight-line distance from the BB to the front axle (per the Geometry Geeks diagram), not the level distance. With a BB drop of about 37 mm the level part is about 624.8, which puts the rear center near 428 mm.",
     ],
     sizes: ['17"'],
     rows: {
