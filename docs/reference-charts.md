@@ -14,6 +14,7 @@ Nothing in the tool reads them yet; only the tests do. Nothing is filed under a 
 | surly-disc-trucker-26 | Surly Disc Trucker, 26-inch sizes | 42 to 56 | not filed |
 | surly-disc-trucker-700c | Surly Disc Trucker, 700c sizes | 56 to 64 | not filed |
 | salsa-timberjack | Timberjack (maker assumed Salsa), "preliminary" | XS to XL | not filed |
+| specialized-stumpjumper-1996 | Specialized Stumpjumper 1996, 17 inch (one size) | 17" | not filed |
 | crust-scapegoat | Crust Scapegoat | S to XL | not filed |
 
 ## What I checked: does the geometry maths reproduce the published numbers?

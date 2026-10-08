@@ -61,7 +61,9 @@ describe("reference charts", () => {
   // trail and standover, so it is left at the default. Standover is not compared: makers measure it in different places.
   describe("the tool reproduces the published numbers", () => {
     for (const c of REFERENCE_CHARTS) {
-      if (chartValue(c, "forkAxleToCrown", 0) === undefined) continue
+      // Only charts that give everything the tool needs to place the frame.
+      const needed: ChartRow[] = ["forkAxleToCrown", "forkOffset", "bbDrop", "chainstay", "seatTubeCT", "effectiveTopTube", "headTubeLength", "headTubeAngle", "seatTubeAngle", "stack", "reach", "wheelbase"]
+      if (needed.some((row) => chartValue(c, row, 0) === undefined)) continue
       c.sizes.forEach((size, i) => {
         it(`${c.id} ${size}: stack, reach and wheelbase`, () => {
           const g = (r: ChartRow) => chartValue(c, r, i)!

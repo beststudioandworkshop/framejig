@@ -19,6 +19,8 @@ export interface ReferenceChart {
 
 export type ChartRow =
   | "seatTubeCT"
+  | "seatTubeCC"
+  | "frontCenter"
   | "topTubeCC"
   | "effectiveTopTube"
   | "headTubeAngle"
@@ -46,7 +48,7 @@ export const REFERENCE_CHARTS: ReferenceChart[] = [
     maker: "Surly",
     model: "Steamroller (Anxious Lavender)",
     category: "track",
-    notes: ["Seat tube length is taken as center-to-top.", "BB height 271 mm, so the axles sit 341 mm off the ground."],
+    notes: ["", "BB height 271 mm, so the axles sit 341 mm off the ground."],
     sizes: ["49", "53", "56", "59", "62"],
     rows: {
       effectiveTopTube: [529.5, 547, 568, 587, 608],
@@ -192,7 +194,7 @@ export const REFERENCE_CHARTS: ReferenceChart[] = [
     maker: "Surly",
     model: "Cross-Check",
     category: null,
-    notes: ["Seat tube length is the chart's size number, taken as center-to-top.", "Stem 70 to 120 mm at 7 degrees, bars 400 to 460 mm."],
+    notes: ["Seat tube length is center-to-top (confirmed).", "Stem 70 to 120 mm at 7 degrees, bars 400 to 460 mm."],
     sizes: ["42", "46", "50", "52", "54", "56", "58", "60", "62", "64"],
     rows: {
       reach: [378.7, 380.8, 389.1, 389.7, 394.8, 394.3, 398.3, 407.3, 411, 424.5],
@@ -217,7 +219,7 @@ export const REFERENCE_CHARTS: ReferenceChart[] = [
     maker: "Surly",
     model: "Disc Trucker (26-inch wheels)",
     category: null,
-    notes: ["Sizes 42 to 56 come with 26-inch wheels, 56 to 64 with 700c; the two are separate charts here.", "No fork length given.", "Seat tube length is taken as center-to-top."],
+    notes: ["Sizes 42 to 56 come with 26-inch wheels, 56 to 64 with 700c; the two are separate charts here.", "No fork length given.", "Seat tube length is center-to-top (confirmed).", "The Long Haul Trucker has the same geometry; only the brake type differs."],
     sizes: ["42", "46", "50", "52", "54", "56"],
     rows: {
       effectiveTopTube: [500, 515, 530, 545, 560, 575],
@@ -239,7 +241,7 @@ export const REFERENCE_CHARTS: ReferenceChart[] = [
     maker: "Surly",
     model: "Disc Trucker (700c wheels)",
     category: null,
-    notes: ["Sizes 56 to 64 come with 700c wheels.", "No fork length given.", "Seat tube length is taken as center-to-top."],
+    notes: ["Sizes 56 to 64 come with 700c wheels.", "No fork length given.", "Seat tube length is center-to-top (confirmed).", "The Long Haul Trucker has the same geometry; only the brake type differs."],
     sizes: ["56", "58", "60", "62", "64"],
     rows: {
       effectiveTopTube: [575, 590, 605, 620, 635],
@@ -254,6 +256,32 @@ export const REFERENCE_CHARTS: ReferenceChart[] = [
       stack: [613, 632, 651.5, 670.5, 685],
       wheelbase: [1051, 1060, 1075.5, 1084, 1090],
       standover: [813, 832, 851, 869, 885.5],
+    },
+  },
+  {
+    id: "specialized-stumpjumper-1996",
+    maker: "Specialized",
+    model: "Stumpjumper (1996), 17 inch",
+    category: null,
+    notes: [
+      "One size only. A reference for the retro mountain bike style.",
+      "Seat tube is center-to-center. Top tube is the actual, center-to-center length.",
+      "26-inch wheels; the tire size is not given. Stem 130 mm, seatpost 30.9 mm.",
+      "No stack, reach, effective top tube, chainstay or BB drop given. Rear center works out to 1052.7 - 625.9 = 426.8 mm.",
+    ],
+    sizes: ['17"'],
+    rows: {
+      topTubeCC: 550.5,
+      seatTubeCC: 430,
+      headTubeAngle: 71,
+      seatTubeAngle: 73,
+      headTubeLength: 110,
+      wheelbase: 1052.7,
+      frontCenter: 625.9,
+      standover: 761.4,
+      bbHeight: 290,
+      forkOffset: 42,
+      forkAxleToCrown: 405,
     },
   },
   {
