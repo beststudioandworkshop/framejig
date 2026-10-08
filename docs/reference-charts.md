@@ -32,9 +32,13 @@ I built every size of every chart in the tool and compared stack, reach and whee
 4. **Standover is not reproduced.** The charts disagree with each other and with the tool by
    20 to 50 mm, so each maker probably measures it somewhere different. It stays an estimate.
 
-## Proposed model changes (not made yet)
+## Model changes made because of this
 
-- Define effective top tube the way the charts do: `reach + stack / tan(seat tube angle)`.
-- Add a headset allowance (about 10 mm, editable) between the fork's axle-to-crown and the head tube bottom.
-
-Both change numbers the tool already shows, so they need a yes first.
+- **Effective top tube** is now the level distance from the seat tube line to the top of the head tube:
+  `reach + stack / tan(seat tube angle)`. It used to be measured at the top of the seat tube.
+- **Lower headset** is a new input (default 10 mm). Fork axle-to-crown is read as the maker publishes it, to the crown
+  race, and the head tube bottom sits a headset above that along the steering axis. The example frames' fork lengths
+  were reduced by 10 mm so they keep the same shape.
+- The tests now build every size of every chart that gives a fork length and check stack, reach and wheelbase to within 7 mm.
+- Old share links and saved files read the new default headset, and effective top tube means the new thing, so a frame saved
+  with an effective top tube driver can come back a few millimeters different.

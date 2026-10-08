@@ -85,7 +85,7 @@ const RAW: FrameInputs = {
   stack: 620,
   bbDrop: 40,
   chainstayLength: 435,
-  forkAxleToCrown: 540,
+  forkAxleToCrown: 530,
   forkRake: 44,
   tubes: {
     ...DEFAULT_INPUTS.tubes,

@@ -23,7 +23,7 @@ const RAW: FrameInputs = {
   rearSpacing: 135,
   seatTubeLength: 480,
   seatTubeExtension: 30,
-  forkAxleToCrown: 405,
+  forkAxleToCrown: 395,
   tubes: {
     ...DEFAULT_INPUTS.tubes,
     topTube: { diameter: 31.8, wall: 1 },
@@ -54,7 +54,7 @@ export const bruiser: CategoryProfile = {
     { title: "Mood", text: "Relaxed and a bit heavy. You're here for the ride, not the lap time." },
   ],
   variables: [
-    { title: "Which retro", text: "Klunkers, beach cruisers, 1990s rigid mountain bikes and big BMX cruisers all sit in this family, each with its own attitude." },
+    { title: "Which retro", text: "Klunkers, beach cruisers, 1990s rigid mountain bikes, big BMX cruisers and basket bikes all sit in this family, each with its own attitude." },
     { title: "Tire size", text: "Fat 26-inch tires are common. A bigger tire is a bigger wheel, which changes trail and bottom bracket height." },
     { title: "Bars", text: "Swept-back or riser bars set how upright you sit, and change the fit a lot." },
     { title: "Fenders, racks and baskets", text: "Cruisers collect accessories, so plan the mounts before you cut." },

@@ -101,7 +101,7 @@ describe("fork", () => {
     const v = { x: p.frontAxle.x - p.headBottom.x, y: p.frontAxle.y - p.headBottom.y }
     const along = v.x * axisDir.x + v.y * axisDir.y
     const across = Math.abs(v.x * axisDir.y - v.y * axisDir.x)
-    expect(along).toBeCloseTo(inputs.forkAxleToCrown, 6)
+    expect(along).toBeCloseTo(inputs.forkAxleToCrown + inputs.headsetStack, 6)
     expect(across).toBeCloseTo(inputs.forkRake, 6)
   })
 })
@@ -117,13 +117,11 @@ describe("head and seat tube", () => {
     expect(dist(p.bb, p.seatTop)).toBeCloseTo(520, 9)
     expect(deg(Math.atan2(p.seatTop.y, -p.seatTop.x))).toBeCloseTo(74, 9)
   })
-  it.each(grid)("effective top tube is the horizontal gap between the axes at seat-tube-top height (%#)", (over) => {
+  it.each(grid)("effective top tube is the level gap from the seat tube line to the head tube top (%#)", (over) => {
     const { inputs, p, m } = frame(over)
-    const a = rad(inputs.headTubeAngle)
-    // Head axis x at y = seatTop.y by parametrising the line, independent of build.ts's formula.
-    const t = (p.seatTop.y - p.headBottom.y) / Math.sin(a)
-    const axisX = p.headBottom.x - t * Math.cos(a)
-    expect(axisX - p.seatTop.x).toBeCloseTo(inputs.effectiveTopTube, 6)
+    // Level with the head tube top, the gap from the seat tube line to the head tube top.
+    const seatLineX = -p.headTop.y / Math.tan(rad(inputs.seatTubeAngle))
+    expect(p.headTop.x - seatLineX).toBeCloseTo(inputs.effectiveTopTube, 6)
     expect(m.effectiveTopTube).toBeCloseTo(inputs.effectiveTopTube, 6)
   })
   it("stack and reach are the head tube top coordinates relative to the BB", () => {
@@ -312,6 +310,7 @@ describe("scaling", () => {
       chainstayLength: s(base.chainstayLength),
       forkAxleToCrown: s(base.forkAxleToCrown),
       forkRake: s(base.forkRake),
+      headsetStack: s(base.headsetStack),
       tubes: Object.fromEntries(
         Object.entries(base.tubes).map(([k2, v]) => [k2, { diameter: s(v.diameter), wall: s(v.wall) }]),
       ) as unknown as FrameInputs["tubes"],

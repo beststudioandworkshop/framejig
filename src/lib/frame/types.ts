@@ -81,7 +81,10 @@ export interface FrameInputs {
   /** How far the seat tube sticks up above the top tube centerline junction, mm. */
   seatTubeExtension: number
 
-  /** Horizontal distance between seat and head tube axes at the seat tube top. */
+  /**
+   * Effective top tube, the way makers publish it: the level distance from the seat tube
+   * line to the top of the head tube, measured at that height (reach + stack / tan(seat angle)).
+   */
   effectiveTopTube: number
   /** Head tube length, mm. */
   headTubeLength: number
@@ -101,8 +104,13 @@ export interface FrameInputs {
   chainstayLength: number
   /** BB center to rear axle, horizontal, mm. */
   rearCenter: number
-  /** Fork axle-to-crown, mm (measured to the bottom of the head tube; headset stack not modeled). */
+  /** Fork axle-to-crown, mm, as makers publish it: to the crown race, not to the head tube. */
   forkAxleToCrown: number
+  /**
+   * How far the bottom of the head tube sits above the fork's crown measurement, along the
+   * steering axis, mm. It is the lower headset: about 10 for a standard one.
+   */
+  headsetStack: number
   /** Fork offset (rake), mm. */
   forkRake: number
 

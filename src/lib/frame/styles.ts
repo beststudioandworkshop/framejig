@@ -106,7 +106,7 @@ export const STYLES: StyleProfile[] = [
     ranges: { headTubeAngle: r(66, 70), seatTubeAngle: r(72, 75.5), bbDrop: r(30, 45), trail: r(90, 112), chainstayLength: r(425, 440), wheelbase: r(1080, 1140) },
     positionRange: r(1.345, 1.495),
     wheel: { rimDiameter: 622, tireSection: 55 },
-    forkAxleToCrown: 520,
+    forkAxleToCrown: 510,
     reference: EST,
   },
   {
@@ -119,7 +119,7 @@ export const STYLES: StyleProfile[] = [
     ranges: { headTubeAngle: r(64.5, 67), seatTubeAngle: r(71.5, 75), bbDrop: r(30, 45), trail: r(105, 125), chainstayLength: r(430, 445), wheelbase: r(1130, 1180) },
     positionRange: r(1.33, 1.48),
     wheel: { rimDiameter: 622, tireSection: 60 },
-    forkAxleToCrown: 540,
+    forkAxleToCrown: 530,
     reference: EST,
   },
   {
@@ -132,7 +132,7 @@ export const STYLES: StyleProfile[] = [
     ranges: { headTubeAngle: r(64, 66), seatTubeAngle: r(71, 74.5), bbDrop: r(30, 42), trail: r(112, 130), chainstayLength: r(430, 445), wheelbase: r(1150, 1200) },
     positionRange: r(1.32, 1.47),
     wheel: { rimDiameter: 622, tireSection: 60 },
-    forkAxleToCrown: 550,
+    forkAxleToCrown: 540,
     reference: EST,
   },
   {
@@ -145,7 +145,7 @@ export const STYLES: StyleProfile[] = [
     ranges: { headTubeAngle: r(63, 65.5), seatTubeAngle: r(70, 74), bbDrop: r(30, 42), trail: r(115, 135), chainstayLength: r(430, 450), wheelbase: r(1180, 1250) },
     positionRange: r(1.28, 1.43),
     wheel: { rimDiameter: 622, tireSection: 60 },
-    forkAxleToCrown: 565,
+    forkAxleToCrown: 555,
     reference: EST,
   },
   {
@@ -159,7 +159,7 @@ export const STYLES: StyleProfile[] = [
     positionRange: r(1.22, 1.36),
     wheel: { rimDiameter: 584, tireSection: 62 },
     crankLength: 165,
-    forkAxleToCrown: 585,
+    forkAxleToCrown: 575,
     reference: EST,
   },
   {
@@ -174,7 +174,7 @@ export const STYLES: StyleProfile[] = [
     wheel: { rimDiameter: 559, tireSection: 50 },
     crankLength: 165,
     grade: { reachStep: 12, stackStep: 8, seatTubeStep: 15 },
-    forkAxleToCrown: 455,
+    forkAxleToCrown: 445,
     reference: EST,
   },
   {
@@ -187,7 +187,7 @@ export const STYLES: StyleProfile[] = [
     ranges: { headTubeAngle: r(67, 70), seatTubeAngle: r(71, 74.5), bbDrop: r(20, 40), trail: r(90, 112), chainstayLength: r(440, 460), wheelbase: r(1100, 1150) },
     positionRange: r(1.3, 1.45),
     wheel: { rimDiameter: 559, tireSection: 92 },
-    forkAxleToCrown: 500,
+    forkAxleToCrown: 490,
     reference: EST,
   },
 
@@ -213,7 +213,7 @@ export const STYLES: StyleProfile[] = [
     ranges: { headTubeAngle: r(72, 73.5), seatTubeAngle: r(72.5, 74), trail: r(30, 50), chainstayLength: r(420, 445), wheelbase: r(1020, 1070) },
     positionRange: r(1.45, 1.6),
     wheel: { rimDiameter: 584, tireSection: 40 },
-    forkAxleToCrown: 385,
+    forkAxleToCrown: 375,
     reference: EST,
   },
   {
@@ -226,7 +226,7 @@ export const STYLES: StyleProfile[] = [
     ranges: { headTubeAngle: r(71, 72.5), seatTubeAngle: r(72.5, 74), trail: r(55, 70), chainstayLength: r(430, 455), wheelbase: r(1020, 1070) },
     positionRange: r(1.55, 1.75),
     wheel: { rimDiameter: 622, tireSection: 32 },
-    forkAxleToCrown: 395,
+    forkAxleToCrown: 385,
     reference: EST,
   },
 
@@ -277,7 +277,29 @@ export const STYLES: StyleProfile[] = [
     ranges: { headTubeAngle: r(67, 70), seatTubeAngle: r(69, 72), bbDrop: r(15, 35), trail: r(65, 90), chainstayLength: r(440, 470), wheelbase: r(1080, 1140) },
     positionRange: r(1.2, 1.35),
     wheel: { rimDiameter: 559, tireSection: 52 },
-    forkAxleToCrown: 405,
+    forkAxleToCrown: 395,
+    reference: EST,
+  },
+  {
+    id: "basket-bike",
+    family: "bruiser",
+    label: "Basket bike",
+    tagline: "A road-bike frame with flat bars and a basket on the front.",
+    forWhat: "Errands, the market and the ride to a friend's. Road-bike bones with flat bars, easy angles, a taller front end, and room for a basket and fenders.",
+    different: ["Road-bike angles and wheel size, relaxed a little and with flat bars.", "A taller front end than a road bike, so you sit up.", "Lower trail steadies the steering with a loaded front basket."],
+    ranges: { headTubeAngle: r(70.5, 73), seatTubeAngle: r(71.5, 74), bbDrop: r(60, 78), trail: r(50, 68), chainstayLength: r(425, 455), wheelbase: r(1020, 1085) },
+    positionRange: r(1.25, 1.42),
+    wheel: { rimDiameter: 622, tireSection: 38 },
+    forkAxleToCrown: 365,
+    rangeWhy: {
+      headTubeAngle: "About 70.5 to 73°: a little more relaxed than a road bike, steady with a basket on the front.",
+      seatTubeAngle: "About 71.5 to 74°, close to a road bike, so pedaling feels familiar.",
+      trail: "50 to 68 mm. Less trail than a typical road bike keeps the steering from flopping when the basket is loaded.",
+      wheelbase: "About 1020 to 1085 mm for a medium: room for a basket and fenders without feeling long.",
+      chainstayLength: "425 to 455 mm leaves space for fenders and a rear rack.",
+      bbDrop: "60 to 78 mm keeps the bottom bracket low, so it is easy to step on and off.",
+      position: "A taller front end for flat bars, so you sit up and see the traffic.",
+    },
     reference: EST,
   },
   {
@@ -290,7 +312,7 @@ export const STYLES: StyleProfile[] = [
     ranges: { headTubeAngle: r(64, 68), seatTubeAngle: r(67, 71), bbDrop: r(55, 80), trail: r(60, 85), chainstayLength: r(460, 490), wheelbase: r(1150, 1250) },
     positionRange: r(1.25, 1.45),
     wheel: { rimDiameter: 559, tireSection: 52 },
-    forkAxleToCrown: 405,
+    forkAxleToCrown: 395,
     reference: EST,
   },
   {
@@ -303,7 +325,7 @@ export const STYLES: StyleProfile[] = [
     ranges: { headTubeAngle: r(69, 71.5), seatTubeAngle: r(71, 73.5), bbDrop: r(15, 35), trail: r(70, 90), chainstayLength: r(430, 450), wheelbase: r(1050, 1100) },
     positionRange: r(1.22, 1.36),
     wheel: { rimDiameter: 559, tireSection: 50 },
-    forkAxleToCrown: 410,
+    forkAxleToCrown: 400,
     reference: EST,
   },
   {
@@ -317,7 +339,7 @@ export const STYLES: StyleProfile[] = [
     positionRange: r(1.15, 1.3),
     wheel: { rimDiameter: 507, tireSection: 45 },
     crankLength: 165,
-    forkAxleToCrown: 380,
+    forkAxleToCrown: 370,
     reference: EST,
   },
 ]

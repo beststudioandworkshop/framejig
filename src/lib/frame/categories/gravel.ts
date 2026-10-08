@@ -17,7 +17,7 @@ const RAW: FrameInputs = {
   headTubeLength: 150,
   bbDrop: 70,
   chainstayLength: 430,
-  forkAxleToCrown: 395,
+  forkAxleToCrown: 385,
   forkRake: 50,
   rearSpacing: 142,
 }

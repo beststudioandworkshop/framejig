@@ -47,8 +47,9 @@ export const DEFAULT_INPUTS: FrameInputs = {
   bbHeight: 269,
   chainstayLength: 420,
   rearCenter: 414,
-  forkAxleToCrown: 370,
+  forkAxleToCrown: 360,
   forkRake: 45,
+  headsetStack: 10,
   tubes: {
     topTube: T(31.8, 0.9),
     downTube: T(35, 1),

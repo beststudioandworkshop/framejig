@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest"
 
+import { buildFrame } from "./build"
+import { DEFAULT_INPUTS } from "./constants"
 import { chartValue, REFERENCE_CHARTS, type ChartRow } from "./reference-charts"
 
+// Millimeters. A standard 10 mm headset gets most charts to within 2; one chart wants closer to 15.
+const TOL = 7
 const rad = (d: number) => (d * Math.PI) / 180
 
 describe("reference charts", () => {
@@ -49,6 +53,35 @@ describe("reference charts", () => {
         const estimate = drop + (fork + htl) * Math.sin(rad(hta))
         // Axles sit `drop` above the BB, so the head top is that much plus the fork and head tube up the steering axis.
         expect(Math.abs(estimate - stack), `${c.id} ${s}`).toBeLessThan(20)
+      })
+    }
+  })
+
+  // The tool's own maths against the published numbers. The wheel size only matters for
+  // trail and standover, so it is left at the default. Standover is not compared: makers measure it in different places.
+  describe("the tool reproduces the published numbers", () => {
+    for (const c of REFERENCE_CHARTS) {
+      if (chartValue(c, "forkAxleToCrown", 0) === undefined) continue
+      c.sizes.forEach((size, i) => {
+        it(`${c.id} ${size}: stack, reach and wheelbase`, () => {
+          const g = (r: ChartRow) => chartValue(c, r, i)!
+          const r = buildFrame({
+            ...DEFAULT_INPUTS,
+            seatTubeAngle: g("seatTubeAngle"),
+            headTubeAngle: g("headTubeAngle"),
+            seatTubeLength: g("seatTubeCT"),
+            effectiveTopTube: g("effectiveTopTube"),
+            headTubeLength: g("headTubeLength"),
+            bbDrop: g("bbDrop"),
+            chainstayLength: g("chainstay"),
+            forkAxleToCrown: g("forkAxleToCrown"),
+            forkRake: g("forkOffset"),
+          })
+          const m = r.metrics!
+          expect(Math.abs(m.stack - g("stack"))).toBeLessThan(TOL)
+          expect(Math.abs(m.reach - g("reach"))).toBeLessThan(TOL)
+          expect(Math.abs(m.wheelbase - g("wheelbase"))).toBeLessThan(TOL)
+        })
       })
     }
   })

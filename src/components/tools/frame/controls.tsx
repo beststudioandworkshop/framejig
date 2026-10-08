@@ -63,7 +63,7 @@ const SEAT_OPTIONS: DriverOption<"seat">[] = [
   { value: "cc", label: "Seat tube c-c", field: "seatTubeLengthCC", hint: "Bottom bracket center to the top tube centerline." },
 ]
 const HORIZONTAL_OPTIONS: DriverOption<"horizontal">[] = [
-  { value: "effectiveTopTube", label: "Eff. top tube", field: "effectiveTopTube", hint: "Level distance between the seat and head tube." },
+  { value: "effectiveTopTube", label: "Eff. top tube", field: "effectiveTopTube", hint: "Level, from the seat tube line to the top of the head tube." },
   { value: "frontCenter", label: "Front center", field: "frontCenter", hint: "Level distance, bottom bracket to front axle." },
   { value: "reach", label: "Reach", field: "reach", hint: "Forward from the bottom bracket to the top of the head tube." },
 ]
@@ -224,8 +224,9 @@ export function Controls({ inputs, unit, onUnit, update, onBikeType, onBikeStyle
         <FieldSet>
           <FieldLegend variant="label">Fork and wheels</FieldLegend>
           <FieldGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {len("Fork axle-to-crown", "forkAxleToCrown", inputs.bikeType === "mountain" ? "To the bottom of the head tube. For a suspension fork, use the length at the sag you ride at." : "To the bottom of the head tube.")}
+            {len("Fork axle-to-crown", "forkAxleToCrown", inputs.bikeType === "mountain" ? "As the maker publishes it, to the crown race. For a suspension fork, use the length at the sag you ride at." : "As the maker publishes it, to the crown race.")}
             {len("Fork rake (offset)", "forkRake")}
+            {len("Lower headset", "headsetStack", "How far the head tube bottom sits above that measurement. About 10 mm for a standard headset.")}
             <ValueInput
               label="Rim diameter"
               unit={unit}

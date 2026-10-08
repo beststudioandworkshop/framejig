@@ -224,10 +224,10 @@ export function buildDrawing(inputs: FrameInputs, result: FrameResult, offset: V
     linear(
       "effectiveTopTube",
       "Eff. top tube",
-      p.seatTop,
-      { x: p.seatTop.x + m.effectiveTopTube, y: p.seatTop.y },
+      { x: p.headTop.x - m.effectiveTopTube, y: p.headTop.y },
+      p.headTop,
       "x",
-      p.seatTop.y + 45,
+      p.headTop.y + 45,
     ),
     aligned("seatTubeLength", "Seat tube", p.bb, p.seatTop, 70),
     aligned("headTubeLength", "Head tube", p.headBottom, p.headTop, -60),

@@ -206,3 +206,6 @@ example frames and the size picker, so they can't drift apart.
 - The frame tool has a Style dropdown. Changing type clears the style.
 - All numbers are estimates until the charts in `charts-needed.md` arrive.
 - Known: small road and track style boxes overlap on the map; use the tabs to reach them.
+
+- Basket bike joined the bruiser family: a road-bike frame with flat bars, a taller front end and lower trail for a loaded front basket.
+- Effective top tube and the lower headset changed on the strength of the published charts; see `reference-charts.md`.

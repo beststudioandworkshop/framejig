@@ -49,6 +49,7 @@ function numberFields(i: FrameInputs): NumberField[] {
     { path: "rearSpacing", value: i.rearSpacing, min: 1, label: "Rear spacing" },
     { path: "seatTubeExtension", value: i.seatTubeExtension, min: 0, label: "Seat tube extension" },
     { path: "forkAxleToCrown", value: i.forkAxleToCrown, min: 1, label: "Fork axle-to-crown" },
+    { path: "headsetStack", value: i.headsetStack, min: 0, label: "Lower headset" },
     { path: "forkRake", value: i.forkRake, min: 0, label: "Fork rake" },
   ]
   f.push(
@@ -159,7 +160,9 @@ function solve(i: FrameInputs): Solved {
   // Steering axis runs from the head tube top (up and back) to the bottom (down and forward).
   const headUp: Vec2 = { x: -cosA, y: sinA }
   // Axles are level at y = drop, so the fork fixes the height of the head tube bottom.
-  const bottomY = drop + i.forkAxleToCrown * sinA - i.forkRake * cosA
+  // The fork is measured to the crown race; the head tube bottom sits a headset higher.
+  const fork = i.forkAxleToCrown + i.headsetStack
+  const bottomY = drop + fork * sinA - i.forkRake * cosA
   const headLen =
     i.drivers.vertical === "headTubeLength" ? i.headTubeLength : (i.stack - bottomY) / sinA
 
@@ -171,11 +174,11 @@ function solve(i: FrameInputs): Solved {
       break
     case "frontCenter":
       // Front axle is at x = frontCenter: back out the fork.
-      bottomX = i.frontCenter - i.forkAxleToCrown * cosA - i.forkRake * sinA
+      bottomX = i.frontCenter - fork * cosA - i.forkRake * sinA
       break
     default:
-      // Axis crosses the seat tube top height at x = seatTop.x + effectiveTopTube.
-      bottomX = seatTop.x + i.effectiveTopTube - (bottomY - seatTop.y) / Math.tan(a)
+      // Effective top tube is level with the head tube top: headTop.x = ETT - headTop.y / tan(seat angle).
+      bottomX = i.effectiveTopTube - (bottomY + headLen * sinA) / Math.tan(s) + headLen * cosA
   }
   const headBottom: Vec2 = { x: bottomX, y: bottomY }
   const headTop = add(headBottom, scale(headUp, headLen))
@@ -183,7 +186,7 @@ function solve(i: FrameInputs): Solved {
   // Front axle: down the steering axis by axle-to-crown, then forward by the rake.
   const down: Vec2 = { x: cosA, y: -sinA }
   const forward: Vec2 = { x: sinA, y: cosA }
-  const frontAxle = add(add(headBottom, scale(down, i.forkAxleToCrown)), scale(forward, i.forkRake))
+  const frontAxle = add(add(headBottom, scale(down, fork)), scale(forward, i.forkRake))
 
   const len = dist(headTop, headBottom)
   const upUnit = scale(sub(headTop, headBottom), len > 0 ? 1 / len : 0)
@@ -215,9 +218,7 @@ function trailOf(R: number, headAngleDeg: number, rake: number): number {
 }
 
 function metricsOf(i: FrameInputs, { points: p, wheelRadius: R }: Solved): FrameMetrics {
-  const a = rad(i.headTubeAngle)
-  // Head tube axis x at the seat tube top height, relative to the seat tube top.
-  const axisX = p.headBottom.x - (p.seatTop.y - p.headBottom.y) / Math.tan(a)
+  const s = rad(i.seatTubeAngle)
   const ttMid = mid(p.topTubeSeatJoint, p.topTubeHeadJoint)
   const bbDrop = p.rearAxle.y
   const bbHeight = R - bbDrop
@@ -237,7 +238,7 @@ function metricsOf(i: FrameInputs, { points: p, wheelRadius: R }: Solved): Frame
     trail: trailOf(R, i.headTubeAngle, i.forkRake),
     stack: p.headTop.y,
     reach: p.headTop.x,
-    effectiveTopTube: axisX - p.seatTop.x,
+    effectiveTopTube: p.headTop.x + p.headTop.y / Math.tan(s),
     headTubeLength: dist(p.headTop, p.headBottom),
     topTubeSlope: deg(
       Math.atan2(p.topTubeHeadJoint.y - p.topTubeSeatJoint.y, p.topTubeHeadJoint.x - p.topTubeSeatJoint.x),
