@@ -122,6 +122,9 @@ function validateInputs(i: FrameInputs): Issue[] {
     if (base.drop < 0) {
       issues.push(err("bb-above-axle", "The bottom bracket would sit above the axles. Lower the BB height.", "bbHeight"))
     }
+    if (i.drivers.horizontal === "frontCenter" && i.frontCenter <= base.drop) {
+      issues.push(err("front-center-short", "The front center must be longer than the BB drop.", "frontCenter"))
+    }
     if (base.chainstay <= base.drop) {
       issues.push(err("chainstay-short", "The chainstay must be longer than the BB drop.", "chainstayLength"))
     }
@@ -173,8 +176,9 @@ function solve(i: FrameInputs): Solved {
       bottomX = i.reach + headLen * cosA
       break
     case "frontCenter":
-      // Front axle is at x = frontCenter: back out the fork.
-      bottomX = i.frontCenter - fork * cosA - i.forkRake * sinA
+      // Front center is the straight line from the BB to the front axle, and the axle sits at y = drop,
+      // so the axle is sqrt(frontCenter^2 - drop^2) forward of the BB. Then back out the fork.
+      bottomX = Math.sqrt(Math.max(0, i.frontCenter ** 2 - drop ** 2)) - fork * cosA - i.forkRake * sinA
       break
     default:
       // Effective top tube is level with the head tube top: headTop.x = ETT - headTop.y / tan(seat angle).
@@ -228,7 +232,7 @@ function metricsOf(i: FrameInputs, { points: p, wheelRadius: R }: Solved): Frame
   return {
     wheelRadius: R,
     wheelbase: p.frontAxle.x - p.rearAxle.x,
-    frontCenter: p.frontAxle.x,
+    frontCenter: Math.hypot(p.frontAxle.x, p.frontAxle.y),
     rearCenter: -p.rearAxle.x,
     bbHeight,
     bbDrop,

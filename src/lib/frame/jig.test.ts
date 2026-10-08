@@ -267,7 +267,7 @@ describe("jig checks", () => {
     expect(len("bbToSeatTop")).toBeCloseTo(m.seatTubeLength, 9)
     expect(len("headTube")).toBeCloseTo(m.headTubeLength, 9)
     expect(len("bbToHeadTop")).toBeCloseTo(Math.hypot(m.reach, m.stack), 9)
-    expect(len("bbToFrontAxle")).toBeCloseTo(Math.hypot(m.frontCenter, m.bbDrop), 9)
+    expect(len("bbToFrontAxle")).toBeCloseTo(m.frontCenter, 9)
   })
 
   it("has unique ids and no check from a station to itself", () => {

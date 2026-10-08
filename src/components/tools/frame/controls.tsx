@@ -64,7 +64,7 @@ const SEAT_OPTIONS: DriverOption<"seat">[] = [
 ]
 const HORIZONTAL_OPTIONS: DriverOption<"horizontal">[] = [
   { value: "effectiveTopTube", label: "Eff. top tube", field: "effectiveTopTube", hint: "Level, from the seat tube line to the top of the head tube." },
-  { value: "frontCenter", label: "Front center", field: "frontCenter", hint: "Level distance, bottom bracket to front axle." },
+  { value: "frontCenter", label: "Front center", field: "frontCenter", hint: "Straight line, bottom bracket to front axle." },
   { value: "reach", label: "Reach", field: "reach", hint: "Forward from the bottom bracket to the top of the head tube." },
 ]
 const VERTICAL_OPTIONS: DriverOption<"vertical">[] = [

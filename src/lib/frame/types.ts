@@ -93,7 +93,7 @@ export interface FrameInputs {
   stack: number
   /** Horizontal BB center to top of head tube, mm. */
   reach: number
-  /** BB center to front axle, horizontal, mm. */
+  /** BB center to front axle, straight line, mm (the way makers print it). */
   frontCenter: number
 
   /** BB center below the axle line, mm. */
@@ -150,7 +150,7 @@ export interface KeyPoints {
 export interface FrameMetrics {
   wheelRadius: number
   wheelbase: number
-  /** BB to front axle, horizontal. */
+  /** BB to front axle, straight line. */
   frontCenter: number
   /** BB to rear axle, horizontal. */
   rearCenter: number

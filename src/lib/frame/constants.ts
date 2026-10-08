@@ -42,7 +42,7 @@ export const DEFAULT_INPUTS: FrameInputs = {
   headTubeLength: 140,
   stack: 543,
   reach: 389,
-  frontCenter: 585,
+  frontCenter: 589.6,
   bbDrop: 70,
   bbHeight: 269,
   chainstayLength: 420,

@@ -59,10 +59,20 @@ describe("wheels and BB", () => {
     const { p } = frame({ chainstayLength: 430 })
     expect(dist(p.bb, p.rearAxle)).toBeCloseTo(430, 9)
   })
-  it("rear center is the horizontal chainstay, and wheelbase = rear + front center", () => {
+  it("rear center is the horizontal chainstay, and wheelbase = rear center + the level part of front center", () => {
     const { m } = frame({ chainstayLength: 420, bbDrop: 70 })
     expect(m.rearCenter).toBeCloseTo(Math.sqrt(420 ** 2 - 70 ** 2), 9)
-    expect(m.wheelbase).toBeCloseTo(m.rearCenter + m.frontCenter, 9)
+    expect(m.wheelbase).toBeCloseTo(m.rearCenter + Math.sqrt(m.frontCenter ** 2 - 70 ** 2), 9)
+  })
+  it("front center is the straight line from the BB to the front axle, as a driver and as a result", () => {
+    const { m, p } = frame({ drivers: { ...base.drivers, horizontal: "frontCenter" }, frontCenter: 600, bbDrop: 60 })
+    expect(m.frontCenter).toBeCloseTo(600, 9)
+    expect(Math.hypot(p.frontAxle.x, p.frontAxle.y)).toBeCloseTo(600, 9)
+    expect(p.frontAxle.y).toBeCloseTo(60, 9)
+  })
+  it("rejects a front center shorter than the BB drop", () => {
+    const r = buildFrame({ ...base, drivers: { ...base.drivers, horizontal: "frontCenter" }, frontCenter: 50, bbDrop: 70 })
+    expect(r.issues.some((x) => x.code === "front-center-short")).toBe(true)
   })
 })
 
