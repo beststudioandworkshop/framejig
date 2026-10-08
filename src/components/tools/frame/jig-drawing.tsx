@@ -38,7 +38,7 @@ interface JigDrawingProps {
  * the origin and the spine runs level above the axle line. The seat tube carrier
  * hangs on a post below the spine and turns about the BB; the head tube carrier
  * stands on a post above it and turns about the bottom of the head tube.
- * The jig parts are solid and drawn in front of the quiet frame, since the frame is what gets moved to meet them.
+ * The jig parts are solid; the frame's tube outlines are drawn over them so you can see where the frame meets the jig.
  */
 export function JigDrawing({ inputs, result, jig, unit = "mm", detailed = false }: JigDrawingProps) {
   const [ref, width] = useElementWidth<SVGSVGElement>()
@@ -134,13 +134,10 @@ export function JigDrawing({ inputs, result, jig, unit = "mm", detailed = false 
       aria-label="Side-view schematic of the level-spine jig around the frame, to scale"
       className="h-auto w-full"
     >
-      {/* the frame, quietly */}
+      {/* the wheels, quietly, behind everything */}
       <g className="fill-none stroke-muted-foreground" strokeWidth={1} {...thin}>
         {frame.wheels.map((w, i) => (
           <circle key={i} cx={w.tire.cx} cy={w.tire.cy} r={w.tire.r} strokeOpacity={0.35} strokeDasharray="4 4" />
-        ))}
-        {frame.tubes.map((t) => (
-          <polygon key={t.role + t.a.x} points={pts(t.corners)} />
         ))}
       </g>
 
@@ -177,6 +174,13 @@ export function JigDrawing({ inputs, result, jig, unit = "mm", detailed = false 
           </g>
         )
       })}
+      </g>
+
+      {/* the frame's tube outlines, in front of the jig so you can see where they meet it */}
+      <g className="fill-none stroke-foreground" strokeWidth={1.25} strokeOpacity={0.75} {...thin}>
+        {frame.tubes.map((t) => (
+          <polygon key={t.role + t.a.x} points={pts(t.corners)} />
+        ))}
       </g>
 
       {/* mandrel through the head tube */}

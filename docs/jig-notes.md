@@ -113,3 +113,25 @@ heat-treatment prompt). Rules of thumb, not a safety course.
   length, and where the pins, stops and mounting area sit (`jig-parts-diagram.tsx`). Numbers match the list.
 - Open: the top view looked odd to the user, who had not thought about the BB shell width setting the BB locator's
   length. A STEP or 3dm file of the jig is the way to check the orientation.
+
+## What the user's Rhino model (Frame_Jig.3dm) shows
+
+Read with `rhino3dm`; units are millimeters. The side view is the model's Y (along) and Z (up); the frame's center plane
+is at X = -792.9.
+
+- **Pin positions agree with the tool.** Taking the spine's centerline as 180 mm above the axle line (which is what a
+  120 mm bottom edge and a 120 mm tall spine give), the BB pin sits 216 below the centerline and the head tube bottom
+  pin 234.8 above it, exactly what `buildJig` gives for the same frame.
+- **The frame in the model** (read from its purple outline): chainstay about 437.5, BB drop 36, seat tube about 440
+  (center to top) at about 72.8 degrees, head tube about 83.7 mm long at 65.0 degrees, reach about 423, stack about
+  527. No fork or front axle is drawn.
+- **Hardware sizes in the model are 1.2 times what the notes say.** The spine, the two posts and the rear column are
+  144 x 48 mm (the notes say 120 x 40), and the standoff pieces are 96 x 48 (the notes say 80 x 40). The spine is
+  1440 mm long and centered on Z = 0, the axle line is at Z = -180, and the spine's bottom edge is therefore 108
+  above the axle line, not 120. To be confirmed with the user.
+- **Posts are in the spine's plane** (same 48 mm thickness band, overlapping the spine by about 42 mm in height), not on
+  its front face as the first top view drew them. **Carriers sit directly on the spine's front face** (touching it),
+  not 40 mm further out.
+- **The frame's center plane is 96 mm from the spine's front face** (two 48 mm thicknesses), not the 150 mm example.
+- The rear axle fixture is a pair of 48 x 144 blocks, 96 mm deep, reaching from the spine plane toward the frame, with
+  the dropout plates at 130 mm spacing around the center plane (matches the default rear spacing).
