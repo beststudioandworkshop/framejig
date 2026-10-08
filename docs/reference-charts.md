@@ -1,15 +1,15 @@
 # Reference charts and what they showed
 
 The charts are typed into `src/lib/frame/reference-charts.ts` (mm and degrees).
-Nothing in the tool reads them yet; only the tests do. Four of the six arrived without a
-model name, so they stay unfiled until we know what they are.
+Nothing in the tool reads them yet; only the tests do. One chart (XS to XL, 69 degree head, 483 mm fork) still has no model name. Nothing is filed under a category until the user says where it goes.
 
 | id | maker / model | sizes | filed as |
 | --- | --- | --- | --- |
 | surly-steamroller | Surly Steamroller | 49 to 62 | track |
-| unnamed-inch-14-22 | probably Surly, sent in inches | xS to xL | not filed |
-| unnamed-sm-md-lg-483 | probably Surly, "preliminary" | SM to LG | not filed |
-| unnamed-sm-xl-447 | probably Surly | SM to XL | not filed |
+| surly-pugsley | Surly Pugsley, sent in inches | xS to xL | not filed |
+| surly-krampus | Surly Krampus, "preliminary" | SM to LG | not filed |
+| surly-ogre | Surly Ogre | SM to XL | not filed |
+| salsa-timberjack | Timberjack (maker assumed Salsa), "preliminary" | XS to XL | not filed |
 | unnamed-xs-xl-483 | probably Surly | XS to XL | not filed |
 | crust-scapegoat | Crust Scapegoat | S to XL | not filed |
 
