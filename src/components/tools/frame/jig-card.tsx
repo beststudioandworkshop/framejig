@@ -19,7 +19,10 @@ import {
 import { Button } from "@/components/ui/button"
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { JigDrawing } from "./jig-drawing"
+import { JigPlanView } from "./jig-plan-view"
+import { ZoomPanel } from "./zoom-panel"
 import { ValueInput } from "./value-input"
 
 interface JigCardProps {
@@ -118,13 +121,31 @@ export function JigCard({ inputs, result, parts, jig, referenceJig, unit, settin
           <p className="text-sm text-muted-foreground">Fix the problems above to see the jig settings.</p>
         ) : (
           <>
-            <div>
-              <JigDrawing inputs={inputs} result={result} jig={jig} parts={parts} />
-              <p className="mt-2 text-xs text-muted-foreground">
-                A schematic, not to scale in its hardware. The numbers are parts from the list below; the angles are
-                the tube angles each carrier is turned to.
-              </p>
-            </div>
+            <Tabs defaultValue="side">
+              <TabsList>
+                <TabsTrigger value="side">Side view</TabsTrigger>
+                <TabsTrigger value="top">Top view</TabsTrigger>
+              </TabsList>
+              <TabsContent value="side" className="flex flex-col gap-2">
+                <ZoomPanel title="Jig, side view">
+                  <JigDrawing inputs={inputs} result={result} jig={jig} parts={parts} unit={unit} />
+                </ZoomPanel>
+                <p className="text-xs text-muted-foreground">
+                  To scale: the spine and posts are the 40 x 120 profile, the carriers and the standoff the 40 x 80.
+                  Each dimension runs between its two thin lines. The circled numbers are the parts list; the angles
+                  are the tube angles each carrier is turned to.
+                </p>
+              </TabsContent>
+              <TabsContent value="top" className="flex flex-col gap-2">
+                <ZoomPanel title="Jig, top view">
+                  <JigPlanView inputs={inputs} jig={jig} unit={unit} />
+                </ZoomPanel>
+                <p className="text-xs text-muted-foreground">
+                  Seen from above, to scale. The spine&apos;s front face is at the top of the frame area, and the frame&apos;s
+                  center plane is the dashed line. The standoffs reach from the face to the dropouts and the BB shell.
+                </p>
+              </TabsContent>
+            </Tabs>
 
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {[

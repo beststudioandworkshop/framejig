@@ -23,6 +23,15 @@ export const SPINE_HEIGHT = 120
 /** Room left past the last station for clamps, mm. */
 export const ALLOWANCE = 100
 
+/** The 40 mm thickness of every profile in the jig, mm. */
+export const PROFILE_THICKNESS = 40
+
+/** Side-view width of a post. Posts are the big 120 x 40 profile, in plane with the spine. */
+export const POST_WIDTH = 120
+
+/** Side-view width of a carrier and of the rear standoff block: the 80 x 40 profile. */
+export const CARRIER_WIDTH = 80
+
 /** How far a post runs along the spine's face, past its edge, to be bolted on, mm. */
 export const POST_OVERLAP = 100
 
@@ -192,7 +201,8 @@ export function buildJig(inputs: FrameInputs, result: FrameResult, settings: Jig
 
   const marks = stations.filter((x) => x.id !== "frontAxle").map((x) => x.u)
   const uMin = Math.min(...marks) - ALLOWANCE
-  const uMax = Math.max(...marks) + ALLOWANCE
+  const spineLength = roundUp(Math.max(...marks) + ALLOWANCE - uMin, 50)
+  const uMax = uMin + spineLength
 
   const check = (id: string, name: string, from: StationId, to: StationId): JigCheck => ({
     id,
@@ -220,7 +230,7 @@ export function buildJig(inputs: FrameInputs, result: FrameResult, settings: Jig
 
   return {
     settings,
-    spine: { uMin, uMax, length: roundUp(uMax - uMin, 50), bottom, top, centerline },
+    spine: { uMin, uMax, length: spineLength, bottom, top, centerline },
     stations,
     carriers,
     checks: [

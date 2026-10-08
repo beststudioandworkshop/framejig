@@ -16,7 +16,7 @@ Replaced the earlier tilted-spine design after the user's Rhino sketches (side, 
 - A long **main spine** (planned as 40 x 120 mm T-slot) runs **level**, parallel to the axle line, with its 120 mm
   face standing up. Its **bottom edge is a set height above the axle line**: an input, 120 mm to start with. So
   its top edge is 240 mm up and its centerline 180 mm up.
-- Two **posts** (40 x 80 mm) bolt to the spine's front face and slide along it:
+- Two **posts** (40 x 120 mm, the big profile in plane with the spine) bolt to the spine's front face and slide along it:
   - the **seat tube post hangs below the spine**. The **seat tube carrier pivots on a pin at the center of the
     bottom bracket**. For the default frame that pin sits 190 mm below the spine's bottom edge;
   - the **head tube post stands above the spine**. The **head tube carrier pivots on a pin at the bottom of the head
@@ -86,3 +86,18 @@ heat-treatment prompt). Rules of thumb, not a safety course.
   lavender for the jig parts and the "next" card) and `entry-zone` so only the
   inputs, selects and chosen toggles are orange. No new tokens.
 - Not done: shuffled helper hints under the size fields.
+
+## The drawings
+
+- **Side view and top view** (tabs in the jig settings card). Both are drawn to scale from the same `Jig` the tables
+  use. Hardware is drawn at its real profile sizes: the spine and the two posts are 40 x 120 mm (the big parts in
+  plane with the spine), the carriers and the rear standoff block 40 x 80 mm.
+- **Dimension lines** come from `src/lib/frame/jig-dims.ts`, so each one is a number in a table (tested). Each has a thin
+  line at both ends back to the feature it measures, an arrow at each end, and the number on a halo. The side view
+  shows: axle line to the spine bottom, the spine's height, each pin's place along the spine, each pin's height
+  beyond the spine edge, each post's cut length, the stop distance along each carrier, and each carrier's cut length.
+  The top view shows: the spine's cut length, spine face to the frame's center plane, the rear standoff, the rear spacing,
+  the BB locator, and the BB shell width.
+- **Enlarge** opens a drawing in a big window where you can scroll or pinch to zoom, drag to move, and double click
+  to zoom in. The drawings are vector, so they stay sharp.
+- The spine is drawn at its cut length (rounded up to 50 mm), starting 100 mm behind the rearmost station.

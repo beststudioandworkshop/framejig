@@ -4,19 +4,24 @@ import { useElementWidth, labelSize } from "./use-element-width"
 import {
   ALLOWANCE,
   buildDrawing,
+  dimGeometry,
+  CARRIER_WIDTH,
   formatAngle,
+  formatLengthValue,
   POST_OVERLAP,
+  POST_WIDTH,
+  sideDims,
   SPINE_HEIGHT,
   type FrameInputs,
   type FrameResult,
   type Jig,
   type JigCarrier,
   type JigPart,
+  type LengthUnit,
   type Vec2,
 } from "@/lib/frame"
+import { DimLines } from "./dimension-lines"
 
-const CARRIER_WIDTH = 60
-const POST_WIDTH = 80
 const pts = (ps: Vec2[]) => ps.map((p) => `${p.x},${p.y}`).join(" ")
 const thin = { vectorEffect: "non-scaling-stroke" } as const
 
@@ -37,6 +42,7 @@ interface JigDrawingProps {
   result: FrameResult
   jig: Jig
   parts: JigPart[]
+  unit?: LengthUnit
 }
 
 /**
@@ -46,7 +52,7 @@ interface JigDrawingProps {
  * stands on a post above it and turns about the bottom of the head tube.
  * Numbers match the parts list. The hardware is drawn schematically.
  */
-export function JigDrawing({ inputs, result, jig, parts }: JigDrawingProps) {
+export function JigDrawing({ inputs, result, jig, parts, unit = "mm" }: JigDrawingProps) {
   const [ref, width] = useElementWidth<SVGSVGElement>()
   const axle = result.points?.rearAxle
   if (!axle) return null
@@ -58,6 +64,8 @@ export function JigDrawing({ inputs, result, jig, parts }: JigDrawingProps) {
   const st = (id: string) => jig.stations.find((s) => s.id === id)!
   const callout = (id: string) => parts.find((p) => p.id === id)?.callout ?? 0
   const { uMin, uMax, bottom, top } = jig.spine
+  const dims = sideDims(jig)
+  const map = (p: Vec2): Vec2 => ({ x: p.x, y: -p.y })
 
   const carrierShape = (c: JigCarrier) => {
     const pin = st(c.pivot)
@@ -72,16 +80,16 @@ export function JigDrawing({ inputs, result, jig, parts }: JigDrawingProps) {
     const x = pin.x - POST_WIDTH / 2
     if (c.side === "below") {
       const yTop = Y(bottom + POST_OVERLAP)
-      const yBot = Y(pin.y) + ALLOWANCE
-      return { x, y: yTop, width: POST_WIDTH, height: yBot - yTop }
+      return { x, y: yTop, width: POST_WIDTH, height: c.postLength }
     }
-    const yBot = Y(top - POST_OVERLAP)
-    const yTop = Y(pin.y) - ALLOWANCE
-    return { x, y: yTop, width: POST_WIDTH, height: yBot - yTop }
+    const yBottom = Y(top - POST_OVERLAP)
+    return { x, y: yBottom - c.postLength, width: POST_WIDTH, height: c.postLength }
   }
 
-  const standoffTop = Y(bottom + 40)
-  const standoffBottom = Y(0) + 30
+  // The rear standoff block is the 80 x 40 profile; its 40 face is what shows from the side, on the spine's face,
+  // hanging from the spine's bottom edge to a little below the axle.
+  const standoffTop = Y(bottom)
+  const standoffBottom = Y(0) + 40
 
   // Everything that has to fit in the picture.
   const carrierEnds = jig.carriers.flatMap((c) => {
@@ -105,6 +113,10 @@ export function JigDrawing({ inputs, result, jig, parts }: JigDrawingProps) {
       ]
     }),
     { x: -220, y: 0 },
+    ...dims.flatMap((d) => {
+      const g = dimGeometry(d)
+      return [map(g.a), map(g.b)]
+    }),
   ]
   const margin = 70
   const minX = Math.min(...all.map((p) => p.x)) - margin
@@ -150,15 +162,6 @@ export function JigDrawing({ inputs, result, jig, parts }: JigDrawingProps) {
       <text x={st("frontAxle").x + 60 + fs * 0.4} y={0} dominantBaseline="central" fontSize={fs * 0.9} className="fill-muted-foreground">
         axle line
       </text>
-      <g className="stroke-primary" strokeWidth={1.25} {...thin}>
-        <line x1={uMin - 40} y1={0} x2={uMin - 40} y2={Y(bottom)} />
-        <line x1={uMin - 40 - 12} y1={0} x2={uMin - 40 + 12} y2={0} />
-        <line x1={uMin - 40 - 12} y1={Y(bottom)} x2={uMin - 40 + 12} y2={Y(bottom)} />
-      </g>
-      <text x={uMin - 40 - fs * 0.5} y={Y(bottom / 2)} textAnchor="end" dominantBaseline="central" fontSize={fs} className="fill-foreground font-mono">
-        {Number(bottom.toFixed(1))}
-      </text>
-
       {/* posts, then the spine over their inner ends */}
       {jig.carriers.map((c) => {
         const r = postRect(c)
@@ -167,7 +170,7 @@ export function JigDrawing({ inputs, result, jig, parts }: JigDrawingProps) {
       <rect x={uMin} y={Y(top)} width={uMax - uMin} height={SPINE_HEIGHT} className="fill-secondary stroke-foreground" strokeWidth={1.5} fillOpacity={0.8} {...thin} />
 
       {/* rear axle standoff: a block on the spine's face reaching down to the axle */}
-      <rect x={-30} y={standoffTop} width={60} height={standoffBottom - standoffTop} className="fill-secondary stroke-foreground" strokeWidth={1.25} {...thin} />
+      <rect x={-CARRIER_WIDTH / 4} y={standoffTop} width={CARRIER_WIDTH / 2} height={standoffBottom - standoffTop} className="fill-secondary stroke-foreground" strokeWidth={1.25} {...thin} />
 
       {/* carriers, each turning about its pin */}
       {jig.carriers.map((c) => {
@@ -208,13 +211,13 @@ export function JigDrawing({ inputs, result, jig, parts }: JigDrawingProps) {
       {jig.carriers.map((c) => {
         const sh = carrierShape(c)
         const post = postRect(c)
-        const mid = sh.end((c.length - 2 * ALLOWANCE) * 0.5)
+        const mid = sh.end((c.length - 2 * ALLOWANCE) * (c.id === "seat" ? 0.5 : 0.88))
         const lab = sh.end(c.length - ALLOWANCE + 55)
         return (
           <g key={c.id}>
-            <CalloutBadge n={callout(c.id === "seat" ? "seatCarrier" : "headCarrier")} x={mid.x + fs * 2.2} y={mid.y} fs={fs} />
-            <CalloutBadge n={callout(c.id === "seat" ? "bbPost" : "headPost")} x={post.x + post.width + fs * 1.4} y={c.side === "below" ? post.y + post.height * 0.7 : post.y + post.height * 0.3} fs={fs} />
-            <CalloutBadge n={callout("pivotPins")} x={sh.pin.x - fs * 2.4} y={Y(sh.pin.y) + (c.side === "below" ? fs * 1.6 : -fs * 1.6)} fs={fs} />
+            <CalloutBadge n={callout(c.id === "seat" ? "seatCarrier" : "headCarrier")} x={mid.x + (c.id === "seat" ? fs * 2.2 : -fs * 2.2)} y={mid.y} fs={fs} />
+            <CalloutBadge n={callout(c.id === "seat" ? "bbPost" : "headPost")} x={post.x + fs * 1.4} y={c.side === "below" ? post.y + post.height * 0.25 : post.y + post.height * 0.12} fs={fs} />
+            <CalloutBadge n={callout("pivotPins")} x={sh.pin.x - fs * 2.4} y={Y(sh.pin.y) + fs * 1.8} fs={fs} />
             <text x={lab.x} y={lab.y} textAnchor="middle" dominantBaseline="central" fontSize={fs * 0.9} className="fill-foreground font-mono">
               {formatAngle(c.tubeAngle)}
             </text>
@@ -222,6 +225,8 @@ export function JigDrawing({ inputs, result, jig, parts }: JigDrawingProps) {
         )
       })}
       <CalloutBadge n={callout("mandrels")} x={hm[1].x + fs * 1.6} y={hm[1].y - fs} fs={fs} />
+
+      <DimLines dims={dims} map={map} fs={fs * 0.95} format={(mm) => formatLengthValue(mm, unit)} />
     </svg>
   )
 }

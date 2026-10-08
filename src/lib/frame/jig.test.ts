@@ -11,7 +11,6 @@ import {
   jigCsv,
   jigEnvelope,
   jigText,
-  roundUp,
   syncDerived,
   type FrameInputs,
   type JigSettings,
@@ -265,8 +264,10 @@ describe("spine", () => {
       const { jig } = jigOf(over)
       const marks = jig.stations.filter((s) => s.id !== "frontAxle").map((s) => s.u)
       expect(jig.spine.uMin).toBeCloseTo(Math.min(...marks) - ALLOWANCE, 9)
-      expect(jig.spine.uMax).toBeCloseTo(Math.max(...marks) + ALLOWANCE, 9)
-      expect(jig.spine.length).toBe(roundUp(jig.spine.uMax - jig.spine.uMin, 50))
+      expect(jig.spine.uMax).toBeGreaterThanOrEqual(Math.max(...marks) + ALLOWANCE - 1e-9)
+      expect(jig.spine.uMax - jig.spine.uMin).toBe(jig.spine.length)
+      expect(jig.spine.length % 50).toBe(0)
+      expect(jig.spine.length - (Math.max(...marks) + ALLOWANCE - jig.spine.uMin)).toBeLessThan(50)
     }
   })
 })
