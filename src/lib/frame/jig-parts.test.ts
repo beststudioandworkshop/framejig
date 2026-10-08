@@ -86,6 +86,28 @@ describe("jig parts", () => {
     expect(jigParts([jigOf({}, { spineClearance: 150 })]).find((p) => p.id === "spine")!.note).toContain("150 mm above")
   })
 
+  it("every cut part has a profile, and its marks sit within its length", () => {
+    const cut = parts.filter((p) => p.cutLength !== undefined)
+    expect(cut.length).toBeGreaterThanOrEqual(6)
+    for (const p of cut) {
+      expect(p.profile, p.id).toBeDefined()
+      for (const m of p.marks ?? []) {
+        expect(m.at, `${p.id} ${m.label}`).toBeGreaterThanOrEqual(0)
+        expect(m.at, `${p.id} ${m.label}`).toBeLessThanOrEqual(p.cutLength!)
+      }
+    }
+    expect(by("spine").profile).toEqual({ thickness: 40, width: 120 })
+    expect(by("bbPost").profile).toEqual({ thickness: 40, width: 120 })
+    expect(by("seatCarrier").profile).toEqual({ thickness: 40, width: 80 })
+    expect(by("rearStandoff").profile).toEqual({ thickness: 40, width: 80 })
+  })
+
+  it("a carrier's pin sits 100 mm from its lower end and the tube top a tube length further on", () => {
+    const seat = by("seatCarrier").marks!
+    expect(seat.find((m) => m.kind === "pin")!.at).toBe(100)
+    expect(seat.find((m) => m.kind === "stop")!.at).toBeCloseTo(100 + jig.carriers.find((c) => c.id === "seat")!.stops[1].along, 9)
+  })
+
   it("two frames: the parts are big enough for both", () => {
     const small = jigOf({ effectiveTopTube: 500, chainstayLength: 410, seatTubeLength: 480 })
     const big = jigOf({ effectiveTopTube: 600, chainstayLength: 440, seatTubeLength: 600 })

@@ -128,7 +128,6 @@ export function JigConfigurator({ frame, reference }: JigConfiguratorProps) {
       <JigCard
         inputs={inputs}
         result={result}
-        parts={parts}
         jig={jig}
         referenceJig={refJig}
         unit={unit}

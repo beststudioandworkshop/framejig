@@ -101,3 +101,15 @@ heat-treatment prompt). Rules of thumb, not a safety course.
 - **Enlarge** opens a drawing in a big window where you can scroll or pinch to zoom, drag to move, and double click
   to zoom in. The drawings are vector, so they stay sharp.
 - The spine is drawn at its cut length (rounded up to 50 mm), starting 100 mm behind the rearmost station.
+
+### Drawing changes after the first review
+
+- The small drawings show only the key dimensions (axle line to the spine, each pin's place along the spine and height off
+  the spine edge; in the top view the offset and the two standoffs). **Enlarge** shows all of them. Each `JigDim` has a
+  `key` flag.
+- Dimension text is smaller, with a halo; the arrows are about 40 percent of their earlier size.
+- The numbered circles are off the frame drawings. The jig parts are solid and in front of the quiet frame.
+- The **Jig parts** drop-down opens with a second picture: every cut part laid flat to one scale, with its profile, cut
+  length, and where the pins, stops and mounting area sit (`jig-parts-diagram.tsx`). Numbers match the list.
+- Open: the top view looked odd to the user, who had not thought about the BB shell width setting the BB locator's
+  length. A STEP or 3dm file of the jig is the way to check the orientation.

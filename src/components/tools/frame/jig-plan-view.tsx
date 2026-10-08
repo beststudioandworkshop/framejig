@@ -24,6 +24,8 @@ interface JigPlanViewProps {
   inputs: FrameInputs
   jig: Jig
   unit?: LengthUnit
+  /** The enlarged view shows every dimension; the small one only the key ones. */
+  detailed?: boolean
 }
 
 /**
@@ -32,13 +34,13 @@ interface JigPlanViewProps {
  * Posts sit on the face, carriers in front of them, and the locators reach out to
  * the frame: the rear dropouts, the BB shell, and the tubes on the center plane.
  */
-export function JigPlanView({ inputs, jig, unit = "mm" }: JigPlanViewProps) {
+export function JigPlanView({ inputs, jig, unit = "mm", detailed = false }: JigPlanViewProps) {
   const [ref, width] = useElementWidth<SVGSVGElement>()
   const D = jig.settings.centerOffset
   const { uMin, uMax } = jig.spine
   const T = PROFILE_THICKNESS
   const st = (id: string) => jig.stations.find((s) => s.id === id)!
-  const dims = planDims(jig, inputs)
+  const dims = planDims(jig, inputs).filter((d) => detailed || d.key)
   const map = (p: Vec2): Vec2 => p
 
   const footprint = (c: JigCarrier) => {
@@ -90,7 +92,7 @@ export function JigPlanView({ inputs, jig, unit = "mm" }: JigPlanViewProps) {
     >
       {/* the frame's center plane */}
       <line x1={uMin} y1={D} x2={uMax} y2={D} className="stroke-muted-foreground" strokeDasharray="10 4 2 4" strokeWidth={1} {...thin} />
-      <text x={uMax} y={D - fs * 0.8} textAnchor="end" fontSize={fs * 0.9} className="fill-muted-foreground">
+      <text x={uMax} y={D + fs * 3.4} textAnchor="end" fontSize={fs * 0.9} className="fill-muted-foreground">
         frame center plane
       </text>
 
@@ -140,7 +142,7 @@ export function JigPlanView({ inputs, jig, unit = "mm" }: JigPlanViewProps) {
         </g>
       ))}
 
-      <DimLines dims={dims} map={map} fs={fs * 0.95} format={fmt} />
+      <DimLines dims={dims} map={map} fs={fs * 0.65} format={fmt} />
     </svg>
   )
 }

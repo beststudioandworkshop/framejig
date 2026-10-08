@@ -112,8 +112,8 @@ function ZoomSurface({ children }: { children: ReactNode }) {
   )
 }
 
-/** A drawing with an Enlarge button that opens it big, with pan and zoom. */
-export function ZoomPanel({ title, children }: { title: string; children: ReactNode }) {
+/** A drawing with an Enlarge button that opens it big, with pan and zoom. The drawing is told whether it is the enlarged one, so it can show more detail there. */
+export function ZoomPanel({ title, children }: { title: string; children: (enlarged: boolean) => ReactNode }) {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex justify-end">
@@ -129,12 +129,12 @@ export function ZoomPanel({ title, children }: { title: string; children: ReactN
             <DialogTitle>{title}</DialogTitle>
             <DialogDescription className="sr-only">The drawing, enlarged. Scroll or pinch to zoom and drag to move.</DialogDescription>
             <div className="min-h-0 flex-1">
-              <ZoomSurface>{children}</ZoomSurface>
+              <ZoomSurface>{children(true)}</ZoomSurface>
             </div>
           </DialogContent>
         </Dialog>
       </div>
-      {children}
+      {children(false)}
     </div>
   )
 }

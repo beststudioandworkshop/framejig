@@ -20,7 +20,7 @@ interface DimLinesProps {
  * on a halo so it stays readable over the drawing.
  */
 export function DimLines({ dims, map, fs, format }: DimLinesProps) {
-  const arrow = fs * 0.9
+  const arrow = fs * 0.55
   return (
     <g className="fill-none stroke-primary" strokeWidth={1} {...thin}>
       {dims.map((d) => {
@@ -67,7 +67,7 @@ export function DimLines({ dims, map, fs, format }: DimLinesProps) {
               fontSize={fs}
               transform={upright ? undefined : `rotate(${angle} ${mid.x} ${mid.y})`}
               className="fill-foreground stroke-background font-mono"
-              strokeWidth={fs * 0.4}
+              strokeWidth={fs * 0.35}
               paintOrder="stroke"
               strokeLinejoin="round"
               style={{ strokeOpacity: 1 }}

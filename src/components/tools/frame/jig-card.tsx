@@ -11,7 +11,6 @@ import {
   parseLength,
   type FrameInputs,
   type FrameResult,
-  type JigPart,
   type Jig,
   type JigSettings,
   type LengthUnit,
@@ -28,7 +27,6 @@ import { ValueInput } from "./value-input"
 interface JigCardProps {
   inputs: FrameInputs
   result: FrameResult
-  parts: JigPart[]
   jig: Jig | null
   referenceJig: Jig | null
   unit: LengthUnit
@@ -46,7 +44,7 @@ function download(name: string, text: string) {
   URL.revokeObjectURL(url)
 }
 
-export function JigCard({ inputs, result, parts, jig, referenceJig, unit, settings, onSettings, onWidths }: JigCardProps) {
+export function JigCard({ inputs, result, jig, referenceJig, unit, settings, onSettings, onWidths }: JigCardProps) {
   const f = (mm: number) => formatLengthValue(mm, unit)
   const env = jigEnvelope([jig, referenceJig])
 
@@ -128,21 +126,23 @@ export function JigCard({ inputs, result, parts, jig, referenceJig, unit, settin
               </TabsList>
               <TabsContent value="side" className="flex flex-col gap-2">
                 <ZoomPanel title="Jig, side view">
-                  <JigDrawing inputs={inputs} result={result} jig={jig} parts={parts} unit={unit} />
+                  {(enlarged) => <JigDrawing inputs={inputs} result={result} jig={jig} unit={unit} detailed={enlarged} />}
                 </ZoomPanel>
                 <p className="text-xs text-muted-foreground">
-                  To scale: the spine and posts are the 40 x 120 profile, the carriers and the standoff the 40 x 80.
-                  Each dimension runs between its two thin lines. The circled numbers are the parts list; the angles
-                  are the tube angles each carrier is turned to.
+                  To scale: the spine and posts are the 40 x 120 profile, the carriers and the standoff the 40 x 80. The
+                  jig is drawn solid, in front of the frame, since the frame is what you set against it. This view shows
+                  the key dimensions; Enlarge shows them all. The angles are the tube angles each carrier is turned to.
                 </p>
               </TabsContent>
               <TabsContent value="top" className="flex flex-col gap-2">
                 <ZoomPanel title="Jig, top view">
-                  <JigPlanView inputs={inputs} jig={jig} unit={unit} />
+                  {(enlarged) => <JigPlanView inputs={inputs} jig={jig} unit={unit} detailed={enlarged} />}
                 </ZoomPanel>
                 <p className="text-xs text-muted-foreground">
                   Seen from above, to scale. The spine&apos;s front face is at the top of the frame area, and the frame&apos;s
-                  center plane is the dashed line. The standoffs reach from the face to the dropouts and the BB shell.
+                  center plane is the dashed line. The standoffs reach from the face to the dropouts and the BB shell,
+                  so they stop short of the center plane by half the rear spacing or half the BB shell width. Enlarge
+                  shows every dimension.
                 </p>
               </TabsContent>
             </Tabs>

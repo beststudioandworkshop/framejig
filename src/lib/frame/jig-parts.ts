@@ -6,8 +6,15 @@
 // reachable when this was written, so each part has the text to search for and
 // an empty `partNumber` for whoever orders it. Sizes marked "to suit" depend
 // on your tubes and dropouts: measure them, don't guess.
-import { roundUp, type Jig } from "./jig"
+import { ALLOWANCE, CARRIER_WIDTH, PROFILE_THICKNESS, POST_OVERLAP, POST_WIDTH, roundUp, type Jig } from "./jig"
 import { formatLengthValue, type LengthUnit } from "./units"
+
+/** A feature along a cut part, measured from its left end as the parts diagram draws it (mm). */
+export interface PartMark {
+  kind: "pin" | "stop" | "mount" | "post" | "axle"
+  label: string
+  at: number
+}
 
 export interface JigPart {
   id: string
@@ -19,6 +26,10 @@ export interface JigPart {
   spec: string
   /** Length to cut, mm, for extrusion parts. */
   cutLength?: number
+  /** The extrusion's profile, for the parts diagram, e.g. "40 x 120". */
+  profile?: { thickness: number; width: number }
+  /** Where things sit along it, for the parts diagram. */
+  marks?: PartMark[]
   note: string
   /** Text to type into McMaster-Carr's search box. */
   search: string
@@ -41,6 +52,24 @@ export function jigParts(jigs: (Jig | null)[]): JigPart[] {
     roundUp(Math.min(...list.map((j) => j.stations.find((s) => s.id === "rearAxle")!.standoff)), 10),
   )
   const clearance = list[0].spine.bottom
+  const first = list[0]
+  const carrierOf = (id: "seat" | "head") => first.carriers.find((c) => c.id === id)!
+  const profile120 = { thickness: PROFILE_THICKNESS, width: POST_WIDTH }
+  const profile80 = { thickness: PROFILE_THICKNESS, width: CARRIER_WIDTH }
+  const carrierMarks = (id: "seat" | "head"): PartMark[] => {
+    const c = carrierOf(id)
+    return [
+      { kind: "pin", label: id === "seat" ? "BB pin" : "head pin", at: ALLOWANCE },
+      { kind: "stop", label: id === "seat" ? "seat top" : "head top", at: ALLOWANCE + c.stops[1].along },
+    ]
+  }
+  const postMarks = (id: "seat" | "head"): PartMark[] => {
+    const c = carrierOf(id)
+    return [
+      { kind: "mount", label: "on spine", at: POST_OVERLAP },
+      { kind: "pin", label: id === "seat" ? "BB pin" : "head pin", at: POST_OVERLAP + c.pinClearance },
+    ]
+  }
 
   const part = (p: Omit<JigPart, "partNumber">): JigPart => ({ ...p, partNumber: null })
 
@@ -52,6 +81,12 @@ export function jigParts(jigs: (Jig | null)[]): JigPart[] {
       qty: 1,
       spec: "Metric T-slotted framing, 40 mm x 120 mm",
       cutLength: spine,
+      profile: profile120,
+      marks: [
+        { kind: "axle", label: "rear axle", at: -first.spine.uMin },
+        { kind: "post", label: "BB post", at: carrierOf("seat").pivotU - first.spine.uMin },
+        { kind: "post", label: "head post", at: carrierOf("head").pivotU - first.spine.uMin },
+      ],
       note: `Runs level, parallel to the axle line, with its bottom edge ${Number(clearance.toFixed(1))} mm above it and its 120 mm face standing up. The posts and the rear standoff mount on its front face.`,
       search: "metric t-slotted framing 40 mm x 120 mm",
     }),
@@ -62,6 +97,8 @@ export function jigParts(jigs: (Jig | null)[]): JigPart[] {
       qty: 1,
       spec: "Metric T-slotted framing, 40 mm x 120 mm, upright",
       cutLength: post("seat"),
+      profile: profile120,
+      marks: postMarks("seat"),
       note: "Bolts to the spine's front face and hangs below it. It slides along the spine to the BB position. The seat tube carrier pivots on a pin at the BB center.",
       search: "metric t-slotted framing 40 mm x 120 mm",
     }),
@@ -72,6 +109,8 @@ export function jigParts(jigs: (Jig | null)[]): JigPart[] {
       qty: 1,
       spec: "Metric T-slotted framing, 40 mm x 120 mm, upright",
       cutLength: post("head"),
+      profile: profile120,
+      marks: postMarks("head"),
       note: "Bolts to the spine's front face and stands above it. It slides along the spine to the head tube bottom. The head tube carrier pivots on a pin at the bottom of the head tube.",
       search: "metric t-slotted framing 40 mm x 120 mm",
     }),
@@ -82,6 +121,8 @@ export function jigParts(jigs: (Jig | null)[]): JigPart[] {
       qty: 1,
       spec: "Metric T-slotted framing, 40 mm x 80 mm, with a bore or slot for the dummy axle",
       cutLength: standoff,
+      profile: profile80,
+      marks: [{ kind: "axle", label: "near dropout face", at: standoff }],
       note: "Reaches out from the spine face to the near dropout face, so the dummy axle reaches the frame's center line seen from above.",
       search: "metric t-slotted framing 40 mm x 80 mm",
     }),
@@ -92,6 +133,8 @@ export function jigParts(jigs: (Jig | null)[]): JigPart[] {
       qty: 1,
       spec: "Metric T-slotted framing, 40 mm x 80 mm",
       cutLength: carrier("seat"),
+      profile: profile80,
+      marks: carrierMarks("seat"),
       note: "Rotates about the BB pin to the seat tube angle and carries the seat tube mandrel. The most adjustable carrier: along the spine, up and down the post, and rotation.",
       search: "metric t-slotted framing 40 mm x 80 mm",
     }),
@@ -102,6 +145,8 @@ export function jigParts(jigs: (Jig | null)[]): JigPart[] {
       qty: 1,
       spec: "Metric T-slotted framing, 40 mm x 80 mm",
       cutLength: carrier("head"),
+      profile: profile80,
+      marks: carrierMarks("head"),
       note: "Rotates about the head tube bottom pin to the head angle and carries the head tube mandrel.",
       search: "metric t-slotted framing 40 mm x 80 mm",
     }),

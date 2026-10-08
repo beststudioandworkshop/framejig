@@ -39,6 +39,12 @@ describe("side dimensions", () => {
     }
   })
 
+  it("marks a handful as key, and the key ones are among the all", () => {
+    const keys = dims.filter((d) => d.key).map((d) => d.id)
+    expect(keys).toEqual(["clearance", "seatPinAlong", "headPinAlong", "seatPinBeyond", "headPinBeyond"])
+    expect(keys.length).toBeLessThan(dims.length)
+  })
+
   it("has unique ids", () => {
     expect(new Set(dims.map((d) => d.id)).size).toBe(dims.length)
   })
@@ -56,6 +62,10 @@ describe("plan dimensions", () => {
     expect(by(dims, "bbShell").value).toBe(inputs.bbShellWidth)
     expect(by(dims, "rearStandoff").value).toBe(j.stations.find((s) => s.id === "rearAxle")!.standoff)
     expect(by(dims, "bbStandoff").value).toBe(j.stations.find((s) => s.id === "bb")!.standoff)
+  })
+
+  it("marks the offset and the two standoffs as key", () => {
+    expect(dims.filter((d) => d.key).map((d) => d.id)).toEqual(["centerOffset", "rearStandoff", "bbStandoff"])
   })
 
   it("the standoff and the spacing meet at the near face", () => {

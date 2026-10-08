@@ -14,6 +14,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { CollapsibleCard } from "./collapsible-card"
+import { JigPartsDiagram } from "./jig-parts-diagram"
+import { ZoomPanel } from "./zoom-panel"
 
 interface Props {
   parts: JigPart[]
@@ -44,6 +46,18 @@ export function JigPartsCard({ parts, unit }: Props) {
       title="Jig parts"
       description="A T-slot spine with posts and carriers, sized for the frames above. Each line has search terms for McMaster-Carr; you confirm sizes and availability. Numbers match the drawing in the jig settings."
     >
+      {parts.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <h3 className="text-sm font-medium">The cut parts</h3>
+          <ZoomPanel title="Jig parts, cut list">
+            {(enlarged) => <JigPartsDiagram parts={parts} unit={unit} detailed={enlarged} />}
+          </ZoomPanel>
+          <p className="text-xs text-muted-foreground">
+            Each part laid flat, to the same scale, with its profile and cut length. Circles are the pins and lines are
+            the stops, measured from the left end. No frame in it: this is what you cut. Numbers match the list below.
+          </p>
+        </div>
+      )}
       <div className="flex gap-2">
         <Button variant="outline" size="sm" onClick={copy} disabled={parts.length === 0}>
           <CopyIcon /> Copy

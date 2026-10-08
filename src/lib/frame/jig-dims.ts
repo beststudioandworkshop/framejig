@@ -19,6 +19,8 @@ export interface JigDim {
   at: number
   /** What it reads, mm. */
   value: number
+  /** One of the few that matter most. The small drawing shows only these; the enlarged one shows them all. */
+  key: boolean
 }
 
 const station = (jig: Jig, id: string): JigStation => jig.stations.find((s) => s.id === id)!
@@ -49,8 +51,8 @@ export function sideDims(jig: Jig): JigDim[] {
   const leftX = uMin - 70
 
   return [
-    { id: "clearance", name: "Axle line to the spine's bottom edge", from: { x: leftX, y: 0 }, to: { x: leftX, y: bottom }, kind: "y", at: leftX, value: bottom },
-    { id: "spineHeight", name: "Spine height", from: { x: leftX, y: bottom }, to: { x: leftX, y: top }, kind: "y", at: leftX, value: SPINE_HEIGHT },
+    { id: "clearance", name: "Axle line to the spine's bottom edge", from: { x: leftX, y: 0 }, to: { x: leftX, y: bottom }, kind: "y", at: leftX, value: bottom, key: true },
+    { id: "spineHeight", name: "Spine height", from: { x: leftX, y: bottom }, to: { x: leftX, y: top }, kind: "y", at: leftX, value: SPINE_HEIGHT, key: false },
     {
       id: "seatPinAlong",
       name: "Rear axle to the BB pin, along the spine",
@@ -59,6 +61,7 @@ export function sideDims(jig: Jig): JigDim[] {
       kind: "x",
       at: lowest - 70,
       value: seat.pivotU,
+      key: true,
     },
     {
       id: "headPinAlong",
@@ -68,6 +71,7 @@ export function sideDims(jig: Jig): JigDim[] {
       kind: "x",
       at: highest + 90,
       value: head.pivotU,
+      key: true,
     },
     {
       id: "seatPinBeyond",
@@ -77,6 +81,7 @@ export function sideDims(jig: Jig): JigDim[] {
       kind: "y",
       at: pinS.u + POST_WIDTH / 2 + 60,
       value: seat.pinClearance,
+      key: true,
     },
     {
       id: "headPinBeyond",
@@ -86,13 +91,14 @@ export function sideDims(jig: Jig): JigDim[] {
       kind: "y",
       at: pinH.u + POST_WIDTH / 2 + 60,
       value: head.pinClearance,
+      key: true,
     },
-    { id: "seatPost", name: "Seat tube post, cut length", from: { x: pinS.u - POST_WIDTH / 2, y: postTopSeat }, to: { x: pinS.u - POST_WIDTH / 2, y: postBottomSeat }, kind: "y", at: pinS.u - POST_WIDTH / 2 - 60, value: seat.postLength },
-    { id: "headPost", name: "Head tube post, cut length", from: { x: pinH.u - POST_WIDTH / 2, y: postBottomHead }, to: { x: pinH.u - POST_WIDTH / 2, y: postTopHead }, kind: "y", at: pinH.u - POST_WIDTH / 2 - 60, value: head.postLength },
-    { id: "seatStop", name: "BB pin to the seat tube top, along the carrier", from: along(seat, pinS, 0), to: along(seat, pinS, seat.stops[1].along), kind: "aligned", at: CARRIER_WIDTH / 2 + 60, value: seat.stops[1].along },
-    { id: "seatCarrier", name: "Seat tube carrier, cut length", from: along(seat, pinS, -ALLOWANCE), to: along(seat, pinS, seat.length - ALLOWANCE), kind: "aligned", at: CARRIER_WIDTH / 2 + 140, value: seat.length },
-    { id: "headStop", name: "Head tube bottom pin to the head tube top, along the carrier", from: along(head, pinH, 0), to: along(head, pinH, head.stops[1].along), kind: "aligned", at: -(CARRIER_WIDTH / 2 + 60), value: head.stops[1].along },
-    { id: "headCarrier", name: "Head tube carrier, cut length", from: along(head, pinH, -ALLOWANCE), to: along(head, pinH, head.length - ALLOWANCE), kind: "aligned", at: -(CARRIER_WIDTH / 2 + 140), value: head.length },
+    { id: "seatPost", name: "Seat tube post, cut length", from: { x: pinS.u - POST_WIDTH / 2, y: postTopSeat }, to: { x: pinS.u - POST_WIDTH / 2, y: postBottomSeat }, kind: "y", at: pinS.u - POST_WIDTH / 2 - 60, value: seat.postLength, key: false },
+    { id: "headPost", name: "Head tube post, cut length", from: { x: pinH.u - POST_WIDTH / 2, y: postBottomHead }, to: { x: pinH.u - POST_WIDTH / 2, y: postTopHead }, kind: "y", at: pinH.u - POST_WIDTH / 2 - 60, value: head.postLength, key: false },
+    { id: "seatStop", name: "BB pin to the seat tube top, along the carrier", from: along(seat, pinS, 0), to: along(seat, pinS, seat.stops[1].along), kind: "aligned", at: CARRIER_WIDTH / 2 + 60, value: seat.stops[1].along, key: false },
+    { id: "seatCarrier", name: "Seat tube carrier, cut length", from: along(seat, pinS, -ALLOWANCE), to: along(seat, pinS, seat.length - ALLOWANCE), kind: "aligned", at: CARRIER_WIDTH / 2 + 140, value: seat.length, key: false },
+    { id: "headStop", name: "Head tube bottom pin to the head tube top, along the carrier", from: along(head, pinH, 0), to: along(head, pinH, head.stops[1].along), kind: "aligned", at: -(CARRIER_WIDTH / 2 + 60), value: head.stops[1].along, key: false },
+    { id: "headCarrier", name: "Head tube carrier, cut length", from: along(head, pinH, -ALLOWANCE), to: along(head, pinH, head.length - ALLOWANCE), kind: "aligned", at: -(CARRIER_WIDTH / 2 + 140), value: head.length, key: false },
   ]
 }
 
@@ -109,12 +115,12 @@ export function planDims(jig: Jig, inputs: Pick<FrameInputs, "rearSpacing" | "bb
   const xBB = bb.u
   const half = (w: number) => w / 2
   return [
-    { id: "spineLength", name: "Spine, cut length", from: { x: uMin, y: -PROFILE_THICKNESS }, to: { x: uMax, y: -PROFILE_THICKNESS }, kind: "x", at: -PROFILE_THICKNESS - 60, value: jig.spine.length },
-    { id: "centerOffset", name: "Spine face to the frame's center plane", from: { x: uMin, y: 0 }, to: { x: uMin, y: D }, kind: "y", at: uMin - 40, value: D },
-    { id: "rearStandoff", name: "Rear axle standoff, spine face to the near dropout face", from: { x: xRear, y: 0 }, to: { x: xRear, y: D - half(inputs.rearSpacing) }, kind: "y", at: xRear - 80, value: D - half(inputs.rearSpacing) },
-    { id: "rearSpacing", name: "Rear spacing", from: { x: xRear, y: D - half(inputs.rearSpacing) }, to: { x: xRear, y: D + half(inputs.rearSpacing) }, kind: "y", at: xRear + 80, value: inputs.rearSpacing },
-    { id: "bbStandoff", name: "BB locator, spine face to the near shell face", from: { x: xBB, y: 0 }, to: { x: xBB, y: D - half(inputs.bbShellWidth) }, kind: "y", at: xBB + 110, value: D - half(inputs.bbShellWidth) },
-    { id: "bbShell", name: "BB shell width", from: { x: xBB, y: D - half(inputs.bbShellWidth) }, to: { x: xBB, y: D + half(inputs.bbShellWidth) }, kind: "y", at: xBB + 110, value: inputs.bbShellWidth },
+    { id: "spineLength", name: "Spine, cut length", from: { x: uMin, y: -PROFILE_THICKNESS }, to: { x: uMax, y: -PROFILE_THICKNESS }, kind: "x", at: -PROFILE_THICKNESS - 60, value: jig.spine.length, key: false },
+    { id: "centerOffset", name: "Spine face to the frame's center plane", from: { x: uMin, y: 0 }, to: { x: uMin, y: D }, kind: "y", at: uMin - 40, value: D, key: true },
+    { id: "rearStandoff", name: "Rear axle standoff, spine face to the near dropout face", from: { x: xRear, y: 0 }, to: { x: xRear, y: D - half(inputs.rearSpacing) }, kind: "y", at: xRear - 80, value: D - half(inputs.rearSpacing), key: true },
+    { id: "rearSpacing", name: "Rear spacing", from: { x: xRear, y: D - half(inputs.rearSpacing) }, to: { x: xRear, y: D + half(inputs.rearSpacing) }, kind: "y", at: xRear + 80, value: inputs.rearSpacing, key: false },
+    { id: "bbStandoff", name: "BB locator, spine face to the near shell face", from: { x: xBB, y: 0 }, to: { x: xBB, y: D - half(inputs.bbShellWidth) }, kind: "y", at: xBB + 110, value: D - half(inputs.bbShellWidth), key: true },
+    { id: "bbShell", name: "BB shell width", from: { x: xBB, y: D - half(inputs.bbShellWidth) }, to: { x: xBB, y: D + half(inputs.bbShellWidth) }, kind: "y", at: xBB + 110, value: inputs.bbShellWidth, key: false },
   ]
 }
 
