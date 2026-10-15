@@ -15,6 +15,20 @@ Nothing in the tool reads them yet; only the tests do. Nothing is filed under a 
 | surly-disc-trucker-700c | Surly Disc Trucker, 700c sizes | 56 to 64 | not filed |
 | salsa-timberjack | Timberjack (maker assumed Salsa), "preliminary" | XS to XL | not filed |
 | specialized-stumpjumper-1996 | Specialized Stumpjumper 1996, 17 inch (one size) | 17" | not filed |
+| surly-pacer | Surly Pacer | 42 to 62 | not filed |
+| surly-straggler-700c, surly-straggler-650b | Surly Straggler, two wheel sizes | 54 to 62, 38 to 52 | not filed |
+| surly-midnight-special | Surly Midnight Special | 40 to 64 | not filed |
+| surly-bridge-club | Surly Bridge Club | X-Small to X-Large | not filed |
+| surly-preamble | Surly Preamble | X-Small to X-Large | not filed |
+| surly-lowside | Surly Lowside | X-Small to X-Large | not filed |
+| surly-wednesday | Surly Wednesday | X-Small to X-Large | not filed |
+| surly-ice-cream-truck | Surly Ice Cream Truck | Small to X-Large | not filed |
+| surly-moonlander | Surly Moonlander | Small to X-Large | not filed |
+| surly-grappler | Surly Grappler | X-Small to X-Large | not filed |
+| surly-sorceress | Surly Sorceress | X-Small (27.5) to X-Large (29) | not filed |
+| surly-troll | Surly Troll | XS to XL | not filed |
+| surly-ecr-1, surly-ecr-2 | Surly ECR, two tables | M to XL, XS to M | not filed |
+| surly-pack-rat | Surly Pack Rat | 38 to 58 | not filed |
 | crust-scapegoat | Crust Scapegoat | S to XL | not filed |
 
 ## What I checked: does the geometry maths reproduce the published numbers?
@@ -46,3 +60,19 @@ I built every size of every chart in the tool and compared stack, reach and whee
 - The tests now build every size of every chart that gives a fork length and check stack, reach and wheelbase to within 7 mm.
 - Old share links and saved files read the new default headset, and effective top tube means the new thing, so a frame saved
   with an effective top tube driver can come back a few millimeters different.
+
+## Charts pulled from surlybikes.com (2026-10-15)
+
+Fifteen more Surly charts were read straight from the maker's product pages with a script and written to
+`src/lib/frame/reference-charts-surly.ts`. Nothing was typed by eye. Two checks guard them:
+
+- Each chart's effective top tube must equal reach plus stack over tan(seat angle), to 3 mm. Where Surly's own table
+  disagrees with itself (Pacer 54 cm, Straggler 650b 38 cm, and the whole Troll table by about 5.5 mm) the test
+  lists it as a known quirk instead of changing the number.
+- Every chart that gives a fork length is built in the tool and must match stack, reach and wheelbase to 7 mm.
+
+Old-style tables (Pacer, Troll, ECR, Pack Rat) print "Seat Tube Length", taken as center-to-center the way the
+Cross-Check's was. New-style tables print "Total Seat Tube Length", taken as center-to-top; the Karate Monkey's matches
+the table you sent. The Karate Monkey page agrees with your screenshot everywhere except standover on three sizes.
+Left out: the Long Haul Trucker (same geometry as the Disc Trucker), the Big Dummy and Big Easy (cargo), and duplicate
+pages of the same table.
