@@ -76,3 +76,27 @@ Cross-Check's was. New-style tables print "Total Seat Tube Length", taken as cen
 the table you sent. The Karate Monkey page agrees with your screenshot everywhere except standover on three sizes.
 Left out: the Long Haul Trucker (same geometry as the Disc Trucker), the Big Dummy and Big Easy (cargo), and duplicate
 pages of the same table.
+
+## Charts read from Bike Insights (2026-10-15)
+
+Thirty-one more charts came from bikeinsights.com, an aggregator that credits the maker on each page, read by a script into
+`src/lib/frame/reference-charts-more.ts`. Treat them as less certain than the Surly pages: some values are the aggregator's
+own derived numbers.
+
+- Schwinn: S1 (one size), Homegrown Pro 1999, Voyageur 1987 (one size)
+- Trek: 850 (1997), 930 (1998), 520 (1986, 1992, 2017), Domane AL 2025, Marlin 5 2026, Slash 8 2021, Session 8 2025,
+  Farley 7 2025, Checkpoint AL3 2026
+- Specialized: Demo Race 2020, Enduro 2023, Status 140 2025, P.3 2024 (dirt jump, one size)
+- Ritchey: Ascent 2025, Timberwolf 2018, Commando 2014
+- Crust: Evasion 2018 and 2021, Lightning Bolt 2022, Romanceur 24 inch 2020 (one size), Desert Rat 2026, Dreamer 2021,
+  Shred Eagle 2020, Stupid Tourist 2025, Bombora 2025, Evasion Trail 140 2024
+
+The checks are the same but looser (10 mm for the model comparison and for effective top tube). Known problems, all
+listed in `reference-charts.test.ts`:
+
+- The Schwinn S1's effective top tube is 39 mm from what its own reach and stack imply, so it uses another definition and
+  is left out of both checks.
+- The Demo is a long-travel frame, so it gets a 12 mm comparison.
+- Crust Shred Eagle Small, Dreamer X Small and Evasion Trail 140 Large, and Trek Checkpoint XL disagree with themselves
+  by 10 to 28 mm in the source and are left out of the check that they fail.
+- Not found: any Haro BMX or cruiser, a Schwinn cruiser from the classic era, a 1990s Ritchey mountain bike, a Demo 8.

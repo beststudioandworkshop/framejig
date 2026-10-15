@@ -39,6 +39,7 @@ export type ChartRow =
   | "trail"
   | "crankLength"
 
+import { AGGREGATED_CHARTS } from "./reference-charts-more"
 import { SURLY_CHARTS } from "./reference-charts-surly"
 
 const IN = 25.4
@@ -47,6 +48,7 @@ const inchOne = (v: number) => Math.round(v * IN * 10) / 10
 
 export const REFERENCE_CHARTS: ReferenceChart[] = [
   ...SURLY_CHARTS,
+  ...AGGREGATED_CHARTS,
   {
     id: "surly-steamroller",
     maker: "Surly",
