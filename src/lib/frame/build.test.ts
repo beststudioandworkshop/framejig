@@ -344,6 +344,7 @@ describe("issues", () => {
         let r: ReturnType<typeof buildFrame> | undefined
         expect(() => { r = buildFrame({ ...base, [field]: v }) }).not.toThrow()
         if (v === 0 && (field === "bbDrop" || field === "forkRake")) continue // zero is a legal value
+        if (field === "bbDrop" && v === -1) continue // a BB just above the axles is legal (BMX)
         expect(r!.ok, `${field}=${v}`).toBe(false)
         expect(r!.tubes).toEqual([])
       }
@@ -360,8 +361,16 @@ describe("issues", () => {
   it("rejects a wall that fills the tube", () => {
     expect(errors({ tubes: { ...base.tubes, topTube: { diameter: 10, wall: 5 } } }).map((e) => e.code)).toContain("wall-too-thick")
   })
-  it("rejects a BB above the axle line", () => {
-    expect(errors({ drivers: { ...base.drivers, bb: "height" }, bbHeight: 400 }).map((e) => e.code)).toContain("bb-above-axle")
+  it("allows a BB above the axle line, as on a BMX, up to 150 mm", () => {
+    const r = buildFrame({ ...base, bbDrop: -50 })
+    expect(r.ok).toBe(true)
+    expect(r.metrics!.bbDrop).toBeCloseTo(-50, 9)
+    expect(r.metrics!.rearCenter).toBeCloseTo(Math.sqrt(base.chainstayLength ** 2 - 50 ** 2), 9)
+    expect(r.points!.rearAxle.y).toBeCloseTo(-50, 9)
+  })
+  it("rejects a BB more than 150 mm above the axle line", () => {
+    expect(errors({ drivers: { ...base.drivers, bb: "height" }, bbHeight: 700 }).map((e) => e.code)).toContain("bb-above-axle")
+    expect(errors({ bbDrop: -200 }).map((e) => e.code)).toContain("too-small")
   })
   it("a stack too low for the fork gives a head tube error and no tubes", () => {
     const r = buildFrame({ ...base, drivers: { ...base.drivers, horizontal: "reach", vertical: "stack" }, stack: 300, reach: 390 })

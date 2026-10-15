@@ -51,7 +51,7 @@ interface DriverOption<K extends keyof Drivers> {
 }
 
 const BB_OPTIONS: DriverOption<"bb">[] = [
-  { value: "drop", label: "BB drop", field: "bbDrop", hint: "How far the bottom bracket sits below the axles." },
+  { value: "drop", label: "BB drop", field: "bbDrop", hint: "How far the bottom bracket sits below the axles. Negative if it sits above them, as on a BMX." },
   { value: "height", label: "BB height", field: "bbHeight", hint: "Bottom bracket center, up from the ground." },
 ]
 const REAR_OPTIONS: DriverOption<"rear">[] = [

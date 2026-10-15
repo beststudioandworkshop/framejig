@@ -100,3 +100,19 @@ listed in `reference-charts.test.ts`:
 - Crust Shred Eagle Small, Dreamer X Small and Evasion Trail 140 Large, and Trek Checkpoint XL disagree with themselves
   by 10 to 28 mm in the source and are left out of the check that they fail.
 - Not found: any Haro BMX or cruiser, a Schwinn cruiser from the classic era, a 1990s Ritchey mountain bike, a Demo 8.
+
+## Free Agent BMX (2020), from the user's screenshot
+
+Typed by hand: 26 frames, each with its wheel size in its name (16, 20, 24 and 26 inch, plus the 20 x 1-3/8 and 20 x 1-1/8 race sizes).
+It gives head and seat angle, top tube, seat tube, chainstay, BB height and standover, and nothing else, so none of the geometry checks
+apply to it. Top tube is taken as level and seat tube as center-to-center; both are guesses.
+
+What it shows against the BMX cruiser estimates (to be replaced when estimates are):
+
+- Head angles of 70 to 75 degrees and seat angles of 69 to 72 sit inside the estimates (71 to 74, 70 to 73).
+- Chainstays of 373 to 394 mm on the 24 and 26 inch frames sit inside the estimate (360 to 400).
+- **The BB is at or above the axles, not below them.** A 20 inch frame's BB height of 285 to 301 mm is about 40 to 50 mm above the axle line
+  for a typical tire, and a 24 inch frame's 303 to 310 mm is within 10 mm of it. The estimate of 0 to 25 mm of BB drop is wrong for BMX.
+
+Because of that, the geometry model now allows the BB to sit up to 150 mm above the axle line (a negative BB drop). Before, it
+refused any BB above the axles.

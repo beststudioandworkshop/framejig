@@ -38,6 +38,9 @@ interface NumberField {
   label: string
 }
 
+/** How far above the axle line the bottom bracket may sit, mm. A BMX or a cruiser has its bottom bracket at or above the axles. */
+const BB_RISE_MAX = 150
+
 function numberFields(i: FrameInputs): NumberField[] {
   const d = i.drivers
   const f: NumberField[] = [
@@ -54,7 +57,7 @@ function numberFields(i: FrameInputs): NumberField[] {
   ]
   f.push(
     d.bb === "drop"
-      ? { path: "bbDrop", value: i.bbDrop, min: 0, label: "BB drop" }
+      ? { path: "bbDrop", value: i.bbDrop, min: -BB_RISE_MAX, label: "BB drop" }
       : { path: "bbHeight", value: i.bbHeight, min: 1, label: "BB height" },
     d.rear === "chainstay"
       ? { path: "chainstayLength", value: i.chainstayLength, min: 1, label: "Chainstay length" }
@@ -119,13 +122,13 @@ function validateInputs(i: FrameInputs): Issue[] {
   }
   if (issues.length === 0) {
     const base = resolveBase(i)
-    if (base.drop < 0) {
-      issues.push(err("bb-above-axle", "The bottom bracket would sit above the axles. Lower the BB height.", "bbHeight"))
+    if (base.drop < -BB_RISE_MAX) {
+      issues.push(err("bb-above-axle", `The bottom bracket would sit more than ${BB_RISE_MAX} mm above the axles. Lower the BB height.`, "bbHeight"))
     }
-    if (i.drivers.horizontal === "frontCenter" && i.frontCenter <= base.drop) {
+    if (i.drivers.horizontal === "frontCenter" && i.frontCenter <= Math.abs(base.drop)) {
       issues.push(err("front-center-short", "The front center must be longer than the BB drop.", "frontCenter"))
     }
-    if (base.chainstay <= base.drop) {
+    if (base.chainstay <= Math.abs(base.drop)) {
       issues.push(err("chainstay-short", "The chainstay must be longer than the BB drop.", "chainstayLength"))
     }
     if (base.seatTop <= i.seatTubeExtension && i.drivers.seat === "ct") {
