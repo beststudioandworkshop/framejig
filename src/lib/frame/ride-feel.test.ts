@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { along, buildFrame, DEFAULT_INPUTS, MOUNTAIN_INPUTS, rideDisclaimer, rideFeel, RIDE_DISCLAIMER, type FrameInputs, type RideTraitId } from "./index"
+import { along, buildFrame, DEFAULT_INPUTS, MOUNTAIN_INPUTS, profileFor, rideDisclaimer, rideFeel, RIDE_DISCLAIMER, type FrameInputs, type RideTraitId } from "./index"
 
 const base = DEFAULT_INPUTS
 function feel(over: Partial<FrameInputs> = {}, inseam?: number | null) {
@@ -76,9 +76,10 @@ describe("ride feel", () => {
 
   it("chainstay length adds a comment at the extremes only", () => {
     const text = (cs: number) => feel({ chainstayLength: cs }).f.traits.find((t) => t.id === "handling")!.text
-    expect(text(405)).toContain("Short chainstays")
-    expect(text(460)).toContain("Long chainstays")
-    expect(text(430)).not.toContain("chainstays")
+    const { shortChainstay, longChainstay } = profileFor("road").ride
+    expect(text(shortChainstay.below - 5)).toContain("Short chainstays")
+    expect(text(longChainstay.above + 5)).toContain("Long chainstays")
+    expect(text((shortChainstay.below + longChainstay.above) / 2)).not.toContain("chainstays")
   })
 
   it("a taller stack is more upright, a longer reach more stretched", () => {
@@ -96,10 +97,12 @@ describe("ride feel", () => {
   })
 
   it("more BB drop is lower and more planted", () => {
-    expect(pos(feel({ bbDrop: 85 }).f, "bottomBracket")).toBeGreaterThan(pos(feel({ bbDrop: 58 }).f, "bottomBracket"))
-    expect(label(feel({ bbDrop: 58 }).f, "bottomBracket")).toBe("High")
-    expect(label(feel({ bbDrop: 70 }).f, "bottomBracket")).toBe("Typical")
-    expect(label(feel({ bbDrop: 88 }).f, "bottomBracket")).toBe("Very low")
+    const sc = profileFor("road").ride.bottomBracket
+    const lowestEdge = sc.bands[0].below
+    const highestEdge = sc.bands[sc.bands.length - 1].below
+    expect(pos(feel({ bbDrop: highestEdge + 10 }).f, "bottomBracket")).toBeGreaterThan(pos(feel({ bbDrop: lowestEdge - 5 }).f, "bottomBracket"))
+    expect(label(feel({ bbDrop: lowestEdge - 5 }).f, "bottomBracket")).toBe(sc.bands[0].label)
+    expect(label(feel({ bbDrop: highestEdge + 3 }).f, "bottomBracket")).toBe(sc.last.label)
   })
 
   it("the summary follows the character of the bike", () => {
@@ -210,9 +213,10 @@ describe("mountain bikes", () => {
 
   it("chainstay comments use the mountain thresholds", () => {
     const text = (cs: number) => mtb({ chainstayLength: cs }).f.traits.find((t) => t.id === "handling")!.text
-    expect(text(420)).toContain("Short chainstays")
-    expect(text(450)).toContain("Long chainstays")
-    expect(text(435)).not.toContain("chainstays")
+    const { shortChainstay, longChainstay } = profileFor("mountain").ride
+    expect(text(shortChainstay.below - 5)).toContain("Short chainstays")
+    expect(text(longChainstay.above + 5)).toContain("Long chainstays")
+    expect(text((shortChainstay.below + longChainstay.above) / 2)).not.toContain("chainstays")
   })
 
   it("each type has its own disclaimer, mountain says it is an estimate", () => {

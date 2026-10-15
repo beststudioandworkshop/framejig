@@ -5,9 +5,11 @@ import { ArrowRightIcon, InfoIcon } from "lucide-react"
 import Link from "next/link"
 
 import {
+  BASIS_LABEL,
   BIKE_TYPES,
   BIKE_TYPE_LABELS,
   buildDrawing,
+  chartName,
   buildFrame,
   CHART_VIEWS,
   formatFeetInches,
@@ -22,9 +24,11 @@ import {
   stylesOf,
   suggestSize,
   toolLink,
+  whyFor,
   type BikeType,
   type ChartView,
   type LengthUnit,
+  type RangeBasis,
   type RangeKey,
   type SizeId,
 } from "@/lib/frame"
@@ -40,6 +44,16 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { FrameDrawing } from "./frame-drawing"
 import { TaxonomyChart } from "./taxonomy-chart"
 import { ValueInput } from "./value-input"
+
+function BasisBadge({ basis, bikes }: { basis?: RangeBasis | "charts" | "assumed"; bikes?: number }) {
+  const b: RangeBasis = basis ?? "assumed"
+  return (
+    <Badge variant={b === "assumed" ? "outline" : "secondary"} className="whitespace-normal">
+      {BASIS_LABEL[b]}
+      {b !== "assumed" && bikes ? ` (${bikes})` : ""}
+    </Badge>
+  )
+}
 
 const RANGE_ROWS: RangeKey[] = ["headTubeAngle", "seatTubeAngle", "trail", "wheelbase", "chainstayLength", "bbDrop"]
 type Family = BikeType | "freak"
@@ -165,8 +179,9 @@ export function FrameLogic() {
           <CardTitle>The map</CardTitle>
           <CardDescription>
             Every kind of bike, and the sub-styles inside it, drawn where its typical numbers sit. Boxes are ranges, not
-            single numbers, and the dashed outlines are whole families. Click any box to read about it. All the numbers are
-            my estimates for now.
+            single numbers, and the dashed outlines are whole families. Click any box to read about it. Where I have
+            reference charts for a style, its box is read from them; where I don&apos;t, the box is my assumption and is
+            drawn dotted.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
@@ -215,7 +230,8 @@ export function FrameLogic() {
               <CardDescription>
                 Pick a size, or tell me about the rider and I&apos;ll suggest one. The {cat.label.toLowerCase()} example frame
                 in that size becomes your starting point in the frame tool. Sizing differs a lot between makers, so treat
-                the rider heights as rough.
+                the rider heights as rough. Assumed: how much each size grows, the rider heights, and every number in the example
+                frame itself, which is only a guess that sits inside the ranges above.
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-6">
@@ -341,10 +357,23 @@ export function FrameLogic() {
             <CardContent className="flex flex-col gap-4">
               <Alert>
                 <InfoIcon />
-                <AlertTitle>These numbers are estimates</AlertTitle>
+                <AlertTitle>
+                  {cat.evidence
+                    ? `Read from ${cat.evidence.bikes} ${cat.evidence.bikes === 1 ? "bike's chart" : "bikes' charts"}`
+                    : "No chart behind this yet: every number is an assumption"}
+                </AlertTitle>
                 <AlertDescription>
-                  {cat.reference} Ranges are for a medium and are rules of thumb, not limits. Real bikes sit outside them for
-                  good reasons.
+                  {cat.evidence && (
+                    <span className="block">
+                      {cat.evidence.charts.map(chartName).join(", ")}.{" "}
+                      {style && "I filed these bikes under this style myself; that is a judgment call. "}
+                      Rows marked Assumed are still my estimates, and so is the wording above the table.
+                    </span>
+                  )}
+                  <span className="block">
+                    Ranges are for a medium and are rules of thumb, not limits. Real bikes sit outside them for good reasons.
+                    {cat.evidence && cat.evidence.bikes < 3 && " With only a bike or two behind it, the range is widened to a sensible minimum."}
+                  </span>
                 </AlertDescription>
               </Alert>
               {cat.different && (
@@ -363,8 +392,9 @@ export function FrameLogic() {
                     <div className="flex flex-wrap items-baseline gap-x-3">
                       <span className="font-medium">{cat.ranges[k].label}</span>
                       <span className="font-mono tabular-nums">{fmtRange(k)}</span>
+                      <BasisBadge basis={cat.ranges[k].basis} bikes={cat.ranges[k].bikes} />
                     </div>
-                    <p className="text-sm text-muted-foreground">{cat.rangeWhy[k]}</p>
+                    <p className="text-sm text-muted-foreground">{whyFor(cat, k)}</p>
                   </li>
                 ))}
                 <li className="flex flex-col gap-1 py-3">
@@ -373,8 +403,9 @@ export function FrameLogic() {
                     <span className="font-mono tabular-nums">
                       {cat.positionRange.low.toFixed(2)} to {cat.positionRange.high.toFixed(2)}
                     </span>
+                    <BasisBadge basis={cat.positionBasis} bikes={cat.evidence?.bikes} />
                   </div>
-                  <p className="text-sm text-muted-foreground">{cat.rangeWhy.position}</p>
+                  <p className="text-sm text-muted-foreground">{whyFor(cat, "position")}</p>
                 </li>
               </ul>
               <Table className="max-sm:hidden">
@@ -382,6 +413,7 @@ export function FrameLogic() {
                   <TableRow>
                     <TableHead>Measure</TableHead>
                     <TableHead>Typical</TableHead>
+                    <TableHead>Basis</TableHead>
                     <TableHead>Why</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -390,7 +422,10 @@ export function FrameLogic() {
                     <TableRow key={k}>
                       <TableCell className="font-medium whitespace-normal">{cat.ranges[k].label}</TableCell>
                       <TableCell className="font-mono whitespace-nowrap tabular-nums">{fmtRange(k)}</TableCell>
-                      <TableCell className="whitespace-normal">{cat.rangeWhy[k]}</TableCell>
+                      <TableCell className="whitespace-normal">
+                        <BasisBadge basis={cat.ranges[k].basis} bikes={cat.ranges[k].bikes} />
+                      </TableCell>
+                      <TableCell className="whitespace-normal">{whyFor(cat, k)}</TableCell>
                     </TableRow>
                   ))}
                   <TableRow>
@@ -398,7 +433,10 @@ export function FrameLogic() {
                     <TableCell className="font-mono whitespace-nowrap tabular-nums">
                       {cat.positionRange.low.toFixed(2)} to {cat.positionRange.high.toFixed(2)}
                     </TableCell>
-                    <TableCell className="whitespace-normal">{cat.rangeWhy.position}</TableCell>
+                    <TableCell className="whitespace-normal">
+                      <BasisBadge basis={cat.positionBasis} bikes={cat.evidence?.bikes} />
+                    </TableCell>
+                    <TableCell className="whitespace-normal">{whyFor(cat, "position")}</TableCell>
                   </TableRow>
                 </TableBody>
               </Table>

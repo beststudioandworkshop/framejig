@@ -209,3 +209,21 @@ example frames and the size picker, so they can't drift apart.
 
 - Basket bike joined the bruiser family: a road-bike frame with flat bars, a taller front end and lower trail for a loaded front basket.
 - Effective top tube and the lower headset changed on the strength of the published charts; see `reference-charts.md`.
+
+## The Frame logic page now reads its ranges from the reference charts
+
+- `src/lib/frame/evidence.ts` files each style's charts (`STYLE_CHARTS`, a judgment call shown on the page) and reads the typical
+  ranges from them: head and seat angle, chainstay, BB drop, wheelbase (at the middle size), stack to reach, and trail. The family's
+  "General" range uses the charts of all its styles; with twelve or more numbers the extremes are trimmed (10th to 90th percentile).
+- A range from one or two bikes is widened to a minimum width (2 degrees, 10 mm of BB drop, 40 mm of wheelbase and so on) because that few
+  bikes don't prove a narrow band. The widening is said on the page.
+- Every range carries a basis: **From charts**, **From charts, wheel assumed** (trail, and a BB drop worked out from a BB height, both
+  need a wheel size, which is the style's own assumption) or **Assumed** (no chart covers it: my estimate, as before).
+- Where a chart sets a range the page shows a plain reason with no numbers in it (`GENERIC_WHY`); where it is assumed it keeps the written
+  reason, whose numbers match the estimate.
+- The example frame is fitted to the new ranges and takes its fork length from the charts. The size steps, the rider heights and the example
+  frame are still assumptions and the page says so.
+- The map draws a style's box solid when both axes came from charts and dotted when not.
+- Styles with no charts yet (still entirely assumed): race, criterium, sprint, pursuit, commuter, klunker, basket bike.
+- Findings that overturned an assumption: touring bikes are not especially tall or long-stayed in the charts (the Disc Trucker and the 520 are both
+  450 mm), cross-country and trail bikes overlap, and BMX bottom brackets sit at or above the axles.

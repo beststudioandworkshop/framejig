@@ -4,6 +4,7 @@
 import { CATEGORIES } from "./categories"
 import { fitToRanges } from "./categories/helpers"
 import type { CategoryProfile, RangeKey, RangeTable, RideProfile, Scale } from "./category-types"
+import { deriveEvidence, picksFor, type Evidence } from "./evidence"
 import { styleOf } from "./styles"
 import type { BikeType } from "./types"
 
@@ -44,19 +45,47 @@ function remapRide(ride: RideProfile, from: RangeTable, fromPos: Span, to: Range
   }
 }
 
+/**
+ * Lay what the charts say over a profile: the ranges they cover are replaced and marked as read from charts, the rest are
+ * marked assumed. The ride-feel bands and the example frame follow the new ranges.
+ */
+function withEvidence(p: CategoryProfile, ev: Evidence | null): CategoryProfile {
+  if (!ev) {
+    const ranges = Object.fromEntries((Object.keys(p.ranges) as RangeKey[]).map((k) => [k, { ...p.ranges[k], basis: "assumed" as const }])) as RangeTable
+    return { ...p, ranges, positionBasis: "assumed" }
+  }
+  const ranges = Object.fromEntries(
+    (Object.keys(p.ranges) as RangeKey[]).map((k) => {
+      const e = ev.ranges[k]
+      return [k, e ? { ...p.ranges[k], low: e.low, high: e.high, basis: e.basis, bikes: ev.bikes } : { ...p.ranges[k], basis: "assumed" as const }]
+    }),
+  ) as RangeTable
+  const positionRange = ev.position ?? p.positionRange
+  return {
+    ...p,
+    ranges,
+    positionRange,
+    positionBasis: ev.position ? "charts" : "assumed",
+    ride: remapRide(p.ride, p.ranges, p.positionRange, ranges, positionRange),
+    base: fitToRanges({ ...p.base, forkAxleToCrown: ev.fork ?? p.base.forkAxleToCrown }, ranges, positionRange),
+    evidence: { charts: ev.charts, bikes: ev.bikes },
+  }
+}
+
 const cache = new Map<string, CategoryProfile>()
 
 /** The profile for a type and an optional style. An unknown style gives the family's own profile. */
 export function profileFor(type: BikeType, style?: string | null): CategoryProfile {
-  const key = `${type}:${style ?? ""}`
+  const s = styleOf(type, style)
+  const key = `${type}:${s ? s.id : ""}`
   const hit = cache.get(key)
   if (hit) return hit
 
   const family = CATEGORIES[type]
-  const s = styleOf(type, style)
   if (!s) {
-    cache.set(key, family)
-    return family
+    const own = withEvidence(family, deriveEvidence(picksFor(type, null), family.base.wheel))
+    cache.set(key, own)
+    return own
   }
 
   const ranges = Object.fromEntries(
@@ -88,6 +117,7 @@ export function profileFor(type: BikeType, style?: string | null): CategoryProfi
     styleId: s.id,
     different: s.different,
   }
-  cache.set(key, merged)
-  return merged
+  const own = withEvidence(merged, deriveEvidence(picksFor(type, s.id), merged.base.wheel))
+  cache.set(key, own)
+  return own
 }

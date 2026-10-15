@@ -137,6 +137,7 @@ export function TaxonomyChart({ view, selected, showFamilies, focused, onSelect 
                   rx={3}
                   className={`cursor-pointer outline-none focus-visible:stroke-primary ${TONE[b.family].fill} ${sel ? "stroke-primary" : TONE[b.family].stroke}`}
                   strokeWidth={sel ? 3 : 1.25}
+                  strokeDasharray={b.charted ? undefined : "3 3"}
                   vectorEffect="non-scaling-stroke"
                   {...press(b)}
                 />
@@ -165,6 +166,7 @@ export function TaxonomyChart({ view, selected, showFamilies, focused, onSelect 
           </li>
         ))}
       </ul>
+      <p className="text-xs text-muted-foreground">Solid outline: read from reference charts. Dotted outline: assumed, no chart for it yet.</p>
     </div>
   )
 }

@@ -8,6 +8,10 @@ export interface TypicalRange {
   unit: "mm" | "°"
   low: number
   high: number
+  /** Where it came from. Missing means assumed. */
+  basis?: "charts" | "charts-wheel" | "assumed"
+  /** How many bikes' charts it was read from. */
+  bikes?: number
 }
 
 export type RangeKey = "headTubeAngle" | "seatTubeAngle" | "bbDrop" | "trail" | "chainstayLength" | "wheelbase"
@@ -70,6 +74,10 @@ export interface CategoryProfile {
   ranges: RangeTable
   /** Typical stack to reach. */
   positionRange: { low: number; high: number }
+  /** Where the stack to reach range came from. Missing means assumed. */
+  positionBasis?: "charts" | "assumed"
+  /** The reference charts this profile's ranges were read from, when there are any. */
+  evidence?: { charts: string[]; bikes: number }
   /** Why the numbers are what they are, per measure. */
   rangeWhy: Record<RangeKey | "position", string>
   /** What makes it feel the way it does. */

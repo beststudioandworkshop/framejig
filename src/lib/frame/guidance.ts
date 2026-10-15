@@ -1,7 +1,6 @@
 // Soft guidance only. Ranges are common rules of thumb for each kind of bike,
 // NOT verified design limits, and the estimates are mine. They live in
 // categories/, one profile per bike type. Say so wherever they're shown.
-import { CATEGORIES } from "./categories"
 import { profileFor } from "./profile"
 import type { RangeKey, RangeTable } from "./category-types"
 import type { BikeType, FrameMetrics, FrameInputs } from "./types"
@@ -10,12 +9,12 @@ export type RangeVerdict = "low" | "typical" | "high"
 
 /** Typical ranges for each bike type. */
 export const TYPICAL_RANGES_BY_TYPE: Record<BikeType, RangeTable> = {
-  road: CATEGORIES.road.ranges,
-  gravel: CATEGORIES.gravel.ranges,
-  mountain: CATEGORIES.mountain.ranges,
-  touring: CATEGORIES.touring.ranges,
-  track: CATEGORIES.track.ranges,
-  bruiser: CATEGORIES.bruiser.ranges,
+  road: profileFor("road").ranges,
+  gravel: profileFor("gravel").ranges,
+  mountain: profileFor("mountain").ranges,
+  touring: profileFor("touring").ranges,
+  track: profileFor("track").ranges,
+  bruiser: profileFor("bruiser").ranges,
 }
 
 /** Road ranges (the original table). */

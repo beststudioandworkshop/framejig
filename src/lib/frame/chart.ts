@@ -1,7 +1,8 @@
 // The taxonomy chart: every style (and family) as a box showing where its typical
 // ranges sit on two measures. Pure data; the SVG component only draws it.
-import { CATEGORIES } from "./categories"
 import type { RangeKey } from "./category-types"
+import { BIKE_TYPES } from "./constants"
+import { isCharted } from "./evidence"
 import { profileFor } from "./profile"
 import { STYLES } from "./styles"
 import type { BikeType } from "./types"
@@ -43,6 +44,8 @@ export interface ChartBox {
   label: string
   x: [number, number]
   y: [number, number]
+  /** Both axes were read from charts (not assumed). A box that is not charted is drawn dotted. */
+  charted: boolean
 }
 
 export interface Chart {
@@ -52,17 +55,19 @@ export interface Chart {
   yDomain: [number, number]
 }
 
+const covered = (p: { ranges: Record<RangeKey, { basis?: string }> }, k: RangeKey) => (p.ranges[k].basis ?? "assumed") !== "assumed"
+
 /** Every style and family as a box, with a domain that fits them all. */
 export function taxonomyChart(view: ChartView): Chart {
   const { x, y } = CHART_VIEWS[view]
   const boxes: ChartBox[] = []
-  for (const family of Object.keys(CATEGORIES) as BikeType[]) {
-    const f = CATEGORIES[family]
-    boxes.push({ family, style: null, label: f.label, x: [f.ranges[x].low, f.ranges[x].high], y: [f.ranges[y].low, f.ranges[y].high] })
+  for (const family of BIKE_TYPES) {
+    const f = profileFor(family)
+    boxes.push({ family, style: null, label: f.label, x: [f.ranges[x].low, f.ranges[x].high], y: [f.ranges[y].low, f.ranges[y].high], charted: isCharted(f) && covered(f, x) && covered(f, y) })
   }
   for (const s of STYLES) {
     const p = profileFor(s.family, s.id)
-    boxes.push({ family: s.family, style: s.id, label: s.label, x: [p.ranges[x].low, p.ranges[x].high], y: [p.ranges[y].low, p.ranges[y].high] })
+    boxes.push({ family: s.family, style: s.id, label: s.label, x: [p.ranges[x].low, p.ranges[x].high], y: [p.ranges[y].low, p.ranges[y].high], charted: isCharted(p) && covered(p, x) && covered(p, y) })
   }
   const lo = (pick: (b: ChartBox) => number) => Math.min(...boxes.map(pick))
   const hi = (pick: (b: ChartBox) => number) => Math.max(...boxes.map(pick))

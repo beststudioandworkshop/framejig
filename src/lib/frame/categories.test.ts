@@ -5,6 +5,7 @@ import {
   BIKE_TYPE_LABELS,
   buildFrame,
   CATEGORIES,
+  profileFor,
   readouts,
   rideFeel,
   switchDriver,
@@ -28,7 +29,7 @@ describe("categories", () => {
   })
 
   describe.each(BIKE_TYPES)("%s", (t) => {
-    const c = CATEGORIES[t]
+    const c = profileFor(t)
 
     it("has real text everywhere", () => {
       for (const s of [c.tagline, c.forWhat, c.reference]) expect(s.length).toBeGreaterThan(15)
@@ -57,6 +58,7 @@ describe("categories", () => {
       }
       expect(c.positionRange.low).toBeLessThan(c.positionRange.high)
       expect(TYPICAL_RANGES_BY_TYPE[t]).toBe(c.ranges)
+      for (const k of RANGE_KEYS) expect(["charts", "charts-wheel", "assumed"], k).toContain(c.ranges[k].basis)
     })
 
     it("has ride bands that ascend, fit their scale and have unique labels", () => {
@@ -136,7 +138,7 @@ describe("categories", () => {
   describe("how the categories differ", () => {
     type T = "road" | "gravel" | "mountain" | "touring" | "track"
     const CORE: T[] = ["road", "gravel", "mountain", "touring", "track"]
-    const metrics = Object.fromEntries(CORE.map((t) => [t, buildFrame(CATEGORIES[t].base).metrics!])) as Record<
+    const metrics = Object.fromEntries(CORE.map((t) => [t, buildFrame(profileFor(t).base).metrics!])) as Record<
       T,
       NonNullable<ReturnType<typeof buildFrame>["metrics"]>
     >
@@ -145,7 +147,7 @@ describe("categories", () => {
     it("a mountain bike has the most trail and the slackest head angle", () => {
       for (const t of others("mountain")) {
         expect(metrics.mountain.trail).toBeGreaterThan(metrics[t].trail)
-        expect(CATEGORIES.mountain.base.headTubeAngle).toBeLessThan(CATEGORIES[t].base.headTubeAngle)
+        expect(profileFor("mountain").base.headTubeAngle).toBeLessThan(profileFor(t).base.headTubeAngle)
       }
     })
     it("a mountain bike has the longest wheelbase and the smallest BB drop", () => {
@@ -158,13 +160,14 @@ describe("categories", () => {
       for (const t of others("track")) {
         expect(metrics.track.wheelbase).toBeLessThan(metrics[t].wheelbase)
         expect(metrics.track.chainstayLength).toBeLessThan(metrics[t].chainstayLength)
-        expect(CATEGORIES.track.base.headTubeAngle).toBeGreaterThan(CATEGORIES[t].base.headTubeAngle)
+        expect(profileFor("track").base.headTubeAngle).toBeGreaterThan(profileFor(t).base.headTubeAngle)
       }
     })
     it("a touring bike has the longest chainstays and a tall position", () => {
       for (const t of others("touring")) expect(metrics.touring.chainstayLength).toBeGreaterThan(metrics[t].chainstayLength)
       const ratio = (t: T) => metrics[t].stack / metrics[t].reach
-      for (const t of ["road", "track", "mountain"] as const) expect(ratio("touring")).toBeGreaterThan(ratio(t))
+      // Endurance road bikes are about as tall as touring bikes in the charts, so only track and mountain are compared.
+      for (const t of ["track", "mountain"] as const) expect(ratio("touring")).toBeGreaterThan(ratio(t))
     })
     it("a bruiser is slack and long and low-geared for fun: slacker than road, longer than gravel, calmer than a track bike", () => {
       const m = buildFrame(CATEGORIES.bruiser.base).metrics!

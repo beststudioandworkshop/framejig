@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest"
 import {
   BIKE_TYPES,
   buildFrame,
-  CATEGORIES,
+  profileFor,
   decodeFrame,
   encodeFrame,
   sizedFrame,
@@ -24,7 +24,7 @@ describe("sizes", () => {
   })
 
   describe.each(BIKE_TYPES)("%s", (t) => {
-    const c = CATEGORIES[t]
+    const c = profileFor(t)
     const m0 = buildFrame(c.base).metrics!
     const at = (id: SizeId) => buildFrame(sizedFrame(t, id))
 
