@@ -12,6 +12,7 @@ import {
   STYLE_CHARTS,
   STYLES,
   whyFor,
+  withoutEstimates,
   type RangeKey,
 } from "./index"
 
@@ -132,5 +133,16 @@ describe("profiles with evidence", () => {
 
   it("has a label for each basis", () => {
     expect(Object.keys(BASIS_LABEL).sort()).toEqual(["assumed", "charts", "charts-wheel"])
+  })
+})
+
+describe("withoutEstimates", () => {
+  it("takes a hand-written range out of a sentence and leaves the rest", () => {
+    expect(withoutEstimates("A slacker head angle than cross-country, about 64.5 to 67°.")).toBe("A slacker head angle than cross-country.")
+    expect(withoutEstimates("Long chainstays, around 440 to 470 mm, make it smooth.")).toBe("Long chainstays make it smooth.")
+    expect(withoutEstimates("A longer wheelbase for confidence on descents.")).toBe("A longer wheelbase for confidence on descents.")
+  })
+  it("leaves no range behind in any style's bullets", () => {
+    for (const s of STYLES) for (const d of s.different) expect(withoutEstimates(d)).not.toMatch(/(about|around|roughly)\s+\d/i)
   })
 })

@@ -227,3 +227,11 @@ example frames and the size picker, so they can't drift apart.
 - Styles with no charts yet (still entirely assumed): race, criterium, sprint, pursuit, commuter, klunker, basket bike.
 - Findings that overturned an assumption: touring bikes are not especially tall or long-stayed in the charts (the Disc Trucker and the 520 are both
   450 mm), cross-country and trail bikes overlap, and BMX bottom brackets sit at or above the axles.
+
+## Frame logic page hierarchy
+
+Main flow, always showing: pick the kind of bike, the map, start from a size, and the style's name and what sets it apart.
+The lowest level sits in closed dropdowns inside its card (`disclosure.tsx`): "How to read the map", "What's assumed here",
+"Typical ranges", "How it feels" and "What varies inside". The page no longer lists which bikes' charts a range came from; each row
+still says whether it was read from charts or is assumed. Where charts set the ranges, hand-written "about 64.5 to 67°" phrases are
+taken out of the words (`withoutEstimates`) so they never disagree with the table.

@@ -203,3 +203,17 @@ export function whyFor(profile: { ranges: Record<RangeKey, { basis?: RangeBasis 
 export function isCharted(profile: { evidence?: { bikes: number } }): boolean {
   return (profile.evidence?.bikes ?? 0) > 0
 }
+
+/**
+ * Takes my hand-written "about 64.5 to 67°" out of a sentence. Used where charts set the ranges, so the words never
+ * quote a number that disagrees with the table.
+ */
+export function withoutEstimates(text: string): string {
+  const RANGE = String.raw`(?:about|around|roughly|near)\s+\d+(?:\.\d+)?(?:\s+to\s+\d+(?:\.\d+)?)?\s*(?:°|mm|degrees)?`
+  return text
+    .replace(new RegExp(String.raw`\s*,\s*\b${RANGE}\s*,`, "gi"), "")
+    .replace(/\s*,?\s*\b(?:about|around|roughly|near)\s+\d+(?:\.\d+)?(?:\s+to\s+\d+(?:\.\d+)?)?\s*(?:°|mm|degrees)?/gi, "")
+    .replace(/\s+([.,;])/g, "$1")
+    .replace(/\s{2,}/g, " ")
+    .trim()
+}

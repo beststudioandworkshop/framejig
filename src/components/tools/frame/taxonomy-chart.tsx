@@ -166,7 +166,6 @@ export function TaxonomyChart({ view, selected, showFamilies, focused, onSelect 
           </li>
         ))}
       </ul>
-      <p className="text-xs text-muted-foreground">Solid outline: read from reference charts. Dotted outline: assumed, no chart for it yet.</p>
     </div>
   )
 }

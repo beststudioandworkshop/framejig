@@ -1,7 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { ArrowRightIcon, InfoIcon } from "lucide-react"
+import { ArrowRightIcon } from "lucide-react"
 import Link from "next/link"
 
 import {
@@ -9,7 +9,6 @@ import {
   BIKE_TYPES,
   BIKE_TYPE_LABELS,
   buildDrawing,
-  chartName,
   buildFrame,
   CHART_VIEWS,
   formatFeetInches,
@@ -25,6 +24,7 @@ import {
   suggestSize,
   toolLink,
   whyFor,
+  withoutEstimates,
   type BikeType,
   type ChartView,
   type LengthUnit,
@@ -32,7 +32,6 @@ import {
   type RangeKey,
   type SizeId,
 } from "@/lib/frame"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -41,6 +40,7 @@ import { Switch } from "@/components/ui/switch"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import { Disclosure } from "./disclosure"
 import { FrameDrawing } from "./frame-drawing"
 import { TaxonomyChart } from "./taxonomy-chart"
 import { ValueInput } from "./value-input"
@@ -178,10 +178,7 @@ export function FrameLogic() {
         <CardHeader>
           <CardTitle>The map</CardTitle>
           <CardDescription>
-            Every kind of bike, and the sub-styles inside it, drawn where its typical numbers sit. Boxes are ranges, not
-            single numbers, and the dashed outlines are whole families. Click any box to read about it. Where I have
-            reference charts for a style, its box is read from them; where I don&apos;t, the box is my assumption and is
-            drawn dotted.
+            Every kind of bike and its sub-styles, drawn where their typical numbers sit. Click a box to read about it.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
@@ -206,7 +203,6 @@ export function FrameLogic() {
               Show whole families
             </Label>
           </div>
-          <p className="text-sm text-muted-foreground">{CHART_VIEWS[view].blurb}</p>
           <TaxonomyChart
             view={view}
             showFamilies={showFamilies}
@@ -217,6 +213,13 @@ export function FrameLogic() {
               setStyle(st)
             }}
           />
+          <Disclosure title="How to read the map">
+            <p className="text-sm text-muted-foreground">{CHART_VIEWS[view].blurb}</p>
+            <p className="text-sm text-muted-foreground">
+              Boxes are ranges, not single numbers, and the dashed outlines are whole families. A solid outline is read from
+              reference charts. A dotted outline is my assumption, with no chart behind it yet.
+            </p>
+          </Disclosure>
         </CardContent>
       </Card>
 
@@ -229,9 +232,7 @@ export function FrameLogic() {
               <CardTitle>Start from a size</CardTitle>
               <CardDescription>
                 Pick a size, or tell me about the rider and I&apos;ll suggest one. The {cat.label.toLowerCase()} example frame
-                in that size becomes your starting point in the frame tool. Sizing differs a lot between makers, so treat
-                the rider heights as rough. Assumed: how much each size grows, the rider heights, and every number in the example
-                frame itself, which is only a guess that sits inside the ranges above.
+                in that size becomes your starting point in the frame tool, which is where you edit it.
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-6">
@@ -343,6 +344,14 @@ export function FrameLogic() {
                   Start in the frame tool <ArrowRightIcon />
                 </Button>
               </div>
+
+              <Disclosure title="What's assumed here">
+                <p className="text-sm text-muted-foreground">
+                  The example frame is a starting point, not a copy of any bike: every number in it is a guess that sits inside
+                  the typical ranges. How much each size grows and the rider heights for each size are assumptions too, and
+                  makers size very differently. Edit everything in the frame tool.
+                </p>
+              </Disclosure>
             </CardContent>
           </Card>
 
@@ -355,37 +364,22 @@ export function FrameLogic() {
               <CardDescription>{cat.forWhat}</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
-              <Alert>
-                <InfoIcon />
-                <AlertTitle>
-                  {cat.evidence
-                    ? `Read from ${cat.evidence.bikes} ${cat.evidence.bikes === 1 ? "bike's chart" : "bikes' charts"}`
-                    : "No chart behind this yet: every number is an assumption"}
-                </AlertTitle>
-                <AlertDescription>
-                  {cat.evidence && (
-                    <span className="block">
-                      {cat.evidence.charts.map(chartName).join(", ")}.{" "}
-                      {style && "I filed these bikes under this style myself; that is a judgment call. "}
-                      Rows marked Assumed are still my estimates, and so is the wording above the table.
-                    </span>
-                  )}
-                  <span className="block">
-                    Ranges are for a medium and are rules of thumb, not limits. Real bikes sit outside them for good reasons.
-                    {cat.evidence && cat.evidence.bikes < 3 && " With only a bike or two behind it, the range is widened to a sensible minimum."}
-                  </span>
-                </AlertDescription>
-              </Alert>
               {cat.different && (
                 <div className="flex flex-col gap-1">
                   <h3 className="text-sm font-medium">What sets {cat.label.toLowerCase()} apart from the rest of {BIKE_TYPE_LABELS[type].toLowerCase()}</h3>
                   <ul className="list-disc pl-5 text-sm text-muted-foreground">
                     {cat.different.map((d) => (
-                      <li key={d}>{d}</li>
+                      <li key={d}>{cat.evidence ? withoutEstimates(d) : d}</li>
                     ))}
                   </ul>
                 </div>
               )}
+              <Disclosure title="Typical ranges">
+              <p className="text-sm text-muted-foreground">
+                Ranges are for a medium and are rules of thumb, not limits. Real bikes sit outside them for good reasons. A row
+                marked Assumed has no chart behind it yet.
+                {cat.evidence && cat.evidence.bikes < 3 && " With only a bike or two behind a range, it is widened to a sensible minimum."}
+              </p>
               <ul className="flex flex-col divide-y sm:hidden" aria-label="Typical ranges">
                 {RANGE_ROWS.map((k) => (
                   <li key={k} className="flex flex-col gap-1 py-3">
@@ -440,15 +434,8 @@ export function FrameLogic() {
                   </TableRow>
                 </TableBody>
               </Table>
-            </CardContent>
-          </Card>
-
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card className="card-tone tone-tea">
-              <CardHeader>
-                <CardTitle>What makes it feel the way it does</CardTitle>
-              </CardHeader>
-              <CardContent>
+              </Disclosure>
+              <Disclosure title="How it feels">
                 <ul className="flex flex-col gap-3">
                   {cat.feel.map((n) => (
                     <li key={n.title} className="flex flex-col gap-0.5">
@@ -457,13 +444,8 @@ export function FrameLogic() {
                     </li>
                   ))}
                 </ul>
-              </CardContent>
-            </Card>
-            <Card className="card-tone tone-mustard">
-              <CardHeader>
-                <CardTitle>What varies inside {BIKE_TYPE_LABELS[type].toLowerCase()}</CardTitle>
-              </CardHeader>
-              <CardContent>
+              </Disclosure>
+              <Disclosure title={`What varies inside ${BIKE_TYPE_LABELS[type].toLowerCase()}`}>
                 <ul className="flex flex-col gap-3">
                   {cat.variables.map((n) => (
                     <li key={n.title} className="flex flex-col gap-0.5">
@@ -472,9 +454,9 @@ export function FrameLogic() {
                     </li>
                   ))}
                 </ul>
-              </CardContent>
-            </Card>
-          </div>
+              </Disclosure>
+            </CardContent>
+          </Card>
         </>
       )}
     </div>
