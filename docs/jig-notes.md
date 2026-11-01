@@ -138,3 +138,18 @@ give the true sizes below, which match what the user drew.
 - **The frame's center plane is 100 mm from the spine's front face**, not the 150 mm example.
 - Not yet in the tool: the real rear fixture (two blocks and a plate behind the dropouts, with dropout plates and
   three locating pins), and the way the posts are joined to the spine.
+
+## The parts list is now the user's cut list
+
+`JIG_STOCK` in `jig-parts.ts` holds the lengths the user has: spine 1200, head tube post 300, rear hub plate 300, bottom bracket
+post 220 (all 120 x 40), head tube carrier 300 and seat tube carrier 600 (both 80 x 40). The list shows those, and a "Holds this frame?"
+column checks each against the frame loaded:
+
+- a carrier holds a tube up to its length minus 100 mm below the pin and 50 mm past the stop (the seat carrier's 600 holds a seat tube up to 450 mm);
+- a post needs its pin's distance from the spine plus 50 mm;
+- the spine must be as long as the stations need.
+
+Hardware as the user listed it: bolts and T-nuts, three face plates for the perpendicular 120 x 40 joints (one per post: head tube, bottom
+bracket and rear hub), eight large 90 degree brackets, and at least eight smaller ones. The pins, mandrels, dummy axle, shaft collars, angle clamps
+and scale stay. The two 80 mm blocks between the spine and the rear hub in the Rhino model are not on the list and are mentioned in the rear hub's note.
+Posts now butt against the spine, so a post's pin is measured from the end that touches it. McMaster part numbers are still blank.

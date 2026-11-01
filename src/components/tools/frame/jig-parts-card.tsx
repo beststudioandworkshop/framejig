@@ -11,6 +11,7 @@ import {
   type LengthUnit,
 } from "@/lib/frame"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { CollapsibleCard } from "./collapsible-card"
@@ -44,7 +45,7 @@ export function JigPartsCard({ parts, unit }: Props) {
     <CollapsibleCard
       className="card-tone tone-lavender"
       title="Jig parts"
-      description="A T-slot spine with posts and carriers, sized for the frames above. Each line has search terms for McMaster-Carr; you confirm sizes and availability. Numbers match the drawing in the jig settings."
+      description="Your cut list, checked against the frame above, plus the hardware you need. Each line has search terms for McMaster-Carr; you confirm sizes and availability."
     >
       {parts.length > 0 && (
         <div className="flex flex-col gap-2">
@@ -86,6 +87,7 @@ export function JigPartsCard({ parts, unit }: Props) {
                 <TableHead className="text-right">Qty</TableHead>
                 <TableHead>What to buy</TableHead>
                 <TableHead className="text-right">Cut ({unit})</TableHead>
+                <TableHead>Holds this frame?</TableHead>
                 <TableHead>Search McMaster-Carr for</TableHead>
               </TableRow>
             </TableHeader>
@@ -101,6 +103,18 @@ export function JigPartsCard({ parts, unit }: Props) {
                   <TableCell className="whitespace-normal">{p.spec}</TableCell>
                   <TableCell className="text-right font-mono tabular-nums">
                     {p.cutLength === undefined ? "–" : formatLengthValue(p.cutLength, unit)}
+                  </TableCell>
+                  <TableCell className="text-xs whitespace-normal">
+                    {p.fit ? (
+                      <span className="flex flex-col gap-1">
+                        <Badge variant={p.fit.ok ? "secondary" : "destructive"} className="w-fit">
+                          {p.fit.ok ? "Yes" : "No"}
+                        </Badge>
+                        <span className="text-muted-foreground">{p.fit.note}</span>
+                      </span>
+                    ) : (
+                      "–"
+                    )}
                   </TableCell>
                   <TableCell className="font-mono text-xs whitespace-normal">{p.search}</TableCell>
                 </TableRow>

@@ -85,15 +85,13 @@ export function JigPartsDiagram({ parts, unit = "mm", detailed = false }: JigPar
               ?.filter((m) => m.at >= 0 && m.at <= len)
               .map((m) => (
                 <g key={m.kind + m.label}>
-                  {m.kind === "mount" ? (
-                    <rect x={LEFT} y={y} width={m.at} height={w} className="fill-primary/10 stroke-primary" strokeWidth={1} strokeDasharray="6 4" {...thin} />
-                  ) : m.kind === "pin" ? (
+                  {m.kind === "pin" ? (
                     <circle cx={LEFT + m.at} cy={y + w / 2} r={fs * 0.6} className="fill-background stroke-primary" strokeWidth={1.75} {...thin} />
                   ) : (
                     <line x1={LEFT + m.at} y1={y} x2={LEFT + m.at} y2={y + w} className="stroke-primary" strokeWidth={1.5} {...thin} />
                   )}
                   <text
-                    x={LEFT + (m.kind === "mount" ? m.at / 2 : m.at)}
+                    x={LEFT + m.at}
                     y={y - fs * 0.9}
                     textAnchor="middle"
                     fontSize={fs * 0.8}
@@ -102,7 +100,7 @@ export function JigPartsDiagram({ parts, unit = "mm", detailed = false }: JigPar
                     paintOrder="stroke"
                     strokeLinejoin="round"
                   >
-                    {detailed && m.kind !== "mount" ? `${m.label} ${fmt(m.at)}` : m.label}
+                    {detailed ? `${m.label} ${fmt(m.at)}` : m.label}
                   </text>
                 </g>
               ))}
